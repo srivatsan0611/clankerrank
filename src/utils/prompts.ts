@@ -28,7 +28,7 @@ ${problem.constraints.join("\n")}
 Examples:
 ${problem.examples.map((ex, i) => `Example ${i + 1}:\nInput: ${ex.input}\nOutput: ${ex.output}${ex.explanation ? `\nExplanation: ${ex.explanation}` : ""}`).join("\n\n")}
 
-Function Signature (${language}):
+Reference Function Signature (${language}):
 ${problem.functionSignature[language]}
 
 Provide:
@@ -36,6 +36,12 @@ Provide:
 2. Explanation of the approach
 3. Time complexity analysis
 4. Space complexity analysis
+
+IMPORTANT: The function MUST be named "solution" (not the problem-specific name). Use the same parameters and return type as the reference signature, but name it "solution".
+
+For example:
+- JavaScript/TypeScript: function solution(nums, target) { ... }
+- Python: def solution(nums, target): ...
 
 The solution should be optimal and well-commented.
 `;
