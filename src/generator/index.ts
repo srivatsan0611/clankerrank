@@ -9,14 +9,7 @@ import { createExecutor } from '../executor/index.js';
 import { TestCaseSchema } from '../types/index.js';
 import { TEST_EXECUTION_CODE_TEMPLATE } from '../utils/index.js';
 
-import type {
-  Problem,
-  Solution,
-  TestCase,
-  ProblemPackage,
-  Difficulty,
-  Language,
-} from '../types/index.js';
+import type { TestCase, ProblemPackage, Difficulty, Language } from '../types/index.js';
 
 export { generateProblem, generateSolution, generateTestCaseDescriptions, generateTestInputCode };
 
