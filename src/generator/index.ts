@@ -7,6 +7,7 @@ import {
   createSolution,
   createTestCaseDescriptions,
   createTestCase,
+  updateProblemCompletion,
 } from '../db/repositories/index.js';
 import { createExecutor } from '../executor/index.js';
 import { TestCaseSchema } from '../types/index.js';
@@ -167,6 +168,10 @@ export async function generateCompleteProblem(
     sampleTestCases,
     hiddenTestCases,
   };
+
+  // Mark problem as completed in the database
+  await updateProblemCompletion(problemId, true);
+  console.log(`✓ Problem marked as completed`);
 
   return { ...problemPackage, problemId };
 }

@@ -188,6 +188,17 @@ export async function deleteProblem(problemId: string): Promise<void> {
   await db.delete(problems).where(eq(problems.id, problemId));
 }
 
+// Mark a problem as completed
+export async function updateProblemCompletion(
+  problemId: string,
+  completed: boolean,
+): Promise<void> {
+  await db
+    .update(problems)
+    .set({ completed, updatedAt: new Date() })
+    .where(eq(problems.id, problemId));
+}
+
 // List all problems
 export async function listProblems(): Promise<
   Array<{

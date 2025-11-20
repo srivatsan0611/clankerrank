@@ -31,6 +31,7 @@ export const problems = pgTable('problems', {
     .references(() => difficulties.id),
   constraints: text('constraints').array().notNull().default([]),
   examples: jsonb('examples').notNull().default([]),
+  completed: boolean('completed').notNull().default(false),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });
