@@ -1,4 +1,4 @@
-import type { ExecutionResult, Language } from "../types/index.js";
+import type { ExecutionResult, Language } from '../types/index.js';
 
 /**
  * Abstract base class for code execution

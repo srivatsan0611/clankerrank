@@ -1,30 +1,30 @@
-import { spawn } from "child_process";
-import { BaseExecutor } from "./BaseExecutor.js";
-import type { ExecutionResult, Language } from "../types/index.js";
-import { createTempFile, cleanupTempFile, parseExecutionOutput } from "../utils/index.js";
+import { spawn } from 'child_process';
+import { BaseExecutor } from './BaseExecutor.js';
+import type { ExecutionResult, Language } from '../types/index.js';
+import { createTempFile, cleanupTempFile, parseExecutionOutput } from '../utils/index.js';
 
 /**
  * Executor for JavaScript and TypeScript using Bun runtime
  */
 export class BunExecutor extends BaseExecutor {
   constructor(language: Language) {
-    if (language !== "javascript" && language !== "typescript") {
+    if (language !== 'javascript' && language !== 'typescript') {
       throw new Error(`BunExecutor only supports JavaScript and TypeScript, got: ${language}`);
     }
     super(language);
   }
 
   getFileExtension(): string {
-    return this.language === "typescript" ? ".ts" : ".js";
+    return this.language === 'typescript' ? '.ts' : '.js';
   }
 
   async validateRuntime(): Promise<boolean> {
     return new Promise((resolve) => {
-      const proc = spawn("bun", ["--version"]);
-      proc.on("close", (code) => {
+      const proc = spawn('bun', ['--version']);
+      proc.on('close', (code) => {
         resolve(code === 0);
       });
-      proc.on("error", () => {
+      proc.on('error', () => {
         resolve(false);
       });
     });
@@ -69,27 +69,24 @@ export class BunExecutor extends BaseExecutor {
     }
   }
 
-  private runBun(
-    filepath: string,
-    timeout: number
-  ): Promise<{ output: string; error?: string }> {
+  private runBun(filepath: string, timeout: number): Promise<{ output: string; error?: string }> {
     return new Promise((resolve) => {
-      const proc = spawn("bun", ["run", filepath], {
+      const proc = spawn('bun', ['run', filepath], {
         timeout,
       });
 
-      let stdout = "";
-      let stderr = "";
+      let stdout = '';
+      let stderr = '';
 
-      proc.stdout.on("data", (data) => {
+      proc.stdout.on('data', (data) => {
         stdout += data.toString();
       });
 
-      proc.stderr.on("data", (data) => {
+      proc.stderr.on('data', (data) => {
         stderr += data.toString();
       });
 
-      proc.on("close", (code) => {
+      proc.on('close', (code) => {
         if (code === 0) {
           resolve({ output: stdout });
         } else {
@@ -97,8 +94,8 @@ export class BunExecutor extends BaseExecutor {
         }
       });
 
-      proc.on("error", (err) => {
-        resolve({ output: "", error: err.message });
+      proc.on('error', (err) => {
+        resolve({ output: '', error: err.message });
       });
     });
   }

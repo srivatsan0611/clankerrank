@@ -1,4 +1,4 @@
-import type { Problem, TestCase, TestResult } from "../types/index.js";
+import type { Problem, TestCase, TestResult } from '../types/index.js';
 
 /**
  * Format a problem for CLI display
@@ -6,24 +6,24 @@ import type { Problem, TestCase, TestResult } from "../types/index.js";
 export function formatProblem(problem: Problem): string {
   const lines: string[] = [];
 
-  lines.push("=".repeat(80));
+  lines.push('='.repeat(80));
   lines.push(`PROBLEM: ${problem.title}`);
   lines.push(`DIFFICULTY: ${problem.difficulty.toUpperCase()}`);
-  lines.push("=".repeat(80));
-  lines.push("");
+  lines.push('='.repeat(80));
+  lines.push('');
   lines.push(problem.description);
-  lines.push("");
+  lines.push('');
 
   if (problem.constraints.length > 0) {
-    lines.push("CONSTRAINTS:");
+    lines.push('CONSTRAINTS:');
     problem.constraints.forEach((constraint) => {
       lines.push(`  • ${constraint}`);
     });
-    lines.push("");
+    lines.push('');
   }
 
   if (problem.examples.length > 0) {
-    lines.push("EXAMPLES:");
+    lines.push('EXAMPLES:');
     problem.examples.forEach((example, i) => {
       lines.push(`\nExample ${i + 1}:`);
       lines.push(`  Input: ${example.input}`);
@@ -32,18 +32,18 @@ export function formatProblem(problem: Problem): string {
         lines.push(`  Explanation: ${example.explanation}`);
       }
     });
-    lines.push("");
+    lines.push('');
   }
 
-  lines.push("FUNCTION SIGNATURES:");
+  lines.push('FUNCTION SIGNATURES:');
   Object.entries(problem.functionSignature).forEach(([lang, sig]) => {
     lines.push(`  ${lang}:`);
     lines.push(`    ${sig}`);
   });
-  lines.push("");
-  lines.push("=".repeat(80));
+  lines.push('');
+  lines.push('='.repeat(80));
 
-  return lines.join("\n");
+  return lines.join('\n');
 }
 
 /**
@@ -52,8 +52,8 @@ export function formatProblem(problem: Problem): string {
 export function formatSampleTestCases(testCases: TestCase[]): string {
   const lines: string[] = [];
 
-  lines.push("\nSAMPLE TEST CASES:");
-  lines.push("-".repeat(80));
+  lines.push('\nSAMPLE TEST CASES:');
+  lines.push('-'.repeat(80));
 
   testCases.forEach((tc, i) => {
     lines.push(`\nTest Case ${i + 1}: ${tc.description}`);
@@ -64,9 +64,9 @@ export function formatSampleTestCases(testCases: TestCase[]): string {
     }
   });
 
-  lines.push("\n" + "-".repeat(80));
+  lines.push('\n' + '-'.repeat(80));
 
-  return lines.join("\n");
+  return lines.join('\n');
 }
 
 /**
@@ -78,12 +78,12 @@ export function formatTestResults(results: TestResult[]): string {
   const passed = results.filter((r) => r.passed).length;
   const total = results.length;
 
-  lines.push("\n" + "=".repeat(80));
+  lines.push('\n' + '='.repeat(80));
   lines.push(`TEST RESULTS: ${passed}/${total} passed`);
-  lines.push("=".repeat(80));
+  lines.push('='.repeat(80));
 
   results.forEach((result, i) => {
-    const status = result.passed ? "✓ PASS" : "✗ FAIL";
+    const status = result.passed ? '✓ PASS' : '✗ FAIL';
     lines.push(`\nTest ${i + 1}: ${status}`);
     lines.push(`  Input: ${formatValue(result.input)}`);
     lines.push(`  Expected: ${formatValue(result.expectedOutput)}`);
@@ -101,21 +101,21 @@ export function formatTestResults(results: TestResult[]): string {
     }
   });
 
-  lines.push("\n" + "=".repeat(80));
+  lines.push('\n' + '='.repeat(80));
 
-  return lines.join("\n");
+  return lines.join('\n');
 }
 
 /**
  * Format a value for display (handle objects, arrays, etc.)
  */
 export function formatValue(value: unknown): string {
-  if (value === null) return "null";
-  if (value === undefined) return "undefined";
-  if (typeof value === "string") return `"${value}"`;
-  if (typeof value === "number" || typeof value === "boolean") return String(value);
+  if (value === null) return 'null';
+  if (value === undefined) return 'undefined';
+  if (typeof value === 'string') return `"${value}"`;
+  if (typeof value === 'number' || typeof value === 'boolean') return String(value);
   if (Array.isArray(value)) return JSON.stringify(value);
-  if (typeof value === "object") return JSON.stringify(value, null, 2);
+  if (typeof value === 'object') return JSON.stringify(value, null, 2);
   return String(value);
 }
 

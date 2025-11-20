@@ -1,6 +1,6 @@
-import type { TestCase, TestResult, Language } from "../types/index.js";
-import { BaseExecutor } from "./BaseExecutor.js";
-import { TEST_EXECUTION_CODE_TEMPLATE } from "../utils/index.js";
+import type { TestCase, TestResult, Language } from '../types/index.js';
+import { BaseExecutor } from './BaseExecutor.js';
+import { TEST_EXECUTION_CODE_TEMPLATE } from '../utils/index.js';
 
 /**
  * Runs test cases against user solutions
@@ -15,11 +15,7 @@ export class TestRunner {
   /**
    * Run a single test case
    */
-  async runTestCase(
-    userCode: string,
-    testCase: TestCase,
-    timeout?: number
-  ): Promise<TestResult> {
+  async runTestCase(userCode: string, testCase: TestCase, timeout?: number): Promise<TestResult> {
     const startTime = Date.now();
 
     try {
@@ -27,7 +23,7 @@ export class TestRunner {
       const executableCode = TEST_EXECUTION_CODE_TEMPLATE(
         userCode,
         testCase.input,
-        this.executor["language"]
+        this.executor['language'],
       );
 
       // Execute the code
@@ -75,7 +71,7 @@ export class TestRunner {
   async runTestCases(
     userCode: string,
     testCases: TestCase[],
-    timeout?: number
+    timeout?: number,
   ): Promise<TestResult[]> {
     const results: TestResult[] = [];
 
@@ -102,7 +98,7 @@ export class TestRunner {
 
     // Handle primitives
     if (typeof actual !== typeof expected) return false;
-    if (typeof actual !== "object") return actual === expected;
+    if (typeof actual !== 'object') return actual === expected;
 
     // Handle arrays
     if (Array.isArray(actual) && Array.isArray(expected)) {
@@ -122,8 +118,6 @@ export class TestRunner {
     if (actualKeys.length !== expectedKeys.length) return false;
     if (!actualKeys.every((key, idx) => key === expectedKeys[idx])) return false;
 
-    return actualKeys.every((key) =>
-      this.compareOutputs(actualObj[key], expectedObj[key])
-    );
+    return actualKeys.every((key) => this.compareOutputs(actualObj[key], expectedObj[key]));
   }
 }

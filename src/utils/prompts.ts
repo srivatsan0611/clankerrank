@@ -1,10 +1,10 @@
-import type { Problem, Solution, TestCaseDescription, Language } from "../types/index.js";
+import type { Problem, Solution, TestCaseDescription, Language } from '../types/index.js';
 
 export const PROBLEM_GENERATION_PROMPT = (difficulty: string, topic?: string) => `
 Generate a coding problem for a LeetCode-style platform.
 
 Difficulty: ${difficulty}
-${topic ? `Topic: ${topic}` : ""}
+${topic ? `Topic: ${topic}` : ''}
 
 The problem should:
 1. Be clearly stated with a description
@@ -23,10 +23,10 @@ Problem: ${problem.title}
 ${problem.description}
 
 Constraints:
-${problem.constraints.join("\n")}
+${problem.constraints.join('\n')}
 
 Examples:
-${problem.examples.map((ex, i) => `Example ${i + 1}:\nInput: ${ex.input}\nOutput: ${ex.output}${ex.explanation ? `\nExplanation: ${ex.explanation}` : ""}`).join("\n\n")}
+${problem.examples.map((ex, i) => `Example ${i + 1}:\nInput: ${ex.input}\nOutput: ${ex.output}${ex.explanation ? `\nExplanation: ${ex.explanation}` : ''}`).join('\n\n')}
 
 Reference Function Signature (${language}):
 ${problem.functionSignature[language]}
@@ -71,7 +71,7 @@ Do NOT include the actual input/output values yet - just describe them in natura
 export const TEST_CODE_GENERATION_PROMPT = (
   problem: Problem,
   testDescription: TestCaseDescription,
-  language: Language
+  language: Language,
 ) => `
 Generate executable ${language} code that produces the input for the following test case.
 
@@ -99,9 +99,9 @@ Output ONLY the code, nothing else.
 export const TEST_EXECUTION_CODE_TEMPLATE = (
   functionCode: string,
   testInput: unknown,
-  language: Language
+  language: Language,
 ): string => {
-  if (language === "javascript" || language === "typescript") {
+  if (language === 'javascript' || language === 'typescript') {
     return `
 ${functionCode}
 
@@ -109,7 +109,7 @@ const input = ${JSON.stringify(testInput)};
 const result = solution(...(Array.isArray(input) ? input : [input]));
 console.log(JSON.stringify(result));
 `;
-  } else if (language === "python") {
+  } else if (language === 'python') {
     return `
 import json
 

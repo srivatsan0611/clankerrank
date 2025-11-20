@@ -12,13 +12,13 @@
  * Run `bun run index.ts` to see full help.
  */
 
-import { runCLI } from "./src/cli/index.js";
+import { runCLI } from './src/cli/index.js';
 
 // Get command line arguments (skip 'bun' and 'index.ts')
 const args = process.argv.slice(2);
 
 // Run the CLI
 runCLI(args).catch((error) => {
-  console.error("Fatal error:", error);
+  console.error('Fatal error:', error);
   process.exit(1);
 });

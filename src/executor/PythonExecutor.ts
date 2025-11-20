@@ -1,27 +1,27 @@
-import { spawn } from "child_process";
-import { BaseExecutor } from "./BaseExecutor.js";
-import type { ExecutionResult, Language } from "../types/index.js";
-import { createTempFile, cleanupTempFile, parseExecutionOutput } from "../utils/index.js";
+import { spawn } from 'child_process';
+import { BaseExecutor } from './BaseExecutor.js';
+import type { ExecutionResult, Language } from '../types/index.js';
+import { createTempFile, cleanupTempFile, parseExecutionOutput } from '../utils/index.js';
 
 /**
  * Executor for Python code
  */
 export class PythonExecutor extends BaseExecutor {
   constructor() {
-    super("python" as Language);
+    super('python' as Language);
   }
 
   getFileExtension(): string {
-    return ".py";
+    return '.py';
   }
 
   async validateRuntime(): Promise<boolean> {
     return new Promise((resolve) => {
-      const proc = spawn("python3", ["--version"]);
-      proc.on("close", (code) => {
+      const proc = spawn('python3', ['--version']);
+      proc.on('close', (code) => {
         resolve(code === 0);
       });
-      proc.on("error", () => {
+      proc.on('error', () => {
         resolve(false);
       });
     });
@@ -68,25 +68,25 @@ export class PythonExecutor extends BaseExecutor {
 
   private runPython(
     filepath: string,
-    timeout: number
+    timeout: number,
   ): Promise<{ output: string; error?: string }> {
     return new Promise((resolve) => {
-      const proc = spawn("python3", [filepath], {
+      const proc = spawn('python3', [filepath], {
         timeout,
       });
 
-      let stdout = "";
-      let stderr = "";
+      let stdout = '';
+      let stderr = '';
 
-      proc.stdout.on("data", (data) => {
+      proc.stdout.on('data', (data) => {
         stdout += data.toString();
       });
 
-      proc.stderr.on("data", (data) => {
+      proc.stderr.on('data', (data) => {
         stderr += data.toString();
       });
 
-      proc.on("close", (code) => {
+      proc.on('close', (code) => {
         if (code === 0) {
           resolve({ output: stdout });
         } else {
@@ -94,8 +94,8 @@ export class PythonExecutor extends BaseExecutor {
         }
       });
 
-      proc.on("error", (err) => {
-        resolve({ output: "", error: err.message });
+      proc.on('error', (err) => {
+        resolve({ output: '', error: err.message });
       });
     });
   }

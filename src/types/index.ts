@@ -1,15 +1,15 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 /**
  * Supported programming languages
  */
-export const LanguageSchema = z.enum(["javascript", "typescript", "python"]);
+export const LanguageSchema = z.enum(['javascript', 'typescript', 'python']);
 export type Language = z.infer<typeof LanguageSchema>;
 
 /**
  * Difficulty levels for problems
  */
-export const DifficultySchema = z.enum(["easy", "medium", "hard"]);
+export const DifficultySchema = z.enum(['easy', 'medium', 'hard']);
 export type Difficulty = z.infer<typeof DifficultySchema>;
 
 /**
@@ -26,7 +26,7 @@ export const ProblemSchema = z.object({
       input: z.string(),
       output: z.string(),
       explanation: z.string().optional(),
-    })
+    }),
   ),
   functionSignature: z.record(LanguageSchema, z.string()), // language -> function signature
 });

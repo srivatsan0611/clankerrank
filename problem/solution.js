@@ -24,9 +24,7 @@ function solution(s) {
   while (left < right) {
     if (s[left] !== s[right]) {
       // Try deleting left character or right character
-      return (
-        isPalindrome(s, left + 1, right) || isPalindrome(s, left, right - 1)
-      );
+      return isPalindrome(s, left + 1, right) || isPalindrome(s, left, right - 1);
     }
     left++;
     right--;

@@ -1,18 +1,15 @@
-import { writeFile, unlink } from "fs/promises";
-import { join } from "path";
-import { tmpdir } from "os";
-import { randomBytes } from "crypto";
+import { writeFile, unlink } from 'fs/promises';
+import { join } from 'path';
+import { tmpdir } from 'os';
+import { randomBytes } from 'crypto';
 
 /**
  * Create a temporary file with the given content
  */
-export async function createTempFile(
-  content: string,
-  extension: string
-): Promise<string> {
-  const filename = `temp_${randomBytes(8).toString("hex")}${extension}`;
+export async function createTempFile(content: string, extension: string): Promise<string> {
+  const filename = `temp_${randomBytes(8).toString('hex')}${extension}`;
   const filepath = join(tmpdir(), filename);
-  await writeFile(filepath, content, "utf-8");
+  await writeFile(filepath, content, 'utf-8');
   return filepath;
 }
 
@@ -66,7 +63,7 @@ export function sanitizeCode(code: string, language: string): { safe: boolean; r
     ],
   };
 
-  const patterns = language === "python" ? dangerous.python : dangerous.javascript;
+  const patterns = language === 'python' ? dangerous.python : dangerous.javascript;
 
   for (const pattern of patterns) {
     if (pattern.test(code)) {

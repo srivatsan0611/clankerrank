@@ -1,7 +1,7 @@
-import { generateText } from "ai";
-import type { Problem, TestCaseDescription, TestCaseInputCode, Language } from "../types/index.js";
-import { TestCaseInputCodeSchema } from "../types/index.js";
-import { TEST_CODE_GENERATION_PROMPT } from "../utils/index.js";
+import { generateText } from 'ai';
+import type { Problem, TestCaseDescription, TestCaseInputCode, Language } from '../types/index.js';
+import { TestCaseInputCodeSchema } from '../types/index.js';
+import { TEST_CODE_GENERATION_PROMPT } from '../utils/index.js';
 
 /**
  * Generate executable code that produces test case input
@@ -10,7 +10,7 @@ export async function generateTestInputCode(
   model: string,
   problem: Problem,
   testDescription: TestCaseDescription,
-  language: Language
+  language: Language,
 ): Promise<TestCaseInputCode> {
   const prompt = TEST_CODE_GENERATION_PROMPT(problem, testDescription, language);
 

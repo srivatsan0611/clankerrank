@@ -4,10 +4,22 @@
   "type": "module",
   "scripts": {
     "generate": "bun run index.ts generate --model \"anthropic/claude-haiku-4.5\" --difficulty easy --language javascript --tests 5 --samples 2 --output problem/problem.json",
-    "solve": "bun run index.ts solve --problem problem/gemini.json --solution problem/solution.js --language javascript"
+    "solve": "bun run index.ts solve --problem problem/gemini.json --solution problem/solution.js --language javascript",
+    "lint": "eslint . --ext .ts,.tsx,.js",
+    "lint:fix": "eslint . --ext .ts,.tsx,.js --fix",
+    "fmt": "bun run format",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "@typescript-eslint/eslint-plugin": "^8.13.0",
+    "@typescript-eslint/parser": "^8.13.0",
+    "eslint": "^9.14.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-import-resolver-typescript": "^3.6.3",
+    "eslint-plugin-import": "^2.31.0",
+    "prettier": "^3.3.3"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"

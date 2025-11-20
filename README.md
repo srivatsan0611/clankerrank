@@ -48,6 +48,7 @@ bun run index.ts generate [options]
 ```
 
 **Options:**
+
 - `--model <string>`: AI model to use (e.g., "anthropic/claude-haiku-4.5", "openai/gpt-4")
 - `--difficulty <level>`: Problem difficulty: `easy`, `medium`, `hard` (default: medium)
 - `--language <lang>`: Target language: `javascript`, `typescript`, `python` (default: javascript)
@@ -74,6 +75,7 @@ bun run index.ts solve [options]
 ```
 
 **Options:**
+
 - `--problem <file>`: Path to problem JSON file (required)
 - `--solution <file>`: Path to solution file (required)
 - `--language <lang>`: Solution language: `javascript`, `typescript`, `python` (required)
@@ -130,6 +132,7 @@ src/
 ### Executor Pattern
 
 Abstract `BaseExecutor` class with language-specific implementations:
+
 - `BunExecutor`: Runs JavaScript/TypeScript using Bun runtime
 - `PythonExecutor`: Runs Python using subprocess
 
@@ -157,11 +160,7 @@ import { generateCompleteProblem } from '@/src/generator';
 
 export async function POST(request: Request) {
   const { difficulty, language } = await request.json();
-  const problem = await generateCompleteProblem(
-    "anthropic/claude-haiku-4.5",
-    difficulty,
-    language
-  );
+  const problem = await generateCompleteProblem('anthropic/claude-haiku-4.5', difficulty, language);
   return Response.json(problem);
 }
 ```
@@ -176,6 +175,7 @@ export async function POST(request: Request) {
 ## Development
 
 The project uses:
+
 - **Bun**: Runtime and package manager
 - **TypeScript**: Type safety
 - **Zod**: Runtime validation
