@@ -21,6 +21,7 @@ export default [
 				console: "readonly",
 				process: "readonly",
 				crypto: "readonly",
+				Bun: "readonly",
 			},
 		},
 		plugins: { "@typescript-eslint": tseslint },

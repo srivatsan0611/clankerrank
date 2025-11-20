@@ -1,11 +1,11 @@
-import { OpenAPIHono } from '@hono/zod-openapi';
 import { swaggerUI } from '@hono/swagger-ui';
+import { OpenAPIHono } from '@hono/zod-openapi';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
 
+import { errorHandler, notFoundHandler } from './middleware/error.js';
 import problemsRoutes from './routes/problems.js';
 import solveRoutes from './routes/solve.js';
-import { errorHandler, notFoundHandler } from './middleware/error.js';
 
 // Create the main app
 const app = new OpenAPIHono();
@@ -69,7 +69,7 @@ app.notFound(notFoundHandler);
 export default app;
 
 // Export a function to start the server
-export function startServer(port: number = 3000) {
+export function startServer(port: number) {
   console.log(`\n🚀 ClankerRank API server starting...`);
   console.log(`   📚 Swagger UI: http://localhost:${port}/docs`);
   console.log(`   📄 OpenAPI spec: http://localhost:${port}/openapi.json`);

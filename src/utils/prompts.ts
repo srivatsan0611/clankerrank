@@ -1,4 +1,4 @@
-import type { Problem, TestCaseDescription, Language, TestCase } from '../types/index.js';
+import type { Problem, TestCaseDescription, Language } from '../types/index.js';
 
 /**
  * Test case with input only (no expected output yet)
@@ -25,7 +25,11 @@ The problem should:
 Focus on common algorithmic patterns like arrays, strings, hashmaps, trees, graphs, dynamic programming, etc.
 `;
 
-export const SOLUTION_GENERATION_PROMPT = (problem: Problem, language: Language, testCases?: TestCaseInput[]) => `
+export const SOLUTION_GENERATION_PROMPT = (
+  problem: Problem,
+  language: Language,
+  testCases?: TestCaseInput[],
+) => `
 Generate an optimal solution for the following coding problem in ${language}.
 
 Problem: ${problem.title}
@@ -39,13 +43,21 @@ ${problem.examples.map((ex, i) => `Example ${i + 1}:\nInput: ${ex.input}\nOutput
 
 Reference Function Signature (${language}):
 ${problem.functionSignature[language]}
-${testCases && testCases.length > 0 ? `
+${
+  testCases && testCases.length > 0
+    ? `
 Test Cases to Consider:
-${testCases.map((tc, i) => `${i + 1}. ${tc.description}${tc.isEdgeCase ? ' (edge case)' : ''}
-   Input: ${JSON.stringify(tc.input)}`).join('\n')}
+${testCases
+  .map(
+    (tc, i) => `${i + 1}. ${tc.description}${tc.isEdgeCase ? ' (edge case)' : ''}
+   Input: ${JSON.stringify(tc.input)}`,
+  )
+  .join('\n')}
 
 Your solution must correctly handle ALL of the above test cases.
-` : ''}
+`
+    : ''
+}
 Provide:
 1. Complete, working code
 2. Explanation of the approach

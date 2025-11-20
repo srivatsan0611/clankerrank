@@ -12,7 +12,7 @@ import type { Problem, Solution, Language } from '../types/index.js';
 export async function generateSolution(
   model: string,
   problem: Problem,
-  language: Language = 'typescript',
+  language: Language,
   testCases?: TestCaseInput[],
 ): Promise<Solution> {
   const prompt = SOLUTION_GENERATION_PROMPT(problem, language, testCases);

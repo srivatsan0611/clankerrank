@@ -1,5 +1,6 @@
-import type { Context } from 'hono';
 import { HTTPException } from 'hono/http-exception';
+
+import type { Context } from 'hono';
 
 /**
  * Custom error class for API errors

@@ -11,7 +11,7 @@ import type { Problem, Difficulty } from '../types/index.js';
  */
 export async function generateProblem(
   model: string,
-  difficulty: Difficulty = 'medium',
+  difficulty: Difficulty,
   topic?: string,
 ): Promise<Problem> {
   const prompt = PROBLEM_GENERATION_PROMPT(difficulty, topic);

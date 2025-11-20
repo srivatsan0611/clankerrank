@@ -12,7 +12,7 @@ import type { Problem, TestCaseDescription } from '../types/index.js';
 export async function generateTestCaseDescriptions(
   model: string,
   problem: Problem,
-  count: number = 10,
+  count: number,
 ): Promise<TestCaseDescription[]> {
   const prompt = TEST_CASE_GENERATION_PROMPT(problem);
 

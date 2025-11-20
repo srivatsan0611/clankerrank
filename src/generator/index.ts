@@ -24,8 +24,8 @@ export { generateProblem, generateSolution, generateTestCaseDescriptions, genera
  */
 export async function generateCompleteProblem(
   model: string,
-  difficulty: Difficulty = 'medium',
-  language: Language = 'typescript',
+  difficulty: Difficulty,
+  language: Language,
   options: {
     topic?: string;
     numTestCases?: number;
