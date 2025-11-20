@@ -21,16 +21,75 @@ export const ProblemSchema = z.object({
   description: z.string(),
   difficulty: DifficultySchema,
   constraints: z.array(z.string()),
-  examples: z.array(
-    z.object({
-      input: z.string(),
-      output: z.string(),
-      explanation: z.string().optional(),
-    }),
-  ),
   functionSignature: z.record(LanguageSchema, z.string()), // language -> function signature
 });
 export type Problem = z.infer<typeof ProblemSchema>;
+
+/**
+ * Schema for AI generation of problems (subset of ProblemSchema for generateObject)
+ */
+export const ProblemGenerationSchema = z.object({
+  title: z.string().describe('A concise, descriptive title for the problem'),
+  description: z
+    .string()
+    .describe('A clear description of the problem with all necessary details'),
+  difficulty: DifficultySchema,
+  constraints: z
+    .array(z.string())
+    .describe('List of constraints like input ranges, time/space limits'),
+  functionSignature: z
+    .object({
+      javascript: z.string().describe('Function signature in JavaScript'),
+      typescript: z.string().describe('Function signature in TypeScript'),
+      python: z.string().describe('Function signature in Python'),
+    })
+    .describe('Function signatures for different languages'),
+});
+export type ProblemGeneration = z.infer<typeof ProblemGenerationSchema>;
+
+/**
+ * Schema for AI generation of solutions
+ */
+export const SolutionGenerationSchema = z.object({
+  code: z.string().describe('Complete, working solution code'),
+  explanation: z.string().describe('Explanation of the approach and algorithm'),
+  timeComplexity: z
+    .string()
+    .max(30)
+    .describe(
+      'Time complexity analysis (e.g., O(n), O(n log n)). Keep it concise and to the point, just the big O notation. NO MORE THAN 30 CHARACTERS.',
+    ),
+  spaceComplexity: z
+    .string()
+    .max(30)
+    .describe(
+      'Space complexity analysis (e.g., O(1), O(n)). Keep it concise and to the point, just the big O notation. NO MORE THAN 30 CHARACTERS.',
+    ),
+});
+export type SolutionGeneration = z.infer<typeof SolutionGenerationSchema>;
+
+/**
+ * Schema for AI generation of test case descriptions
+ */
+export const TestCaseDescriptionsGenerationSchema = z.object({
+  testCases: z
+    .array(
+      z.object({
+        description: z
+          .string()
+          .describe("What this test case is testing (e.g., 'empty array', 'single element')"),
+        expectedBehavior: z
+          .string()
+          .describe(
+            "What should happen (e.g., 'should return 0', 'should return the element')",
+          ),
+        isEdgeCase: z.boolean().describe('Whether this is an edge case or normal case'),
+      }),
+    )
+    .min(8)
+    .max(15),
+});
+export type TestCaseDescriptionsGeneration = z.infer<typeof TestCaseDescriptionsGenerationSchema>;
 
 /**
  * A solution to a problem

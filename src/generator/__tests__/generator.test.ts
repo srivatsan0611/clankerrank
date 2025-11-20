@@ -40,7 +40,6 @@ describe('problemGenerator', () => {
           description: mockProblem.description,
           difficulty: mockProblem.difficulty,
           constraints: mockProblem.constraints,
-          examples: mockProblem.examples,
           functionSignature: mockProblem.functionSignature,
         },
       })),
@@ -58,7 +57,6 @@ describe('problemGenerator', () => {
     expect(result.description).toBe(mockProblem.description);
     expect(result.difficulty).toBe(mockProblem.difficulty);
     expect(result.constraints).toEqual(mockProblem.constraints);
-    expect(result.examples).toEqual(mockProblem.examples);
     expect(result.functionSignature).toEqual(mockProblem.functionSignature);
   });
 
@@ -70,7 +68,6 @@ describe('problemGenerator', () => {
           description: mockProblem.description,
           difficulty: mockProblem.difficulty,
           constraints: mockProblem.constraints,
-          examples: mockProblem.examples,
           functionSignature: mockProblem.functionSignature,
         },
       })),

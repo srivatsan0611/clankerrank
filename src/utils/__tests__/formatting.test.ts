@@ -45,12 +45,6 @@ describe('formatProblem', () => {
     });
   });
 
-  it('should include examples', () => {
-    const result = formatProblem(mockProblem);
-    expect(result).toContain('EXAMPLES:');
-    expect(result).toContain('Example 1:');
-  });
-
   it('should include function signatures', () => {
     const result = formatProblem(mockProblem);
     expect(result).toContain('FUNCTION SIGNATURES:');

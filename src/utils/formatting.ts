@@ -22,19 +22,6 @@ export function formatProblem(problem: Problem): string {
     lines.push('');
   }
 
-  if (problem.examples.length > 0) {
-    lines.push('EXAMPLES:');
-    problem.examples.forEach((example, i) => {
-      lines.push(`\nExample ${i + 1}:`);
-      lines.push(`  Input: ${example.input}`);
-      lines.push(`  Output: ${example.output}`);
-      if (example.explanation) {
-        lines.push(`  Explanation: ${example.explanation}`);
-      }
-    });
-    lines.push('');
-  }
-
   lines.push('FUNCTION SIGNATURES:');
   Object.entries(problem.functionSignature).forEach(([lang, sig]) => {
     lines.push(`  ${lang}:`);

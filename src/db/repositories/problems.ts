@@ -60,7 +60,6 @@ export async function createProblem(
       description: problem.description,
       difficultyId,
       constraints: problem.constraints,
-      examples: problem.examples,
     })
     .returning({ id: problems.id });
 
@@ -94,7 +93,6 @@ export async function getProblemById(
       description: problems.description,
       difficultyName: difficulties.name,
       constraints: problems.constraints,
-      examples: problems.examples,
     })
     .from(problems)
     .innerJoin(difficulties, eq(problems.difficultyId, difficulties.id))
@@ -128,7 +126,6 @@ export async function getProblemById(
     description: problemRow.description,
     difficulty: problemRow.difficultyName as AppProblem['difficulty'],
     constraints: problemRow.constraints || [],
-    examples: (problemRow.examples || []) as AppProblem['examples'],
     functionSignature: functionSignatureRecord as AppProblem['functionSignature'],
   };
 }

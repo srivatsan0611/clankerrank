@@ -16,11 +16,12 @@ Difficulty: ${difficulty}
 ${topic ? `Topic: ${topic}` : ''}
 
 The problem should:
-1. Be clearly stated with a description
+1. Be clearly stated with a description that fully explains what the function should do
 2. Include constraints (e.g., input ranges, time limits)
-3. Have 2-3 example test cases with explanations
-4. Include function signatures for JavaScript, TypeScript, and Python
-5. Be solvable and interesting
+3. Include function signatures for JavaScript, TypeScript, and Python
+4. Be solvable and interesting
+
+The description should be detailed enough that someone can understand the expected input/output format without seeing examples.
 
 Focus on common algorithmic patterns like arrays, strings, hashmaps, trees, graphs, dynamic programming, etc.
 `;
@@ -37,9 +38,6 @@ ${problem.description}
 
 Constraints:
 ${problem.constraints.join('\n')}
-
-Examples:
-${problem.examples.map((ex, i) => `Example ${i + 1}:\nInput: ${ex.input}`).join('\n\n')}
 
 Reference Function Signature (${language}):
 ${problem.functionSignature[language]}
@@ -73,7 +71,7 @@ For example:
 The solution should be optimal and well-commented.
 `;
 
-export const TEST_CASE_GENERATION_PROMPT = (problem: Problem) => `
+export const TEST_CASE_GENERATION_PROMPT = (problem: Problem, count: number) => `
 Generate a comprehensive list of test cases for the following coding problem.
 
 Problem: ${problem.title}
@@ -82,10 +80,12 @@ ${problem.description}
 Constraints:
 ${problem.constraints.join('\n')}
 
-Examples:
-${problem.examples.map((ex, i) => `Example ${i + 1}:\nInput: ${ex.input}\nOutput: ${ex.output}${ex.explanation ? `\nExplanation: ${ex.explanation}` : ''}`).join('\n\n')}
+Function Signatures:
+- JavaScript: ${problem.functionSignature.javascript}
+- TypeScript: ${problem.functionSignature.typescript}
+- Python: ${problem.functionSignature.python}
 
-Generate 8-12 test cases that include:
+Generate ${count} test cases that include:
 1. Basic cases (2-3): Simple, straightforward inputs
 2. Edge cases (3-4): Empty inputs, single elements, minimum/maximum values, boundary conditions
 3. Complex cases (3-4): Larger inputs, tricky scenarios

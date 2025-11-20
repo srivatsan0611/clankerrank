@@ -21,17 +21,6 @@ export const DifficultySchema = z.enum(['easy', 'medium', 'hard']).openapi({
 export type Difficulty = z.infer<typeof DifficultySchema>;
 
 /**
- * Example for a problem
- */
-export const ExampleSchema = z
-  .object({
-    input: z.string().openapi({ example: '[1, 2, 3]' }),
-    output: z.string().openapi({ example: '6' }),
-    explanation: z.string().optional().openapi({ example: 'Sum of all elements' }),
-  })
-  .openapi('Example');
-
-/**
  * A coding problem
  */
 export const ProblemSchema = z
@@ -41,7 +30,6 @@ export const ProblemSchema = z
     description: z.string().openapi({ example: 'Find two numbers that add up to target' }),
     difficulty: DifficultySchema,
     constraints: z.array(z.string()).openapi({ example: ['1 <= nums.length <= 10^4'] }),
-    examples: z.array(ExampleSchema),
     functionSignature: z.record(LanguageSchema, z.string()).openapi({
       example: {
         typescript: 'function twoSum(nums: number[], target: number): number[]',
