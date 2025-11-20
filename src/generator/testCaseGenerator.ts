@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { TestCaseDescriptionSchema } from '../types/index.js';
 import { TEST_CASE_GENERATION_PROMPT } from '../utils/index.js';
 
-import type { Problem, Solution, TestCaseDescription } from '../types/index.js';
+import type { Problem, TestCaseDescription } from '../types/index.js';
 
 /**
  * Generate test case descriptions (natural language) for a problem
@@ -12,10 +12,9 @@ import type { Problem, Solution, TestCaseDescription } from '../types/index.js';
 export async function generateTestCaseDescriptions(
   model: string,
   problem: Problem,
-  solution: Solution,
   count: number = 10,
 ): Promise<TestCaseDescription[]> {
-  const prompt = TEST_CASE_GENERATION_PROMPT(problem, solution);
+  const prompt = TEST_CASE_GENERATION_PROMPT(problem);
 
   const result = await generateObject({
     model,

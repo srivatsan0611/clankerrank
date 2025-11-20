@@ -1,4 +1,13 @@
-import type { Problem, Solution, TestCaseDescription, Language } from '../types/index.js';
+import type { Problem, TestCaseDescription, Language, TestCase } from '../types/index.js';
+
+/**
+ * Test case with input only (no expected output yet)
+ */
+export interface TestCaseInput {
+  description: string;
+  input: unknown;
+  isEdgeCase: boolean;
+}
 
 export const PROBLEM_GENERATION_PROMPT = (difficulty: string, topic?: string) => `
 Generate a coding problem for a LeetCode-style platform.
@@ -16,7 +25,7 @@ The problem should:
 Focus on common algorithmic patterns like arrays, strings, hashmaps, trees, graphs, dynamic programming, etc.
 `;
 
-export const SOLUTION_GENERATION_PROMPT = (problem: Problem, language: Language) => `
+export const SOLUTION_GENERATION_PROMPT = (problem: Problem, language: Language, testCases?: TestCaseInput[]) => `
 Generate an optimal solution for the following coding problem in ${language}.
 
 Problem: ${problem.title}
@@ -30,7 +39,13 @@ ${problem.examples.map((ex, i) => `Example ${i + 1}:\nInput: ${ex.input}\nOutput
 
 Reference Function Signature (${language}):
 ${problem.functionSignature[language]}
+${testCases && testCases.length > 0 ? `
+Test Cases to Consider:
+${testCases.map((tc, i) => `${i + 1}. ${tc.description}${tc.isEdgeCase ? ' (edge case)' : ''}
+   Input: ${JSON.stringify(tc.input)}`).join('\n')}
 
+Your solution must correctly handle ALL of the above test cases.
+` : ''}
 Provide:
 1. Complete, working code
 2. Explanation of the approach
@@ -46,14 +61,17 @@ For example:
 The solution should be optimal and well-commented.
 `;
 
-export const TEST_CASE_GENERATION_PROMPT = (problem: Problem, solution: Solution) => `
+export const TEST_CASE_GENERATION_PROMPT = (problem: Problem) => `
 Generate a comprehensive list of test cases for the following coding problem.
 
 Problem: ${problem.title}
 ${problem.description}
 
-Solution Approach:
-${solution.explanation}
+Constraints:
+${problem.constraints.join('\n')}
+
+Examples:
+${problem.examples.map((ex, i) => `Example ${i + 1}:\nInput: ${ex.input}\nOutput: ${ex.output}${ex.explanation ? `\nExplanation: ${ex.explanation}` : ''}`).join('\n\n')}
 
 Generate 8-12 test cases that include:
 1. Basic cases (2-3): Simple, straightforward inputs

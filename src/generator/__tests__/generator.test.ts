@@ -156,7 +156,6 @@ describe('testCaseGenerator', () => {
     const result = await generateTestCaseDescriptions(
       'google/gemini-2.0-flash',
       mockProblem,
-      mockSolution,
       10,
     );
 
@@ -192,7 +191,6 @@ describe('testCaseGenerator', () => {
     const result = await generateTestCaseDescriptions(
       'google/gemini-2.0-flash',
       mockProblem,
-      mockSolution,
       10,
     );
 
