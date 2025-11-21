@@ -63,7 +63,7 @@ export async function runCLI(args: string[]): Promise<void> {
   program
     .command('serve')
     .description('Start the API server')
-    .option('--port <number>', 'Port to listen on', '3000')
+    .option('--port <number>', 'Port to listen on', '3001')
     .action(async (options) => {
       const port = parseInt(options.port);
       const server = startServer(port);

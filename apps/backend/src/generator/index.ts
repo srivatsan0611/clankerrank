@@ -13,7 +13,13 @@ import { createExecutor } from '../executor/index.js';
 import { TestCaseSchema } from '../types/index.js';
 import { TEST_EXECUTION_CODE_TEMPLATE } from '../utils/index.js';
 
-import type { TestCase, ProblemPackage, Difficulty, Language, TestCaseDescription } from '../types/index.js';
+import type {
+  TestCase,
+  ProblemPackage,
+  Difficulty,
+  Language,
+  TestCaseDescription,
+} from '../types/index.js';
 import type { TestCaseInput } from '../utils/index.js';
 
 export { generateProblem, generateSolution, generateTestCaseDescriptions, generateTestInputCode };
@@ -30,7 +36,7 @@ export async function generateCompleteProblem(
     topic?: string;
     numTestCases?: number;
     numSampleTestCases?: number;
-  } = {},
+  },
 ): Promise<ProblemPackage & { problemId: string }> {
   const { topic, numTestCases = 10, numSampleTestCases = 3 } = options;
 
@@ -43,11 +49,7 @@ export async function generateCompleteProblem(
   console.log(`✓ Saved problem to database (ID: ${problemId})`);
 
   console.log('\n📝 Generating test case descriptions...');
-  const testDescriptions = await generateTestCaseDescriptions(
-    model,
-    problem,
-    numTestCases,
-  );
+  const testDescriptions = await generateTestCaseDescriptions(model, problem, numTestCases);
   console.log(`✓ Generated ${testDescriptions.length} test case descriptions`);
 
   // Save test case descriptions to database and get their DB IDs

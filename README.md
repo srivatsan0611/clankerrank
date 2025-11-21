@@ -1,186 +1,135 @@
-# AI LeetCode Generator
+# Turborepo starter
 
-An AI-powered coding problem generator built with Vercel AI SDK and Bun. This tool generates LeetCode-style coding problems complete with solutions and comprehensive test cases.
+This Turborepo starter is maintained by the Turborepo core team.
 
-## Features
+## Using this example
 
-- **AI-Powered Generation**: Uses LLMs to generate realistic coding problems
-- **Complete Pipeline**:
-  1. Generate problem description
-  2. Generate optimal solution
-  3. Generate test cases as natural language
-  4. Convert test cases to executable code
-  5. Execute code to create actual test inputs and expected outputs
-- **Multi-Language Support**: JavaScript, TypeScript, and Python
-- **Test Validation**: Run user solutions against generated test cases
-- **Modular Architecture**: Easy to extend with web UI or API server
+Run the following command:
 
-## Prerequisites
-
-- [Bun](https://bun.sh/) runtime installed
-- Python 3.x (if generating/testing Python problems)
-- API key for your chosen LLM provider (Anthropic, OpenAI, etc.)
-
-## Installation
-
-```bash
-bun install
+```sh
+npx create-turbo@latest
 ```
 
-## Environment Setup
+## What's inside?
 
-Set up your API key as an environment variable:
+This Turborepo includes the following packages/apps:
 
-```bash
-# For Anthropic Claude
-export ANTHROPIC_API_KEY="your-api-key"
+### Apps and Packages
 
-# For OpenAI
-export OPENAI_API_KEY="your-api-key"
-```
+- `docs`: a [Next.js](https://nextjs.org/) app
+- `web`: another [Next.js](https://nextjs.org/) app
+- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
+- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
+- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
 
-## Usage
+Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
 
-### Generate a New Problem
+### Utilities
 
-```bash
-bun run index.ts generate [options]
-```
+This Turborepo has some additional tools already setup for you:
 
-**Options:**
+- [TypeScript](https://www.typescriptlang.org/) for static type checking
+- [ESLint](https://eslint.org/) for code linting
+- [Prettier](https://prettier.io) for code formatting
 
-- `--model <string>`: AI model to use (e.g., "anthropic/claude-haiku-4.5", "openai/gpt-4")
-- `--difficulty <level>`: Problem difficulty: `easy`, `medium`, `hard` (default: medium)
-- `--language <lang>`: Target language: `javascript`, `typescript`, `python` (default: javascript)
-- `--topic <string>`: Problem topic (e.g., "arrays", "dynamic programming")
-- `--tests <number>`: Number of test cases to generate (default: 10)
-- `--samples <number>`: Number of visible sample test cases (default: 3)
-- `--output <file>`: Save problem to JSON file
+### Build
 
-**Example:**
-
-```bash
-bun run index.ts generate \
-  --model "anthropic/claude-haiku-4.5" \
-  --difficulty medium \
-  --language javascript \
-  --topic "arrays" \
-  --output problem.json
-```
-
-### Test a Solution
-
-```bash
-bun run index.ts solve [options]
-```
-
-**Options:**
-
-- `--problem <file>`: Path to problem JSON file (required)
-- `--solution <file>`: Path to solution file (required)
-- `--language <lang>`: Solution language: `javascript`, `typescript`, `python` (required)
-- `--show-hidden`: Show results of hidden test cases
-
-**Example:**
-
-```bash
-bun run index.ts solve \
-  --problem problem.json \
-  --solution my-solution.js \
-  --language javascript
-```
-
-## Project Structure
+To build all apps and packages, run the following command:
 
 ```
-src/
-├── types/          # Zod schemas & TypeScript types
-│   └── index.ts
-├── utils/          # Helpers and prompt templates
-│   ├── prompts.ts
-│   ├── formatting.ts
-│   ├── sandbox.ts
-│   └── index.ts
-├── executor/       # Code execution for different languages
-│   ├── BaseExecutor.ts
-│   ├── BunExecutor.ts
-│   ├── PythonExecutor.ts
-│   ├── TestRunner.ts
-│   └── index.ts
-├── generator/      # AI-powered generation pipeline
-│   ├── problemGenerator.ts
-│   ├── solutionGenerator.ts
-│   ├── testCaseGenerator.ts
-│   ├── testCodeGenerator.ts
-│   └── index.ts
-└── cli/            # CLI interface
-    ├── generate.ts
-    ├── solve.ts
-    └── index.ts
+cd my-turborepo
+
+# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
+turbo build
+
+# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
+npx turbo build
+yarn dlx turbo build
+pnpm exec turbo build
 ```
 
-## Architecture
+You can build a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
 
-### Generation Pipeline
+```
+# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
+turbo build --filter=docs
 
-1. **Problem Generation**: AI generates a problem description with constraints and examples
-2. **Solution Generation**: AI creates an optimal solution with complexity analysis
-3. **Test Case Generation**: AI generates natural language descriptions of test cases
-4. **Test Code Generation**: AI converts descriptions to executable code that produces test inputs
-5. **Test Execution**: Run the generated code to get actual inputs and expected outputs
-
-### Executor Pattern
-
-Abstract `BaseExecutor` class with language-specific implementations:
-
-- `BunExecutor`: Runs JavaScript/TypeScript using Bun runtime
-- `PythonExecutor`: Runs Python using subprocess
-
-This makes it easy to add support for more languages (Java, Go, etc.)
-
-### Type Safety
-
-All data structures are validated using Zod schemas, ensuring type safety at runtime and compile time.
-
-## Extending the System
-
-### Adding a Web UI
-
-The core functionality is in the `src/generator` and `src/executor` modules. To add a web UI:
-
-1. Create API routes that call `generateCompleteProblem()` and `TestRunner.runTestCases()`
-2. Use frameworks like Next.js, Express, or Hono
-3. Import and use the existing modules - no refactoring needed!
-
-Example Next.js API route:
-
-```typescript
-// app/api/generate/route.ts
-import { generateCompleteProblem } from '@/src/generator';
-
-export async function POST(request: Request) {
-  const { difficulty, language } = await request.json();
-  const problem = await generateCompleteProblem('anthropic/claude-haiku-4.5', difficulty, language);
-  return Response.json(problem);
-}
+# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
+npx turbo build --filter=docs
+yarn exec turbo build --filter=docs
+pnpm exec turbo build --filter=docs
 ```
 
-### Adding New Languages
+### Develop
 
-1. Create a new executor class extending `BaseExecutor`
-2. Implement `execute()`, `getFileExtension()`, and `validateRuntime()`
-3. Add the language to `createExecutor()` factory in `src/executor/index.ts`
-4. Update the `Language` enum in `src/types/index.ts`
+To develop all apps and packages, run the following command:
 
-## Development
+```
+cd my-turborepo
 
-The project uses:
+# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
+turbo dev
 
-- **Bun**: Runtime and package manager
-- **TypeScript**: Type safety
-- **Zod**: Runtime validation
-- **Vercel AI SDK**: LLM integration with model string format
+# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
+npx turbo dev
+yarn exec turbo dev
+pnpm exec turbo dev
+```
 
-## License
+You can develop a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
 
-MIT
+```
+# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
+turbo dev --filter=web
+
+# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
+npx turbo dev --filter=web
+yarn exec turbo dev --filter=web
+pnpm exec turbo dev --filter=web
+```
+
+### Remote Caching
+
+> [!TIP]
+> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+
+Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
+
+By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
+
+```
+cd my-turborepo
+
+# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
+turbo login
+
+# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
+npx turbo login
+yarn exec turbo login
+pnpm exec turbo login
+```
+
+This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+
+Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+
+```
+# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
+turbo link
+
+# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
+npx turbo link
+yarn exec turbo link
+pnpm exec turbo link
+```
+
+## Useful Links
+
+Learn more about the power of Turborepo:
+
+- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
+- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
+- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
+- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
+- [Configuration Options](https://turborepo.com/docs/reference/configuration)
+- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
