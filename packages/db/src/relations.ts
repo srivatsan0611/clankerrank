@@ -1,4 +1,4 @@
-import { relations } from 'drizzle-orm';
+import { relations } from "drizzle-orm";
 
 import {
   languages,
@@ -10,7 +10,7 @@ import {
   testCases,
   testInputCodes,
   executionResults,
-} from './schema';
+} from "./schema.js";
 
 // Language relations
 export const languagesRelations = relations(languages, ({ many }) => ({
@@ -48,7 +48,7 @@ export const functionSignaturesRelations = relations(
       fields: [functionSignatures.languageId],
       references: [languages.id],
     }),
-  }),
+  })
 );
 
 // Solution relations
@@ -72,7 +72,7 @@ export const testCaseDescriptionsRelations = relations(
       references: [problems.id],
     }),
     testCases: many(testCases),
-  }),
+  })
 );
 
 // Test case relations
@@ -109,5 +109,5 @@ export const executionResultsRelations = relations(
       fields: [executionResults.testCaseId],
       references: [testCases.id],
     }),
-  }),
+  })
 );

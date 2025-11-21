@@ -1,7 +1,7 @@
-import { drizzle, NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { Pool } from 'pg';
+import { drizzle, NodePgDatabase } from "drizzle-orm/node-postgres";
+import { Pool } from "pg";
 
-import * as schema from './schema';
+import * as schema from "./schema.js";
 
 // Pool and db instances that can be recreated
 let pool: Pool | null = null;
@@ -45,4 +45,4 @@ export async function closeConnection() {
 }
 
 // Re-export schema for convenience
-export * from './schema';
+export * from "./schema.js";
