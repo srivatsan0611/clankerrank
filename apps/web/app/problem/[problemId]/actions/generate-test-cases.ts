@@ -43,7 +43,11 @@ export async function generateTestCases(problemId: string) {
   // Save the problem text to the JSON file
   await writeFile(
     problemFile,
-    JSON.stringify({ problemId, testCases: object.testCases }, null, 2)
+    JSON.stringify(
+      { problemId, problemText, testCases: object.testCases },
+      null,
+      2
+    )
   );
   return object.testCases;
 }
