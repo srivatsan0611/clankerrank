@@ -11,11 +11,22 @@ export async function generateProblemText(problemId: string) {
     prompt: `Generate a coding problem for a LeetCode-style platform. ONLY return the problem text, no other text. 
 	DO NOT INCLUDE TEST CASES. JUST THE PROBLEM TEXT.
 	DO NOT INCLUDE EXAMPLE INPUTS AND OUTPUTS.
-	DO NOT INCLUDE ANYTHING BUT THE PROBLEM TEXT.`,
+	DO NOT INCLUDE ANYTHING BUT THE PROBLEM TEXT.
+	Generate a starter scaffold code for the function in TypeScript.
+	`,
     schema: z.object({
       problemText: z.string(),
+      functionSignature: z.object({
+        typescript: z
+          .string()
+          .describe(
+            "The empty function in TypeScript, ONLY CODE, NO OTHER TEXT"
+          ),
+      }),
     }),
   });
+
+  console.log("object", object);
 
   const problemsDir = join(process.cwd(), "problems");
   const problemFile = join(problemsDir, `${problemId}.json`);
@@ -26,17 +37,28 @@ export async function generateProblemText(problemId: string) {
   // Save the problem text to the JSON file
   await writeFile(
     problemFile,
-    JSON.stringify({ problemId, problemText: object.problemText }, null, 2)
+    JSON.stringify(
+      {
+        problemId,
+        problemText: object.problemText,
+        functionSignature: object.functionSignature,
+      },
+      null,
+      2
+    )
   );
 
-  return object.problemText;
+  return {
+    problemText: object.problemText,
+    functionSignature: object.functionSignature,
+  };
 }
 
 export async function getProblemText(problemId: string) {
   const problemsDir = join(process.cwd(), "problems");
   const problemFile = join(problemsDir, `${problemId}.json`);
-  const problemText = JSON.parse(
+  const { problemText, functionSignature } = JSON.parse(
     await readFile(problemFile, "utf8")
-  ).problemText;
-  return problemText;
+  );
+  return { problemText, functionSignature };
 }

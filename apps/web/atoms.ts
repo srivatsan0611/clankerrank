@@ -10,7 +10,10 @@ import {
 
 export const problemIdAtom = atom<string | null>(null);
 export const isProblemTextLoadingAtom = atom(false);
-export const problemTextAtom = atom<string | null>(null);
+export const problemTextAtom = atom<{
+  problemText: string;
+  functionSignature: { typescript: string };
+} | null>(null);
 
 /**
  * Generate problem text
@@ -36,8 +39,8 @@ export const getProblemTextAtom = atom(null, async (get, set) => {
     throw new Error("Problem ID is not set");
   }
   set(isProblemTextLoadingAtom, true);
-  const problemText = await getProblemText(problemId);
-  set(problemTextAtom, problemText);
+  const { problemText, functionSignature } = await getProblemText(problemId);
+  set(problemTextAtom, { problemText, functionSignature });
   set(isProblemTextLoadingAtom, false);
 });
 

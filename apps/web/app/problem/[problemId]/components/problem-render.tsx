@@ -52,7 +52,14 @@ export default function ProblemRender({ problemId }: { problemId: string }) {
         {isProblemTextLoading ? (
           <Loader />
         ) : (
-          problemText && <MessageResponse>{problemText}</MessageResponse>
+          problemText && (
+            <>
+              <MessageResponse>{problemText.problemText}</MessageResponse>
+              <MessageResponse>
+                {problemText.functionSignature.typescript}
+              </MessageResponse>
+            </>
+          )
         )}
       </div>
       <div>
