@@ -3,11 +3,12 @@
 import { initLogger, wrapAISDK } from "braintrust";
 import * as ai from "ai";
 
-initLogger({
-  projectName: "Clankerrank",
-  apiKey: process.env.BRAINTRUST_API_KEY!,
-});
-
+if (process.env.NODE_ENV === "production") {
+  initLogger({
+    projectName: "Clankerrank",
+    apiKey: process.env.BRAINTRUST_API_KEY!,
+  });
+}
 const { generateText } = wrapAISDK(ai);
 
 export async function testTrace() {

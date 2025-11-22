@@ -1,9 +1,21 @@
-"use client";
+import Link from "next/link";
+import { listProblems } from "./api/problem-crud";
+import { Button } from "@/components/ui/button";
 
-export default function Home() {
+export default async function Home() {
+  const problems = await listProblems();
   return (
     <div>
-      <h1>Hello World</h1>
+      <ul>
+        {problems.map((problem) => (
+          <li key={problem}>
+            <Link href={`/problem/${problem}`}>{problem}</Link>
+          </li>
+        ))}
+        <Link href={"/problem/create"}>
+          <Button variant={"outline"}>Create Problem</Button>
+        </Link>
+      </ul>
     </div>
   );
 }

@@ -6,7 +6,7 @@
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": [".next/**", "!.next/cache/**"],
-      "env": ["BRAINTRUST_API_KEY"]
+      "env": ["BRAINTRUST_API_KEY", "NODE_ENV"]
     },
     "lint": {
       "dependsOn": ["^lint"]
@@ -17,7 +17,7 @@
     "dev": {
       "cache": false,
       "persistent": true,
-      "env": ["BRAINTRUST_API_KEY"]
+      "env": ["BRAINTRUST_API_KEY", "NODE_ENV"]
     }
   }
 }
