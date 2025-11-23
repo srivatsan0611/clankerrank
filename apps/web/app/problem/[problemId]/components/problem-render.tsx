@@ -22,6 +22,7 @@ import {
   callGenerateTestCaseInputsAtom,
   isGenerateTestCaseInputsLoadingAtom,
   callGenerateTestCaseInputCodeAtom,
+  getTestCaseInputsAtom,
 } from "@/atoms";
 
 export default function ProblemRender({ problemId }: { problemId: string }) {
@@ -47,6 +48,7 @@ export default function ProblemRender({ problemId }: { problemId: string }) {
     isGenerateTestCaseInputsLoadingAtom
   );
   const testCaseInputs = useAtomValue(testCaseInputsAtom);
+  const getTestCaseInputs = useSetAtom(getTestCaseInputsAtom);
 
   useEffect(() => {
     setProblemId(problemId);
@@ -63,6 +65,10 @@ export default function ProblemRender({ problemId }: { problemId: string }) {
   useEffect(() => {
     getCodeToGenerateTestCaseInputs();
   }, [getCodeToGenerateTestCaseInputs, problemId, testCases]);
+
+  useEffect(() => {
+    getTestCaseInputs();
+  }, [getTestCaseInputs, problemId, testCaseInputCode]);
 
   return (
     <div>

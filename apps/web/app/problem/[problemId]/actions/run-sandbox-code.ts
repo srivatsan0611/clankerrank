@@ -54,3 +54,10 @@ export async function generateTestCaseInputs(problemId: string) {
 
   return results;
 }
+
+export async function getTestCaseInputs(problemId: string) {
+  const problemFile = join(process.cwd(), "problems", `${problemId}.json`);
+  const problemData = JSON.parse(await readFile(problemFile, "utf8"));
+  const { testCases } = problemData;
+  return testCases.map((testCase: Record<string, unknown>) => testCase.result);
+}

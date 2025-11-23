@@ -11,7 +11,10 @@ import {
   generateTestCaseInputCode,
   getTestCaseInputCode,
 } from "./app/problem/[problemId]/actions/generate-test-case-input-code";
-import { generateTestCaseInputs } from "./app/problem/[problemId]/actions/run-sandbox-code";
+import {
+  generateTestCaseInputs,
+  getTestCaseInputs,
+} from "./app/problem/[problemId]/actions/run-sandbox-code";
 
 export const problemIdAtom = atom<string | null>(null);
 export const isProblemTextLoadingAtom = atom(false);
@@ -131,6 +134,17 @@ export const callGenerateTestCaseInputsAtom = atom(null, async (get, set) => {
   }
   set(isGenerateTestCaseInputsLoadingAtom, true);
   const testCaseInputs = await generateTestCaseInputs(problemId);
+  set(testCaseInputsAtom, testCaseInputs);
+  set(isGenerateTestCaseInputsLoadingAtom, false);
+});
+
+export const getTestCaseInputsAtom = atom(null, async (get, set) => {
+  const problemId = get(problemIdAtom);
+  if (!problemId) {
+    throw new Error("Problem ID is not set");
+  }
+  set(isGenerateTestCaseInputsLoadingAtom, true);
+  const testCaseInputs = await getTestCaseInputs(problemId);
   set(testCaseInputsAtom, testCaseInputs);
   set(isGenerateTestCaseInputsLoadingAtom, false);
 });
