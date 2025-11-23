@@ -7,7 +7,7 @@ import { writeFile } from "fs/promises";
 import { join } from "path";
 import { readFile } from "fs/promises";
 
-export async function runGenerateInput(problemId: string) {
+export async function generateTestCaseInputs(problemId: string) {
   const testCasesInputCode = await getTestCaseInputCode(problemId);
   const sandbox = await Sandbox.create(DEFAULT_LANGUAGE);
 
