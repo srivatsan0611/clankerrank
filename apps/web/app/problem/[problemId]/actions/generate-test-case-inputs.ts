@@ -39,7 +39,7 @@ ${functionSignature.typescript}
 Test Cases:
 ${testCases.map((tc: TestCase, i: number) => `${i + 1}. ${tc.description}${tc.isEdgeCase ? " (edge case)" : ""}`).join("\n")}
 
-For each test case, generate a ${DEFAULT_LANGUAGE} function generateSolution() 
+For each test case, generate a ${DEFAULT_LANGUAGE} function generateTestInput() 
 that creates the input value(s) described in the test case description
 
 The function should only generate the INPUT, not execute the solution function.
@@ -47,7 +47,7 @@ The output of the function should be an ARRAY, where each element is an argument
 
 For example, if the function signature is: 
 
-function generateSolution(nums: number[], k: number) {}
+function someFunction(nums: number[], k: number) {}
 
 and the description is "an array of numbers with length 3 and an odd number", 
 
@@ -57,7 +57,7 @@ Generate code for each test case in order.
 AVOID COMING UP WITH CONSTANTS!! For example, if asked for an array of numbers, generate code to generate random numbers instead of coming up with a specific array.
 
 Return a function like the following, where ...inputValues is the array of input values for the test case:
-function generateSolution() {
+function generateTestInput() {
 	return [...inputValues];
 }
 `,

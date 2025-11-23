@@ -28,4 +28,9 @@ export class Sandbox {
     await this.sandbox.stop();
     await this.sandbox.delete();
   }
+
+  async readFile(filename: string) {
+    const file = await this.sandbox.fs.downloadFile(filename);
+    return file.toString();
+  }
 }

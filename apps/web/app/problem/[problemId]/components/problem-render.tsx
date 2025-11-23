@@ -9,18 +9,20 @@ import {
   callGenerateProblemTextAtom,
   callGenerateTestCaseInputsAtom,
   callGenerateTestCasesAtom,
+  callRunGenerateInputAtom,
   getProblemTextAtom,
   getTestCaseInputsAtom,
   getTestCasesAtom,
   isProblemTextLoadingAtom,
+  isRunGenerateInputLoadingAtom,
   isTestCaseInputsLoadingAtom,
   isTestCasesLoadingAtom,
   problemIdAtom,
   problemTextAtom,
+  runGenerateInputResultsAtom,
   testCaseInputsAtom,
   testCasesAtom,
 } from "@/atoms";
-import { runGenerateInput } from "../actions/run-sandbox-code";
 
 export default function ProblemRender({ problemId }: { problemId: string }) {
   const setProblemId = useSetAtom(problemIdAtom);
@@ -36,6 +38,9 @@ export default function ProblemRender({ problemId }: { problemId: string }) {
   const testCaseInputs = useAtomValue(testCaseInputsAtom);
   const callGenerateTestCaseInputs = useSetAtom(callGenerateTestCaseInputsAtom);
   const getTestCaseInputs = useSetAtom(getTestCaseInputsAtom);
+  const callRunGenerateInput = useSetAtom(callRunGenerateInputAtom);
+  const isRunGenerateInputLoading = useAtomValue(isRunGenerateInputLoadingAtom);
+  const runGenerateInputResults = useAtomValue(runGenerateInputResultsAtom);
 
   useEffect(() => {
     setProblemId(problemId);
@@ -114,9 +119,22 @@ export default function ProblemRender({ problemId }: { problemId: string }) {
         )}
       </div>
       <div>
-        <Button variant={"outline"} onClick={() => runGenerateInput(problemId)}>
+        <Button variant={"outline"} onClick={() => callRunGenerateInput()}>
           Run Generate Input
         </Button>
+        {isRunGenerateInputLoading ? (
+          <Loader />
+        ) : (
+          runGenerateInputResults && (
+            <div>
+              {runGenerateInputResults.map((result, i) => (
+                <div key={`run-generate-input-result-${i}`}>
+                  {JSON.stringify(result)}
+                </div>
+              ))}
+            </div>
+          )
+        )}
       </div>
     </div>
   );
