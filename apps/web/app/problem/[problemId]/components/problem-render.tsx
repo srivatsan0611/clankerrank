@@ -10,8 +10,8 @@ import {
   callGenerateTestCaseInputsAtom,
   callGenerateTestCasesAtom,
   callRunGenerateInputAtom,
+  getCodeToGenerateTestCaseInputsAtom,
   getProblemTextAtom,
-  getTestCaseInputsAtom,
   getTestCasesAtom,
   isProblemTextLoadingAtom,
   isRunGenerateInputLoadingAtom,
@@ -37,7 +37,9 @@ export default function ProblemRender({ problemId }: { problemId: string }) {
   const isTestCaseInputsLoading = useAtomValue(isTestCaseInputsLoadingAtom);
   const testCaseInputs = useAtomValue(testCaseInputsAtom);
   const callGenerateTestCaseInputs = useSetAtom(callGenerateTestCaseInputsAtom);
-  const getTestCaseInputs = useSetAtom(getTestCaseInputsAtom);
+  const getCodeToGenerateTestCaseInputs = useSetAtom(
+    getCodeToGenerateTestCaseInputsAtom
+  );
   const callRunGenerateInput = useSetAtom(callRunGenerateInputAtom);
   const isRunGenerateInputLoading = useAtomValue(isRunGenerateInputLoadingAtom);
   const runGenerateInputResults = useAtomValue(runGenerateInputResultsAtom);
@@ -55,8 +57,8 @@ export default function ProblemRender({ problemId }: { problemId: string }) {
   }, [getTestCases, problemId, problemText]);
 
   useEffect(() => {
-    getTestCaseInputs();
-  }, [getTestCaseInputs, problemId, testCases]);
+    getCodeToGenerateTestCaseInputs();
+  }, [getCodeToGenerateTestCaseInputs, problemId, testCases]);
 
   return (
     <div>

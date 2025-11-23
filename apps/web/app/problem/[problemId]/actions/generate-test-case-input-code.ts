@@ -12,7 +12,7 @@ interface TestCase {
   inputCode?: string;
 }
 
-export async function generateTestCaseInputs(problemId: string) {
+export async function generateTestCaseInputCode(problemId: string) {
   const problemsDir = join(process.cwd(), "problems");
   const problemFile = join(problemsDir, `${problemId}.json`);
 
@@ -104,7 +104,7 @@ function generateTestInput() {
   return updatedTestCases;
 }
 
-export async function getTestCaseInputs(problemId: string) {
+export async function getTestCaseInputCode(problemId: string) {
   const problemsDir = join(process.cwd(), "problems");
   const problemFile = join(problemsDir, `${problemId}.json`);
   const testCases = JSON.parse(await readFile(problemFile, "utf8")).testCases;
