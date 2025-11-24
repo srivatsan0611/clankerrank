@@ -28,7 +28,7 @@ export const problemIdAtom = atom<string | null>(null);
 export const isProblemTextLoadingAtom = atom(false);
 export const problemTextAtom = atom<{
   problemText: string;
-  functionSignature: { typescript: string };
+  functionSignature: string;
 } | null>(null);
 
 /**

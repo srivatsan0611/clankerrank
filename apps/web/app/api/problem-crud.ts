@@ -2,10 +2,6 @@ import { readFile } from "fs/promises";
 import { readdir, writeFile, mkdir } from "fs/promises";
 import { join } from "path";
 
-export type FunctionSignature = {
-  typescript: string;
-};
-
 export type TestCase = {
   description: string;
   isEdgeCase: boolean;
@@ -17,7 +13,7 @@ export type TestCase = {
 export type Problem = {
   problemId: string;
   problemText: string;
-  functionSignature: FunctionSignature;
+  functionSignature: string;
   testCases: TestCase[];
   solution: string;
 };
@@ -56,7 +52,7 @@ export async function getProblem(problemId: string): Promise<Problem> {
 
 export async function updateProblem(
   problemId: string,
-  problem: Partial<Problem> & { testCases: Partial<TestCase>[] }
+  problem: Partial<Problem>
 ): Promise<void> {
   const problemData = JSON.parse(
     await readFile(problemFile(problemId), "utf8")

@@ -28,7 +28,7 @@ export async function generateSolution(problemId: string) {
 Problem: ${problemText}
 
 Function Signature (${DEFAULT_LANGUAGE}):
-${functionSignature.typescript}
+${functionSignature}
 
 Test Cases:
 ${testCases.map((tc: TestCase, i: number) => `${i + 1}. ${tc.description}${tc.isEdgeCase ? " (edge case)" : ""}`).join("\n")}

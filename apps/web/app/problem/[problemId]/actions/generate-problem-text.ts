@@ -15,13 +15,11 @@ export async function generateProblemText(problemId: string) {
 	`,
     schema: z.object({
       problemText: z.string(),
-      functionSignature: z.object({
-        typescript: z
-          .string()
-          .describe(
-            "The empty function in TypeScript, ONLY CODE, NO OTHER TEXT."
-          ),
-      }),
+      functionSignature: z
+        .string()
+        .describe(
+          "The empty function in TypeScript, ONLY CODE, NO OTHER TEXT."
+        ),
     }),
   });
 
