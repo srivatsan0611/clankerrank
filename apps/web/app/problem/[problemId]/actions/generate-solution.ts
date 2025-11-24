@@ -2,13 +2,7 @@
 import { generateObject } from "ai";
 import { z } from "zod/v3";
 import { DEFAULT_LANGUAGE } from "@/lib/consts";
-import { getProblem, updateProblem } from "@/app/api/problem-crud";
-
-interface TestCase {
-  description: string;
-  isEdgeCase: boolean;
-  inputCode?: string;
-}
+import { getProblem, updateProblem, type TestCase } from "@repo/db";
 
 export async function generateSolution(problemId: string) {
   const { problemText, functionSignature, testCases } =

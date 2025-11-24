@@ -4,7 +4,7 @@ import { Sandbox } from "@/lib/sandbox";
 import { DEFAULT_LANGUAGE } from "@/lib/consts";
 import { getSolution } from "./generate-solution";
 import { getTestCases } from "./generate-test-cases";
-import { getProblem, TestCase, updateProblem } from "@/app/api/problem-crud";
+import { getProblem, updateTestCase, type TestCase } from "@repo/db";
 
 export async function generateTestCaseOutputs(problemId: string) {
   const solution = await getSolution(problemId);
@@ -28,24 +28,18 @@ export async function generateTestCaseOutputs(problemId: string) {
 
   await sandbox.kill();
 
-  // Merge results into existing test cases
+  // Get existing test cases
   const { testCases } = await getProblem(problemId);
 
-  const updatedTestCases: TestCase[] = testCases.map(
-    (testCase: TestCase, index: number) => {
-      const result = results[index];
-      if (result === undefined) {
-        throw new Error(`Failed to generate result for test case ${index + 1}`);
-      }
-      return {
-        ...testCase,
-        expected: result,
-      };
+  // Update each test case with its expected output
+  for (let index = 0; index < testCases.length; index++) {
+    const testCase = testCases[index];
+    const result = results[index];
+    if (result === undefined) {
+      throw new Error(`Failed to generate result for test case ${index + 1}`);
     }
-  );
-
-  // Save updated test cases back to the JSON file
-  await updateProblem(problemId, { testCases: updatedTestCases });
+    await updateTestCase(testCase.id, { expected: result });
+  }
 
   return results;
 }

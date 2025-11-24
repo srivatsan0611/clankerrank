@@ -2,7 +2,7 @@
 import { generateObject } from "ai";
 import { z } from "zod/v3";
 import { DEFAULT_LANGUAGE } from "@/lib/consts";
-import { getProblem, TestCase, updateProblem } from "@/app/api/problem-crud";
+import { getProblem, updateTestCase, type TestCase } from "@repo/db";
 
 export async function generateTestCaseInputCode(problemId: string) {
   const { problemText, functionSignature, testCases } =
@@ -27,17 +27,17 @@ ${functionSignature}
 Test Cases:
 ${testCases.map((tc: TestCase, i: number) => `${i + 1}. ${tc.description}${tc.isEdgeCase ? " (edge case)" : ""}`).join("\n")}
 
-For each test case, generate a ${DEFAULT_LANGUAGE} function generateTestInput() 
+For each test case, generate a ${DEFAULT_LANGUAGE} function generateTestInput()
 that creates the input value(s) described in the test case description
 
 The function should only generate the INPUT, not execute the solution function.
 The output of the function should be an ARRAY, where each element is an argument to the solution function.
 
-For example, if the function signature is: 
+For example, if the function signature is:
 
 function someFunction(nums: number[], k: number) {}
 
-and the description is "an array of numbers with length 3 and an odd number", 
+and the description is "an array of numbers with length 3 and an odd number",
 
 the function should return: [[1, 2, 3, 4, 5], 3]
 
@@ -67,24 +67,19 @@ function generateTestInput() {
     }),
   });
 
-  // Merge inputCode into existing test cases
-  const updatedTestCases: TestCase[] = testCases.map(
-    (testCase: TestCase, index: number) => {
-      const inputCode = object.testCaseInputs[index]?.inputCode;
-      if (!inputCode) {
-        throw new Error(
-          `Failed to generate input code for test case ${index + 1}`
-        );
-      }
-      return {
-        ...testCase,
-        inputCode,
-      };
+  // Update each test case with its input code
+  const updatedTestCases: TestCase[] = [];
+  for (let index = 0; index < testCases.length; index++) {
+    const testCase = testCases[index];
+    const inputCode = object.testCaseInputs[index]?.inputCode;
+    if (!inputCode) {
+      throw new Error(
+        `Failed to generate input code for test case ${index + 1}`
+      );
     }
-  );
-
-  // Save updated test cases back to the JSON file
-  await updateProblem(problemId, { testCases: updatedTestCases });
+    await updateTestCase(testCase.id, { inputCode });
+    updatedTestCases.push({ ...testCase, inputCode });
+  }
 
   return updatedTestCases;
 }

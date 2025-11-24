@@ -1,3 +1,4 @@
+import { relations } from "drizzle-orm";
 import {
   pgTable,
   uuid,
@@ -11,7 +12,7 @@ export const problems = pgTable("problems", {
   id: uuid("id").primaryKey().defaultRandom(),
   problemText: text("problem_text").notNull(),
   functionSignature: text("function_signature").notNull(),
-  solution: text("solution").notNull(),
+  solution: text("solution"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -28,6 +29,18 @@ export const testCases = pgTable("test_cases", {
   expected: jsonb("expected").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
+
+// Relations
+export const problemsRelations = relations(problems, ({ many }) => ({
+  testCases: many(testCases),
+}));
+
+export const testCasesRelations = relations(testCases, ({ one }) => ({
+  problem: one(problems, {
+    fields: [testCases.problemId],
+    references: [problems.id],
+  }),
+}));
 
 // Type exports
 export type Problem = typeof problems.$inferSelect;

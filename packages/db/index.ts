@@ -6,3 +6,4 @@ const db = drizzle(process.env.DATABASE_URL!, { schema });
 
 export default db;
 export * from "./src/schema";
+export * from "./src/queries";

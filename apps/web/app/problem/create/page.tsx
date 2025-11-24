@@ -1,4 +1,4 @@
-import { createProblem } from "@/app/api/problem-crud";
+import { createProblem } from "@repo/db";
 import { redirect } from "next/navigation";
 import { generateProblemText } from "../[problemId]/actions/generate-problem-text";
 

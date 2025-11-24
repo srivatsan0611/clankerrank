@@ -1,7 +1,7 @@
 "use server";
 import { generateObject } from "ai";
 import { z } from "zod/v3";
-import { getProblem, updateProblem } from "@/app/api/problem-crud";
+import { getProblem, updateProblem } from "@repo/db";
 
 export async function generateProblemText(problemId: string) {
   const { object } = await generateObject({

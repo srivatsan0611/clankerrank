@@ -1,7 +1,8 @@
 "use server";
 import { generateObject } from "ai";
 import { z } from "zod/v3";
-import { getProblem, TestCase, updateProblem } from "@/app/api/problem-crud";
+import { getProblem, replaceTestCases, type TestCase } from "@repo/db";
+
 export async function generateTestCases(problemId: string) {
   const { problemText } = await getProblem(problemId);
   const { object } = await generateObject({
@@ -30,11 +31,17 @@ export async function generateTestCases(problemId: string) {
     }),
   });
 
-  // Save the problem text to the JSON file
-  await updateProblem(problemId, {
-    // TODO: Remove type assertion
-    testCases: object.testCases as TestCase[],
-  });
+  // Create test cases in database
+  await replaceTestCases(
+    problemId,
+    object.testCases.map((tc) => ({
+      description: tc.description,
+      isEdgeCase: tc.isEdgeCase,
+      inputCode: "",
+      input: [],
+      expected: null,
+    }))
+  );
   return object.testCases;
 }
 

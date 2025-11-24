@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { listProblems } from "./api/problem-crud";
+import { listProblems } from "@repo/db";
 import { Button } from "@/components/ui/button";
 
 export default async function Home() {
