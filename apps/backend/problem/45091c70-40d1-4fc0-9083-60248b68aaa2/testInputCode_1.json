@@ -1,5 +1,0 @@
-{
-  "testCaseId": "837f9218-5c34-4f78-ae87-202167e743da",
-  "language": "typescript",
-  "code": "console.log(JSON.stringify(\"a\"));"
-}

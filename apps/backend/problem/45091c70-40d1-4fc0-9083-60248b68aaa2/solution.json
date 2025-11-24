@@ -1,8 +1,0 @@
-{
-  "problemId": "49c51842-18a1-4a76-a023-ed206d093dfa",
-  "language": "typescript",
-  "code": "function solution(s: string): number {\n    let maxLength = 0;\n    let start = 0;\n    const charIndexMap = new Map<string, number>();\n\n    for (let end = 0; end < s.length; end++) {\n        const currentChar = s[end];\n\n        if (charIndexMap.has(currentChar)) {\n            start = Math.max(start, charIndexMap.get(currentChar) + 1);\n        }\n\n        charIndexMap.set(currentChar, end);\n        maxLength = Math.max(maxLength, end - start + 1);\n    }\n\n    return maxLength;\n}",
-  "explanation": "The solution uses a sliding window approach to find the longest substring without repeating characters. A `Map` is used to store the most recent index of each character encountered. The `start` variable marks the beginning of the current window, and the `end` variable iterates through the string. If a character is encountered that is already in the map, the `start` is advanced to the position after the previous occurrence of the character. This ensures that the substring between `start` and `end` does not contain any repeating characters. The `maxLength` is updated to keep track of the longest substring found so far.",
-  "timeComplexity": "O(n)",
-  "spaceComplexity": "O(min(m, n)) where n is the length of the string and m is the size of the character set. In the worst case, the space complexity would be O(n) if all characters are unique. In general, it will be O(m) where m is the number of possible characters in the string."
-}

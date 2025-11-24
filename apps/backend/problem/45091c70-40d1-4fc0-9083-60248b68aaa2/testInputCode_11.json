@@ -1,5 +1,0 @@
-{
-  "testCaseId": "ad957a53-5368-4375-ba1a-7ff707e47555",
-  "language": "typescript",
-  "code": "const repeatingPart = \"aaaaaaa\";\nconst uniquePart = \"abcdefghijklmnopqrstuvwxyz\";\nconst s = repeatingPart + uniquePart;\n\nconsole.log(JSON.stringify(s));"
-}

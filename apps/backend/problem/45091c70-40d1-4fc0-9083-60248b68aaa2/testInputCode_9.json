@@ -1,5 +1,0 @@
-{
-  "testCaseId": "623bf8b9-f478-4182-8169-12b6f56165ee",
-  "language": "typescript",
-  "code": "const s = \"你好世界！\";\nconsole.log(JSON.stringify(s));"
-}
