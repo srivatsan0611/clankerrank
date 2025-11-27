@@ -28,12 +28,12 @@ const db = new Proxy({} as ReturnType<typeof createDb>, {
     // This is necessary because Workers cannot share I/O objects across requests
     const freshDb = createDb();
     const value = freshDb[prop as keyof typeof freshDb];
-    
+
     // If it's a function, bind it to the fresh db instance
-    if (typeof value === 'function') {
+    if (typeof value === "function") {
       return value.bind(freshDb);
     }
-    
+
     // For objects (like .query), return them directly from the fresh connection
     // All nested property accesses will use the same underlying connection
     return value;
