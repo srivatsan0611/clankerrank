@@ -372,6 +372,9 @@ export default function ProblemRender({ problemId }: { problemId: string }) {
               onChange={(value) => setUserSolution(value ?? null)}
               options={{
                 fontSize: 14,
+                minimap: {
+                  enabled: false,
+                },
               }}
               loading={<Skeleton className="h-full w-full" />}
             />
