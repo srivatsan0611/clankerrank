@@ -9,12 +9,12 @@ export async function runUserSolution(
   problemId: string,
   userCode: string,
   sandbox: Sandbox,
-  language: SupportedLanguage = "typescript"
+  language: SupportedLanguage = "typescript",
 ): Promise<TestResult[]> {
   const { testCases } = await getProblem(problemId);
   if (!testCases || testCases.length === 0) {
     throw new Error(
-      "No test cases found. Please generate test case descriptions and inputs first."
+      "No test cases found. Please generate test case descriptions and inputs first.",
     );
   }
 
@@ -25,12 +25,12 @@ export async function runUserSolution(
     }
     if (testCase.input === null || testCase.input === undefined) {
       throw new Error(
-        `Test case ${i + 1} is missing input. Please generate test case inputs first.`
+        `Test case ${i + 1} is missing input. Please generate test case inputs first.`,
       );
     }
     if (testCase.expected === null || testCase.expected === undefined) {
       throw new Error(
-        `Test case ${i + 1} is missing expected output. Please generate test case outputs first.`
+        `Test case ${i + 1} is missing expected output. Please generate test case outputs first.`,
       );
     }
   }
@@ -138,7 +138,7 @@ export async function runUserSolution(
 
         console.warn(
           "Unexpected output format",
-          JSON.stringify(outputData, null, 2)
+          JSON.stringify(outputData, null, 2),
         );
 
         // Unexpected output format

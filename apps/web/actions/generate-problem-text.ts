@@ -9,16 +9,22 @@ export async function generateProblemText(
   problemId: string,
   model: string,
   encryptedUserId?: string,
-  enqueueNextStep: boolean = true
+  enqueueNextStep: boolean = true,
 ) {
   const data = await apiPost<ProblemTextGenerateResponse>(
     `/${problemId}/text/generate`,
     { model, enqueueNextStep },
-    encryptedUserId
+    encryptedUserId,
   );
-  return { problemText: data.problemText, functionSignature: data.functionSignature };
+  return {
+    problemText: data.problemText,
+    functionSignature: data.functionSignature,
+  };
 }
 
-export async function getProblemText(problemId: string, encryptedUserId?: string) {
+export async function getProblemText(
+  problemId: string,
+  encryptedUserId?: string,
+) {
   return apiGet<ProblemText>(`/${problemId}/text`, encryptedUserId);
 }

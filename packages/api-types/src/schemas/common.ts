@@ -22,10 +22,13 @@ export const ApiSuccessSchema = <T extends z.ZodType>(dataSchema: T) =>
 
 // Path parameter schemas
 export const ProblemIdParamSchema = z.object({
-  problemId: z.string().uuid().openapi({
-    param: { name: "problemId", in: "path" },
-    example: "550e8400-e29b-41d4-a716-446655440000",
-  }),
+  problemId: z
+    .string()
+    .uuid()
+    .openapi({
+      param: { name: "problemId", in: "path" },
+      example: "550e8400-e29b-41d4-a716-446655440000",
+    }),
 });
 
 // Inferred types

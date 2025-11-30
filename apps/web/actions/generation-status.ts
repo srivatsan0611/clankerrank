@@ -6,7 +6,10 @@ export type { GenerationStep, GenerationStatus } from "@repo/api-types";
 
 export async function getGenerationStatus(
   problemId: string,
-  encryptedUserId?: string
+  encryptedUserId?: string,
 ): Promise<GenerationStatus> {
-  return apiGet<GenerationStatus>(`/${problemId}/generation-status`, encryptedUserId);
+  return apiGet<GenerationStatus>(
+    `/${problemId}/generation-status`,
+    encryptedUserId,
+  );
 }

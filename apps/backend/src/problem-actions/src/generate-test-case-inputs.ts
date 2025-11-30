@@ -3,14 +3,14 @@ import { getProblem, updateTestCase, type TestCase } from "@repo/db";
 
 export async function generateTestCaseInputs(
   problemId: string,
-  sandbox: Sandbox
+  sandbox: Sandbox,
 ) {
   const { testCases } = await getProblem(problemId);
   if (!testCases) {
     throw new Error(
       "No code found to generate test case inputs for problem ID: " +
         problemId +
-        ". You must generate the code first."
+        ". You must generate the code first.",
     );
   }
 
@@ -19,11 +19,11 @@ export async function generateTestCaseInputs(
     const result = await sandbox.run(
       testCase.inputCode +
         "; const output = generateTestInput();" +
-        "require('fs').writeFileSync('output.json', JSON.stringify(output));"
+        "require('fs').writeFileSync('output.json', JSON.stringify(output));",
     );
     if (result.exitCode !== 0) {
       throw new Error(
-        `Failed to generate test case input for test case ${testCase.id}: exitCode ${result.exitCode}`
+        `Failed to generate test case input for test case ${testCase.id}: exitCode ${result.exitCode}`,
       );
     }
     console.log("Result of running sandbox code:", result);
@@ -43,7 +43,7 @@ export async function generateTestCaseInputs(
     }
     if (!Array.isArray(result)) {
       throw new Error(
-        `Result for test case ${index + 1} is not an array, got: ${typeof result}`
+        `Result for test case ${index + 1} is not an array, got: ${typeof result}`,
       );
     }
     await updateTestCase(testCase.id, { input: result });

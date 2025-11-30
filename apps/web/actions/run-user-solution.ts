@@ -7,11 +7,11 @@ export type { TestCase, TestResult } from "@repo/api-types";
 export async function runUserSolution(
   problemId: string,
   userCode: string,
-  encryptedUserId?: string
+  encryptedUserId?: string,
 ): Promise<TestResult[]> {
   return apiPost<TestResult[]>(
     `/${problemId}/solution/run`,
     { code: userCode },
-    encryptedUserId
+    encryptedUserId,
   );
 }

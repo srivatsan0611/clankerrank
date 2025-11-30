@@ -6,14 +6,14 @@ import { getProblem, updateProblem, type TestCase } from "@repo/db";
 export async function generateSolution(
   problemId: string,
   model: string,
-  updateProblemInDb: boolean = true
+  updateProblemInDb: boolean = true,
 ) {
   const { problemText, functionSignature, testCases } =
     await getProblem(problemId);
 
   if (!testCases || testCases.length === 0) {
     throw new Error(
-      "No test cases found. Please generate test case descriptions first."
+      "No test cases found. Please generate test case descriptions first.",
     );
   }
 
@@ -36,7 +36,7 @@ THE FUNCTION NAME MUST BE runSolution.
       solution: z
         .string()
         .describe(
-          `Executable ${DEFAULT_LANGUAGE} code that solves the problem. NO COMMENTS OR OTHER TEXT. JUST THE CODE. DO NOT RETURN CONSTANTS YOURSELF, GENERATE CODE TO GENERATE THE CONSTANTS.`
+          `Executable ${DEFAULT_LANGUAGE} code that solves the problem. NO COMMENTS OR OTHER TEXT. JUST THE CODE. DO NOT RETURN CONSTANTS YOURSELF, GENERATE CODE TO GENERATE THE CONSTANTS.`,
         ),
     }),
   });

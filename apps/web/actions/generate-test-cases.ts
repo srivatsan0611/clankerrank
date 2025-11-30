@@ -10,16 +10,19 @@ export async function generateTestCases(
   problemId: string,
   model: string,
   encryptedUserId?: string,
-  enqueueNextStep: boolean = true
+  enqueueNextStep: boolean = true,
 ) {
   const data = await apiPost<TestCasesGenerateResponse>(
     `/${problemId}/test-cases/generate`,
     { model, enqueueNextStep },
-    encryptedUserId
+    encryptedUserId,
   );
   return data.testCases;
 }
 
-export async function getTestCases(problemId: string, encryptedUserId?: string) {
+export async function getTestCases(
+  problemId: string,
+  encryptedUserId?: string,
+) {
   return apiGet<TestCase[]>(`/${problemId}/test-cases`, encryptedUserId);
 }

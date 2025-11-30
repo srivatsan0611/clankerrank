@@ -582,11 +582,12 @@ export default function ProblemRender({
                       return;
                     }
                     try {
-                      const generatedSolution = await callGenerateSolutionWithModel(
-                        selectedModel,
-                        false,
-                        false
-                      );
+                      const generatedSolution =
+                        await callGenerateSolutionWithModel(
+                          selectedModel,
+                          false,
+                          false,
+                        );
                       if (generatedSolution) {
                         setUserSolution(generatedSolution);
                       }
@@ -594,7 +595,9 @@ export default function ProblemRender({
                       console.error("Failed to generate solution:", error);
                     }
                   }}
-                  disabled={isGenerateSolutionWithModelLoading || !selectedModel}
+                  disabled={
+                    isGenerateSolutionWithModelLoading || !selectedModel
+                  }
                 >
                   {isGenerateSolutionWithModelLoading
                     ? "Generating..."

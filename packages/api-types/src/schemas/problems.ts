@@ -81,7 +81,9 @@ export const SolutionGenerateResponseSchema = SolutionSchema.extend({
 export type Problem = z.infer<typeof ProblemSchema>;
 export type CreateProblemRequest = z.infer<typeof CreateProblemRequestSchema>;
 export type GenerateRequest = z.infer<typeof GenerateRequestSchema>;
-export type GenerateSolutionRequest = z.infer<typeof GenerateSolutionRequestSchema>;
+export type GenerateSolutionRequest = z.infer<
+  typeof GenerateSolutionRequestSchema
+>;
 export type RunSolutionRequest = z.infer<typeof RunSolutionRequestSchema>;
 export type CreateProblemResponse = z.infer<typeof CreateProblemResponseSchema>;
 export type ProblemText = z.infer<typeof ProblemTextSchema>;

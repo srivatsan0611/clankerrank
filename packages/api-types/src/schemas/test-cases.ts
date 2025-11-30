@@ -24,7 +24,9 @@ export const TestCaseDescriptionSchema = z
   .openapi("TestCaseDescription");
 
 // Response schemas
-export const TestCaseListSchema = z.array(TestCaseSchema).openapi("TestCaseList");
+export const TestCaseListSchema = z
+  .array(TestCaseSchema)
+  .openapi("TestCaseList");
 
 export const TestCaseDescriptionListSchema = z
   .array(TestCaseDescriptionSchema)

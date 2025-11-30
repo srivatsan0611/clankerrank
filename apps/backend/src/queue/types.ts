@@ -24,7 +24,7 @@ export const STEP_ORDER: GenerationStep[] = [
 ];
 
 export function getNextStep(
-  currentStep: GenerationStep
+  currentStep: GenerationStep,
 ): GenerationStep | null {
   const idx = STEP_ORDER.indexOf(currentStep);
   return idx < STEP_ORDER.length - 1 ? STEP_ORDER[idx + 1] : null;

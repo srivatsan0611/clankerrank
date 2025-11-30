@@ -11,17 +11,20 @@ export async function generateSolution(
   model: string,
   encryptedUserId?: string,
   updateProblem: boolean = true,
-  enqueueNextStep: boolean = true
+  enqueueNextStep: boolean = true,
 ) {
   const data = await apiPost<SolutionGenerateResponse>(
     `/${problemId}/solution/generate`,
     { model, updateProblem, enqueueNextStep },
-    encryptedUserId
+    encryptedUserId,
   );
   return data.solution;
 }
 
 export async function getSolution(problemId: string, encryptedUserId?: string) {
-  const data = await apiGet<Solution>(`/${problemId}/solution`, encryptedUserId);
+  const data = await apiGet<Solution>(
+    `/${problemId}/solution`,
+    encryptedUserId,
+  );
   return data.solution;
 }

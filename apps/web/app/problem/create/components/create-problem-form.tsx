@@ -67,7 +67,7 @@ export default function CreateProblemForm({
         try {
           const newModel = await createModel(
             newModelName.trim(),
-            encryptedUserId
+            encryptedUserId,
           );
           modelToUse = newModel.name;
           // Refresh models list

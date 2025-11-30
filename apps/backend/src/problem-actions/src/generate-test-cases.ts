@@ -17,12 +17,12 @@ export async function generateTestCases(problemId: string, model: string) {
             description: z
               .string()
               .describe(
-                "A description of what this test case is testing (e.g., 'empty array', 'array of odd numbers', 'linked list of strings')"
+                "A description of what this test case is testing (e.g., 'empty array', 'array of odd numbers', 'linked list of strings')",
               ),
             isEdgeCase: z
               .boolean()
               .describe("Whether this is an edge case or normal case"),
-          })
+          }),
         )
         .describe("A list of test case descriptions")
         .min(5)
@@ -38,7 +38,7 @@ export async function generateTestCases(problemId: string, model: string) {
       inputCode: "",
       input: [],
       expected: null,
-    }))
+    })),
   );
   return object.testCases;
 }

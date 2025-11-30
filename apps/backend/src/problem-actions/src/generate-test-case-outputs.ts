@@ -4,13 +4,13 @@ import { getProblem, updateTestCase, type TestCase } from "@repo/db";
 
 export async function generateTestCaseOutputs(
   problemId: string,
-  sandbox: Sandbox
+  sandbox: Sandbox,
 ) {
   const solution = await getSolution(problemId);
   const { testCases } = await getProblem(problemId);
   if (!testCases) {
     throw new Error(
-      "No test cases found. Please generate test case descriptions and inputs first."
+      "No test cases found. Please generate test case descriptions and inputs first.",
     );
   }
 
@@ -21,7 +21,7 @@ export async function generateTestCaseOutputs(
         "; const output = runSolution(..." +
         JSON.stringify(testCase.input) +
         ");" +
-        "require('fs').writeFileSync('output.json', JSON.stringify(output));"
+        "require('fs').writeFileSync('output.json', JSON.stringify(output));",
     );
     results.push(JSON.parse(await sandbox.readFile("output.json")));
   }

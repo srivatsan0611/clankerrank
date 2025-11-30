@@ -101,11 +101,15 @@ export const createProblemRoute = createRoute({
       required: true,
     },
     query: z.object({
-      autoGenerate: z.enum(["true", "false"]).optional().openapi({
-        param: { name: "autoGenerate", in: "query" },
-        description: "Whether to auto-generate problem content (default: true)",
-        example: "true",
-      }),
+      autoGenerate: z
+        .enum(["true", "false"])
+        .optional()
+        .openapi({
+          param: { name: "autoGenerate", in: "query" },
+          description:
+            "Whether to auto-generate problem content (default: true)",
+          example: "true",
+        }),
     }),
   },
   responses: {

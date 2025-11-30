@@ -6,7 +6,7 @@
  */
 export async function decryptUserId(
   encryptedUserId: string,
-  password: string = process.env.WORKOS_COOKIE_PASSWORD!
+  password: string = process.env.WORKOS_COOKIE_PASSWORD!,
 ): Promise<string> {
   if (!password) {
     throw new Error("WORKOS_COOKIE_PASSWORD environment variable is not set");
@@ -14,7 +14,7 @@ export async function decryptUserId(
 
   // Decode from base64
   const combined = new Uint8Array(
-    Uint8Array.from(atob(encryptedUserId), (c) => c.charCodeAt(0))
+    Uint8Array.from(atob(encryptedUserId), (c) => c.charCodeAt(0)),
   );
 
   // Extract components
@@ -26,7 +26,7 @@ export async function decryptUserId(
   const iv = combined.subarray(SALT_LENGTH, SALT_LENGTH + IV_LENGTH);
   const encrypted = combined.subarray(
     SALT_LENGTH + IV_LENGTH,
-    combined.length - TAG_LENGTH
+    combined.length - TAG_LENGTH,
   );
   const tag = combined.subarray(combined.length - TAG_LENGTH);
 
@@ -36,7 +36,7 @@ export async function decryptUserId(
     new TextEncoder().encode(password),
     { name: "PBKDF2" },
     false,
-    ["deriveBits", "deriveKey"]
+    ["deriveBits", "deriveKey"],
   );
 
   const key = await crypto.subtle.deriveKey(
@@ -49,7 +49,7 @@ export async function decryptUserId(
     keyMaterial,
     { name: "AES-GCM", length: 256 },
     false,
-    ["decrypt"]
+    ["decrypt"],
   );
 
   // Combine encrypted data with tag (AES-GCM requires tag to be appended)
@@ -65,9 +65,8 @@ export async function decryptUserId(
       tagLength: 128, // 128 bits = 16 bytes
     },
     key,
-    ciphertextWithTag
+    ciphertextWithTag,
   );
 
   return new TextDecoder().decode(decrypted);
 }
-

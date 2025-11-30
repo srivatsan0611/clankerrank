@@ -16,7 +16,9 @@ export const CreateModelRequestSchema = z
   .openapi("CreateModelRequest");
 
 // Response schemas
-export const ListModelsResponseSchema = z.array(ModelSchema).openapi("ModelList");
+export const ListModelsResponseSchema = z
+  .array(ModelSchema)
+  .openapi("ModelList");
 
 // Inferred types
 export type Model = z.infer<typeof ModelSchema>;

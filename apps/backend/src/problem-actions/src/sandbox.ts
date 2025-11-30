@@ -52,7 +52,7 @@ export class Sandbox {
     const result = await this.sandbox.exec(`cat ${filename}`);
     if (!result.success || result.exitCode !== 0) {
       throw new Error(
-        `Failed to read file ${filename}: ${result.stderr || result.stdout}`
+        `Failed to read file ${filename}: ${result.stderr || result.stdout}`,
       );
     }
     return result.stdout;
@@ -67,7 +67,7 @@ export class Sandbox {
   async executeCommand(
     command: string,
     cwd?: string,
-    timeout?: number
+    timeout?: number,
   ): Promise<ExecuteCommandResult> {
     // Build command with cwd if specified
     const fullCommand = cwd ? `cd ${cwd} && ${command}` : command;

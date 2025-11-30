@@ -16,7 +16,16 @@ import {
 } from "./schema";
 
 // Re-export types for convenience
-export type { Model, Problem, TestCase, NewModel, NewProblem, NewTestCase, GenerationJob, NewGenerationJob };
+export type {
+  Model,
+  Problem,
+  TestCase,
+  NewModel,
+  NewProblem,
+  NewTestCase,
+  GenerationJob,
+  NewGenerationJob,
+};
 
 // Problem with test cases type for getProblem
 export type ProblemWithTestCases = Problem & {
@@ -57,7 +66,7 @@ export async function listModels(): Promise<Model[]> {
 // Problem functions
 
 export async function createProblem(
-  data?: Partial<NewProblem>
+  data?: Partial<NewProblem>,
 ): Promise<string> {
   const [result] = await db
     .insert(problems)
@@ -73,7 +82,7 @@ export async function createProblem(
 }
 
 export async function getProblem(
-  problemId: string
+  problemId: string,
 ): Promise<ProblemWithTestCases> {
   const problem = await db.query.problems.findFirst({
     where: eq(problems.id, problemId),
@@ -96,7 +105,7 @@ export async function getProblem(
 
 export async function updateProblem(
   problemId: string,
-  data: Partial<Omit<NewProblem, "id">>
+  data: Partial<Omit<NewProblem, "id">>,
 ): Promise<void> {
   await db
     .update(problems)
@@ -120,7 +129,7 @@ export async function listProblems(): Promise<string[]> {
 
 export async function createTestCase(
   problemId: string,
-  data: Omit<NewTestCase, "id" | "problemId" | "createdAt">
+  data: Omit<NewTestCase, "id" | "problemId" | "createdAt">,
 ): Promise<string> {
   const [result] = await db
     .insert(testCases)
@@ -139,7 +148,7 @@ export async function createTestCase(
 
 export async function updateTestCase(
   testCaseId: string,
-  data: Partial<Omit<NewTestCase, "id" | "problemId" | "createdAt">>
+  data: Partial<Omit<NewTestCase, "id" | "problemId" | "createdAt">>,
 ): Promise<void> {
   await db.update(testCases).set(data).where(eq(testCases.id, testCaseId));
 }
@@ -149,7 +158,7 @@ export async function deleteTestCases(problemId: string): Promise<void> {
 }
 
 export async function getTestCasesByProblemId(
-  problemId: string
+  problemId: string,
 ): Promise<TestCase[]> {
   return db.query.testCases.findMany({
     where: eq(testCases.problemId, problemId),
@@ -158,7 +167,7 @@ export async function getTestCasesByProblemId(
 
 export async function createTestCases(
   problemId: string,
-  data: Omit<NewTestCase, "id" | "problemId" | "createdAt">[]
+  data: Omit<NewTestCase, "id" | "problemId" | "createdAt">[],
 ): Promise<TestCase[]> {
   if (data.length === 0) return [];
 
@@ -172,14 +181,14 @@ export async function createTestCases(
         inputCode: tc.inputCode,
         input: tc.input,
         expected: tc.expected,
-      }))
+      })),
     )
     .returning();
 }
 
 export async function replaceTestCases(
   problemId: string,
-  data: Omit<NewTestCase, "id" | "problemId" | "createdAt">[]
+  data: Omit<NewTestCase, "id" | "problemId" | "createdAt">[],
 ): Promise<TestCase[]> {
   // Delete existing test cases and insert new ones
   await deleteTestCases(problemId);
@@ -190,7 +199,7 @@ export async function replaceTestCases(
 
 export async function createGenerationJob(
   problemId: string,
-  modelId?: string
+  modelId?: string,
 ): Promise<string> {
   const [result] = await db
     .insert(generationJobs)
@@ -205,14 +214,18 @@ export async function createGenerationJob(
   return result.id;
 }
 
-export async function getGenerationJob(jobId: string): Promise<GenerationJob | null> {
+export async function getGenerationJob(
+  jobId: string,
+): Promise<GenerationJob | null> {
   const job = await db.query.generationJobs.findFirst({
     where: eq(generationJobs.id, jobId),
   });
   return job ?? null;
 }
 
-export async function getLatestJobForProblem(problemId: string): Promise<GenerationJob | null> {
+export async function getLatestJobForProblem(
+  problemId: string,
+): Promise<GenerationJob | null> {
   const job = await db.query.generationJobs.findFirst({
     where: eq(generationJobs.problemId, problemId),
     orderBy: desc(generationJobs.createdAt),
@@ -224,7 +237,7 @@ export async function updateJobStatus(
   jobId: string,
   status: "pending" | "in_progress" | "completed" | "failed",
   currentStep?: string,
-  error?: string
+  error?: string,
 ): Promise<void> {
   await db
     .update(generationJobs)
@@ -237,7 +250,10 @@ export async function updateJobStatus(
     .where(eq(generationJobs.id, jobId));
 }
 
-export async function markStepComplete(jobId: string, step: string): Promise<void> {
+export async function markStepComplete(
+  jobId: string,
+  step: string,
+): Promise<void> {
   const job = await getGenerationJob(jobId);
   if (!job) {
     throw new Error(`Generation job not found: ${jobId}`);

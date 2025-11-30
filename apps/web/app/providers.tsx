@@ -17,11 +17,10 @@ export function QueryClientProviderWrapper({
             refetchOnWindowFocus: false,
           },
         },
-      })
+      }),
   );
 
   return (
     <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   );
 }
-

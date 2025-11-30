@@ -5,14 +5,14 @@ import { getProblem, updateTestCase, type TestCase } from "@repo/db";
 
 export async function generateTestCaseInputCode(
   problemId: string,
-  model: string
+  model: string,
 ) {
   const { problemText, functionSignature, testCases } =
     await getProblem(problemId);
 
   if (!testCases || testCases.length === 0) {
     throw new Error(
-      "No test cases found. Please generate test case descriptions first."
+      "No test cases found. Please generate test case descriptions first.",
     );
   }
 
@@ -57,12 +57,12 @@ function generateTestInput() {
             inputCode: z
               .string()
               .describe(
-                `Executable ${DEFAULT_LANGUAGE} code that produces the test case input. NO COMMENTS OR OTHER TEXT. JUST THE CODE. DO NOT RETURN CONSTANTS YOURSELF, GENERATE CODE TO GENERATE THE CONSTANTS.`
+                `Executable ${DEFAULT_LANGUAGE} code that produces the test case input. NO COMMENTS OR OTHER TEXT. JUST THE CODE. DO NOT RETURN CONSTANTS YOURSELF, GENERATE CODE TO GENERATE THE CONSTANTS.`,
               ),
-          })
+          }),
         )
         .describe(
-          "An array of input code for each test case, in the same order as the test cases"
+          "An array of input code for each test case, in the same order as the test cases",
         )
         .length(testCases.length),
     }),
@@ -77,7 +77,7 @@ function generateTestInput() {
     const inputCode = object.testCaseInputs[index]?.inputCode;
     if (!inputCode) {
       throw new Error(
-        `Failed to generate input code for test case ${index + 1}`
+        `Failed to generate input code for test case ${index + 1}`,
       );
     }
     await updateTestCase(testCase.id, { inputCode });

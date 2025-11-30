@@ -19,7 +19,7 @@ export async function generateProblemText(problemId: string, model: string) {
       functionSignature: z
         .string()
         .describe(
-          "The empty function WITH NO OTHER TEXT, DO NOT INCLUDE FUNCTION NAME in TypeScript types DEFINED INLINE FOR CUSTOM TYPES -- for example, (nums: number[], k: number, customType: {something: string; anotherThing: number}): number"
+          "The empty function WITH NO OTHER TEXT, DO NOT INCLUDE FUNCTION NAME in TypeScript types DEFINED INLINE FOR CUSTOM TYPES -- for example, (nums: number[], k: number, customType: {something: string; anotherThing: number}): number",
         ),
     }),
   });

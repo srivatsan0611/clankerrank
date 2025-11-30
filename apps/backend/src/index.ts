@@ -20,12 +20,12 @@ app.use(
     origin: process.env.CORS_ORIGIN || "*",
     allowHeaders: ["Content-Type", "X-API-Key"],
     allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  })
+  }),
 );
 
 // Health check (no auth required)
 app.get("/health", (c) =>
-  c.json({ status: "ok", timestamp: new Date().toISOString() })
+  c.json({ status: "ok", timestamp: new Date().toISOString() }),
 );
 
 // Register security scheme for OpenAPI docs
@@ -54,11 +54,10 @@ app.doc("/api/v1/openapi.json", {
   info: {
     title: "ClankerRank API",
     version: "1.0.0",
-    description: "AI-powered competitive programming problem generation and evaluation API",
+    description:
+      "AI-powered competitive programming problem generation and evaluation API",
   },
-  servers: [
-    { url: "http://localhost:8787", description: "Development" },
-  ],
+  servers: [{ url: "http://localhost:8787", description: "Development" }],
   tags: [
     { name: "Models", description: "AI model management" },
     { name: "Problems", description: "Problem generation and retrieval" },
@@ -89,7 +88,7 @@ app.onError((err, c) => {
       },
       timestamp: new Date().toISOString(),
     },
-    status
+    status,
   );
 });
 
@@ -104,7 +103,7 @@ app.notFound((c) => {
       },
       timestamp: new Date().toISOString(),
     },
-    404
+    404,
   );
 });
 
@@ -113,10 +112,7 @@ app.notFound((c) => {
 export default {
   fetch: app.fetch,
 
-  async queue(
-    batch: MessageBatch<QueueMessage>,
-    env: Env
-  ): Promise<void> {
+  async queue(batch: MessageBatch<QueueMessage>, env: Env): Promise<void> {
     await handleQueueBatch(batch, env);
   },
 };

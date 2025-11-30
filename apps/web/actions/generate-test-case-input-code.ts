@@ -9,16 +9,22 @@ export async function generateTestCaseInputCode(
   problemId: string,
   model: string,
   encryptedUserId?: string,
-  enqueueNextStep: boolean = true
+  enqueueNextStep: boolean = true,
 ) {
   const data = await apiPost<InputCodeGenerateResponse>(
     `/${problemId}/test-cases/input-code/generate`,
     { model, enqueueNextStep },
-    encryptedUserId
+    encryptedUserId,
   );
   return data.inputCodes;
 }
 
-export async function getTestCaseInputCode(problemId: string, encryptedUserId?: string) {
-  return apiGet<string[] | null>(`/${problemId}/test-cases/input-code`, encryptedUserId);
+export async function getTestCaseInputCode(
+  problemId: string,
+  encryptedUserId?: string,
+) {
+  return apiGet<string[] | null>(
+    `/${problemId}/test-cases/input-code`,
+    encryptedUserId,
+  );
 }

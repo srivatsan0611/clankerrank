@@ -76,7 +76,7 @@ async function enqueueFirstStepIfAuto(
   c: Context<{ Bindings: Env; Variables: { userId: string } }>,
   problemId: string,
   model?: string,
-  autoGenerate: boolean = true
+  autoGenerate: boolean = true,
 ): Promise<string | null> {
   if (!autoGenerate) return null;
 
@@ -104,7 +104,7 @@ async function enqueueNextStepIfEnabled(
   problemId: string,
   currentStep: GenerationStep,
   model?: string,
-  enqueueNextStep: boolean = true
+  enqueueNextStep: boolean = true,
 ): Promise<string | null> {
   if (!enqueueNextStep) return null;
 
@@ -162,7 +162,7 @@ problems.openapi(createModelRoute, async (c) => {
           message: "Model with this name already exists",
         },
       },
-      409
+      409,
     );
   }
 });
@@ -177,7 +177,7 @@ problems.openapi(createProblemRoute, async (c) => {
         success: false as const,
         error: { code: "AUTH_ERROR", message: "User ID not found in context" },
       },
-      500
+      500,
     );
   }
 
@@ -191,7 +191,12 @@ problems.openapi(createProblemRoute, async (c) => {
   await updateProblem(problemId, { generatedByModelId: modelId });
 
   const autoGenerate = query.autoGenerate !== "false";
-  const jobId = await enqueueFirstStepIfAuto(c, problemId, body.model, autoGenerate);
+  const jobId = await enqueueFirstStepIfAuto(
+    c,
+    problemId,
+    body.model,
+    autoGenerate,
+  );
 
   return c.json({ success: true as const, data: { problemId, jobId } }, 200);
 });
@@ -217,7 +222,7 @@ problems.openapi(generateProblemTextRoute, async (c) => {
     problemId,
     "generateProblemText",
     body.model,
-    enqueueNext
+    enqueueNext,
   );
 
   return c.json({ success: true as const, data: { ...result, jobId } }, 200);
@@ -250,10 +255,13 @@ problems.openapi(generateTestCasesRoute, async (c) => {
     problemId,
     "generateTestCases",
     body.model,
-    enqueueNext
+    enqueueNext,
   );
 
-  return c.json({ success: true as const, data: { testCases: result, jobId } }, 200);
+  return c.json(
+    { success: true as const, data: { testCases: result, jobId } },
+    200,
+  );
 });
 
 problems.openapi(getTestCasesRoute, async (c) => {
@@ -283,10 +291,13 @@ problems.openapi(generateInputCodeRoute, async (c) => {
     problemId,
     "generateTestCaseInputCode",
     body.model,
-    enqueueNext
+    enqueueNext,
   );
 
-  return c.json({ success: true as const, data: { inputCodes: result, jobId } }, 200);
+  return c.json(
+    { success: true as const, data: { inputCodes: result, jobId } },
+    200,
+  );
 });
 
 problems.openapi(getInputCodeRoute, async (c) => {
@@ -311,10 +322,13 @@ problems.openapi(generateInputsRoute, async (c) => {
     problemId,
     "generateTestCaseInputs",
     body?.model,
-    enqueueNext
+    enqueueNext,
   );
 
-  return c.json({ success: true as const, data: { testCases: result, jobId } }, 200);
+  return c.json(
+    { success: true as const, data: { testCases: result, jobId } },
+    200,
+  );
 });
 
 problems.openapi(getInputsRoute, async (c) => {
@@ -337,7 +351,11 @@ problems.openapi(generateSolutionRoute, async (c) => {
   }
 
   const updateProblemInDb = body.updateProblem !== false;
-  const result = await generateSolution(problemId, body.model, updateProblemInDb);
+  const result = await generateSolution(
+    problemId,
+    body.model,
+    updateProblemInDb,
+  );
 
   const enqueueNext = body.enqueueNextStep !== false;
   const jobId = await enqueueNextStepIfEnabled(
@@ -345,10 +363,13 @@ problems.openapi(generateSolutionRoute, async (c) => {
     problemId,
     "generateSolution",
     body.model,
-    enqueueNext
+    enqueueNext,
   );
 
-  return c.json({ success: true as const, data: { solution: result, jobId } }, 200);
+  return c.json(
+    { success: true as const, data: { solution: result, jobId } },
+    200,
+  );
 });
 
 problems.openapi(getSolutionRoute, async (c) => {
@@ -383,10 +404,13 @@ problems.openapi(generateOutputsRoute, async (c) => {
     problemId,
     "generateTestCaseOutputs",
     body?.model,
-    enqueueNext
+    enqueueNext,
   );
 
-  return c.json({ success: true as const, data: { testCases: result, jobId } }, 200);
+  return c.json(
+    { success: true as const, data: { testCases: result, jobId } },
+    200,
+  );
 });
 
 problems.openapi(getOutputsRoute, async (c) => {
@@ -402,30 +426,36 @@ problems.openapi(getGenerationStatusRoute, async (c) => {
   const job = await getLatestJobForProblem(problemId);
 
   if (!job) {
-    return c.json({
-      success: true as const,
-      data: { status: "none" as const },
-    }, 200);
+    return c.json(
+      {
+        success: true as const,
+        data: { status: "none" as const },
+      },
+      200,
+    );
   }
 
   const totalSteps = STEP_ORDER.length;
   const completedCount = job.completedSteps?.length || 0;
 
-  return c.json({
-    success: true as const,
-    data: {
-      jobId: job.id,
-      status: job.status,
-      currentStep: job.currentStep as any,
-      completedSteps: job.completedSteps as any,
-      progress: {
-        completed: completedCount,
-        total: totalSteps,
-        percent: Math.round((completedCount / totalSteps) * 100),
+  return c.json(
+    {
+      success: true as const,
+      data: {
+        jobId: job.id,
+        status: job.status,
+        currentStep: job.currentStep as any,
+        completedSteps: job.completedSteps as any,
+        progress: {
+          completed: completedCount,
+          total: totalSteps,
+          percent: Math.round((completedCount / totalSteps) * 100),
+        },
+        error: job.error ?? undefined,
       },
-      error: job.error ?? undefined,
     },
-  }, 200);
+    200,
+  );
 });
 
 export { problems };
