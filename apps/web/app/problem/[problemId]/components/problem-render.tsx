@@ -24,6 +24,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { ClientFacingUserObject } from "@/lib/auth-types";
 import { signOutAction } from "@/app/(auth)/signout";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 function getStartingCode(language: string, functionSignature: string) {
   if (language === "typescript") {
@@ -114,35 +115,48 @@ export default function ProblemRender({
   }, [solution]);
 
   return (
-    <div className="h-screen w-screen">
-      <div className="w-full p-4 flex items-center gap-4 border-b">
-        <h1
-          className="text-xl font-bold"
-          style={{ fontFamily: "var(--font-comic-relief)" }}
-        >
-          ClankerRank
-        </h1>
-        <Link href="/">
-          <Button variant={"outline"} className="hover:cursor-pointer">
-            Problems
-          </Button>
-        </Link>{" "}
-        <form
-          action={async () => {
-            await signOutAction();
-          }}
-        >
-          <Button
-            variant={"outline"}
-            className="hover:cursor-pointer"
-            type="submit"
+    <div className="h-screen w-screen flex flex-col overflow-hidden">
+      <div className="w-full p-4 flex items-center justify-between gap-4 border-b flex-shrink-0">
+        <div className="flex items-center gap-4">
+          <Link href="/">
+            <h1
+              className="text-xl font-bold hover:cursor-pointer"
+              style={{ fontFamily: "var(--font-comic-relief)" }}
+            >
+              ClankerRank
+            </h1>
+          </Link>
+          <Link href="/">
+            <Button variant={"outline"} className="hover:cursor-pointer">
+              Problems
+            </Button>
+          </Link>{" "}
+          <form
+            action={async () => {
+              await signOutAction();
+            }}
           >
-            Sign out
-          </Button>
-        </form>
+            <Button
+              variant={"outline"}
+              className="hover:cursor-pointer"
+              type="submit"
+            >
+              Sign out
+            </Button>
+          </form>
+        </div>
+        <div className="flex items-center gap-4">
+          <Avatar>
+            <AvatarImage src={user.profilePictureUrl} />
+            <AvatarFallback>{user.firstName.charAt(0)}</AvatarFallback>
+          </Avatar>
+        </div>
       </div>
-      <ResizablePanelGroup direction="horizontal" className="h-full w-full">
-        <ResizablePanel defaultSize={20} className="h-full">
+      <ResizablePanelGroup
+        direction="horizontal"
+        className="flex-1 w-full min-h-0"
+      >
+        <ResizablePanel defaultSize={20} className="min-h-0">
           <div className="h-full overflow-auto p-4 flex flex-col gap-4">
             <div>Problem: {problemId}</div>
             <div>User: {JSON.stringify(user)}</div>
@@ -398,26 +412,28 @@ export default function ProblemRender({
           </div>
         </ResizablePanel>
         <ResizableHandle withHandle />
-        <ResizablePanel defaultSize={50} className="py-4">
-          {userSolution ? (
-            <Editor
-              height="100%"
-              width="100%"
-              //   theme="vs-dark"
-              defaultLanguage={language}
-              value={userSolution ?? ""}
-              onChange={(value) => setUserSolution(value ?? null)}
-              options={{
-                fontSize: 14,
-                minimap: {
-                  enabled: false,
-                },
-              }}
-              loading={<Skeleton className="h-full w-full" />}
-            />
-          ) : (
-            <Skeleton className="h-full w-full" />
-          )}
+        <ResizablePanel defaultSize={50} className="min-h-0 flex flex-col">
+          <div className="flex-1 min-h-0">
+            {userSolution ? (
+              <Editor
+                height="100%"
+                width="100%"
+                //   theme="vs-dark"
+                defaultLanguage={language}
+                value={userSolution ?? ""}
+                onChange={(value) => setUserSolution(value ?? null)}
+                options={{
+                  fontSize: 14,
+                  minimap: {
+                    enabled: false,
+                  },
+                }}
+                loading={<Skeleton className="h-full w-full" />}
+              />
+            ) : (
+              <Skeleton className="h-full w-full" />
+            )}
+          </div>
         </ResizablePanel>
       </ResizablePanelGroup>
     </div>
