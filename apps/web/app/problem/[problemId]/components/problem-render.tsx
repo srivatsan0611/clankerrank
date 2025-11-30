@@ -57,7 +57,7 @@ export default function ProblemRender({
   }, [getProblemText, problemText]);
 
   useEffect(() => {
-    if (problemText) {
+    if (problemText?.problemText && problemText?.functionSignature) {
       setUserSolution(getStartingCode(language, problemText.functionSignature));
     }
   }, [problemText, language]);
@@ -117,12 +117,23 @@ export default function ProblemRender({
     error: generationError,
   } = useGenerationStatus(problemId, user.apiKey);
 
-  // Auto-fetch data as each step completes
+  // Auto-fetch data as each step completes or while generation is in progress
   useEffect(() => {
-    if (completedSteps.includes("generateProblemText") && !problemText) {
+    const hasProblemText =
+      problemText?.problemText && problemText?.functionSignature;
+    const isGeneratingProblemText =
+      isGenerating && !completedSteps.includes("generateProblemText");
+
+    if (completedSteps.includes("generateProblemText") && !hasProblemText) {
       getProblemText();
+    } else if (isGeneratingProblemText && !hasProblemText) {
+      // Poll while generation is in progress
+      const interval = setInterval(() => {
+        getProblemText();
+      }, 2000);
+      return () => clearInterval(interval);
     }
-  }, [completedSteps, problemText, getProblemText]);
+  }, [completedSteps, problemText, isGenerating, getProblemText]);
 
   useEffect(() => {
     if (completedSteps.includes("generateTestCases") && !testCases) {
@@ -228,28 +239,39 @@ export default function ProblemRender({
                   </Button>
                 </>
               )}
-              {isProblemTextLoading ||
-              (isGenerating &&
-                !completedSteps.includes("generateProblemText") &&
-                !problemText) ? (
-                <Loader />
-              ) : (
-                <>
-                  {problemTextError && (
-                    <Alert variant="destructive" className="mb-4">
-                      <AlertTitle>Error</AlertTitle>
-                      <AlertDescription>
-                        {problemTextError instanceof Error
-                          ? problemTextError.message
-                          : String(problemTextError)}
-                      </AlertDescription>
-                    </Alert>
-                  )}
-                  {problemText && (
-                    <MessageResponse>{problemText.problemText}</MessageResponse>
-                  )}
-                </>
-              )}
+              {(() => {
+                const hasProblemText =
+                  problemText?.problemText && problemText?.functionSignature;
+                const isGeneratingProblemText =
+                  isGenerating &&
+                  !completedSteps.includes("generateProblemText");
+                const shouldShowLoader =
+                  isProblemTextLoading ||
+                  (isGeneratingProblemText && !hasProblemText) ||
+                  (!hasProblemText && !problemTextError);
+
+                return shouldShowLoader ? (
+                  <Loader />
+                ) : (
+                  <>
+                    {problemTextError && (
+                      <Alert variant="destructive" className="mb-4">
+                        <AlertTitle>Error</AlertTitle>
+                        <AlertDescription>
+                          {problemTextError instanceof Error
+                            ? problemTextError.message
+                            : String(problemTextError)}
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                    {hasProblemText && (
+                      <MessageResponse>
+                        {problemText.problemText}
+                      </MessageResponse>
+                    )}
+                  </>
+                );
+              })()}
             </div>
             <div>
               {showButtons && (
