@@ -1,16 +1,19 @@
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import db from "../index";
 import {
   problems,
   testCases,
+  generationJobs,
   type Problem,
   type TestCase,
   type NewProblem,
   type NewTestCase,
+  type GenerationJob,
+  type NewGenerationJob,
 } from "./schema";
 
 // Re-export types for convenience
-export type { Problem, TestCase, NewProblem, NewTestCase };
+export type { Problem, TestCase, NewProblem, NewTestCase, GenerationJob, NewGenerationJob };
 
 // Problem with test cases type for getProblem
 export type ProblemWithTestCases = Problem & {
@@ -146,4 +149,68 @@ export async function replaceTestCases(
   // Delete existing test cases and insert new ones
   await deleteTestCases(problemId);
   return createTestCases(problemId, data);
+}
+
+// Generation Job functions
+
+export async function createGenerationJob(problemId: string): Promise<string> {
+  const [result] = await db
+    .insert(generationJobs)
+    .values({
+      problemId,
+      status: "pending",
+      completedSteps: [],
+    })
+    .returning({ id: generationJobs.id });
+
+  return result.id;
+}
+
+export async function getGenerationJob(jobId: string): Promise<GenerationJob | null> {
+  const job = await db.query.generationJobs.findFirst({
+    where: eq(generationJobs.id, jobId),
+  });
+  return job ?? null;
+}
+
+export async function getLatestJobForProblem(problemId: string): Promise<GenerationJob | null> {
+  const job = await db.query.generationJobs.findFirst({
+    where: eq(generationJobs.problemId, problemId),
+    orderBy: desc(generationJobs.createdAt),
+  });
+  return job ?? null;
+}
+
+export async function updateJobStatus(
+  jobId: string,
+  status: "pending" | "in_progress" | "completed" | "failed",
+  currentStep?: string,
+  error?: string
+): Promise<void> {
+  await db
+    .update(generationJobs)
+    .set({
+      status,
+      currentStep: currentStep ?? null,
+      error: error ?? null,
+      updatedAt: new Date(),
+    })
+    .where(eq(generationJobs.id, jobId));
+}
+
+export async function markStepComplete(jobId: string, step: string): Promise<void> {
+  const job = await getGenerationJob(jobId);
+  if (!job) {
+    throw new Error(`Generation job not found: ${jobId}`);
+  }
+
+  const completedSteps = [...(job.completedSteps || []), step];
+
+  await db
+    .update(generationJobs)
+    .set({
+      completedSteps,
+      updatedAt: new Date(),
+    })
+    .where(eq(generationJobs.id, jobId));
 }

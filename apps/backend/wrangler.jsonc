@@ -25,4 +25,20 @@
       "tag": "v1",
     },
   ],
+  "queues": {
+    "producers": [
+      {
+        "binding": "PROBLEM_GENERATION_QUEUE",
+        "queue": "problem-generation",
+      },
+    ],
+    "consumers": [
+      {
+        "queue": "problem-generation",
+        "max_batch_size": 1,
+        "max_retries": 3,
+        "dead_letter_queue": "problem-generation-dlq",
+      },
+    ],
+  },
 }
