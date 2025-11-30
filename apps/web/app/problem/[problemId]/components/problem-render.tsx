@@ -23,6 +23,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { ClientFacingUserObject } from "@/lib/auth-types";
+import { signOutAction } from "@/app/(auth)/signout";
 
 function getStartingCode(language: string, functionSignature: string) {
   if (language === "typescript") {
@@ -126,6 +127,13 @@ export default function ProblemRender({
             Problems
           </Button>
         </Link>
+        <Button
+          variant={"outline"}
+          className="hover:cursor-pointer"
+          onClick={() => signOutAction()}
+        >
+          Logout
+        </Button>
       </div>
       <ResizablePanelGroup direction="horizontal" className="h-full w-full">
         <ResizablePanel defaultSize={20} className="h-full">

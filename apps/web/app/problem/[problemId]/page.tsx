@@ -1,4 +1,4 @@
-import { withAuth } from "@workos-inc/authkit-nextjs";
+import { withAuth, signOut } from "@workos-inc/authkit-nextjs";
 import ProblemRender from "./components/problem-render";
 import { redirect } from "next/navigation";
 import { ClientFacingUserObject } from "@/lib/auth-types";
