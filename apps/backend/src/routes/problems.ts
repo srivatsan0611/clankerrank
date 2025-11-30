@@ -31,6 +31,31 @@ const getSandboxInstance = (env: Env, sandboxId: string): Sandbox => {
   return new Sandbox(cloudflareSandbox);
 };
 
+// Helper to enqueue first step if autoGenerate is enabled (for problem creation)
+async function enqueueFirstStepIfAuto(
+  c: Context<{ Bindings: Env }>,
+  problemId: string
+): Promise<string | null> {
+  const autoGenerate = c.req.query("autoGenerate") !== "false"; // default true
+
+  if (!autoGenerate) return null;
+
+  // Create job
+  const jobId = await createGenerationJob(problemId);
+
+  // Enqueue the first step: generateProblemText
+  const firstStep = STEP_ORDER[0];
+  if (firstStep) {
+    await c.env.PROBLEM_GENERATION_QUEUE.send({
+      jobId,
+      problemId,
+      step: firstStep,
+    });
+  }
+
+  return jobId;
+}
+
 // Helper to enqueue next step if autoGenerate is enabled
 async function enqueueNextStepIfAuto(
   c: Context<{ Bindings: Env }>,
@@ -69,26 +94,13 @@ async function enqueueNextStepIfAuto(
   return job.id;
 }
 
-// Create problem with generated text
+// Create problem
 problems.post("/", async (c) => {
   const problemId = await createProblem();
-  const result = await generateProblemText(problemId);
 
-  // Create job and enqueue next step
-  const jobId = await createGenerationJob(problemId);
-  const autoGenerate = c.req.query("autoGenerate") !== "false";
-  if (autoGenerate) {
-    const nextStep = getNextStep("generateProblemText");
-    if (nextStep) {
-      await c.env.PROBLEM_GENERATION_QUEUE.send({
-        jobId,
-        problemId,
-        step: nextStep,
-      });
-    }
-  }
+  const jobId = await enqueueFirstStepIfAuto(c, problemId);
 
-  return c.json({ success: true, data: { problemId, jobId, ...result } });
+  return c.json({ success: true, data: { problemId, jobId } });
 });
 
 // Problem text
@@ -96,7 +108,11 @@ problems.post("/:problemId/text/generate", async (c) => {
   const problemId = c.req.param("problemId");
   const result = await generateProblemText(problemId);
 
-  const jobId = await enqueueNextStepIfAuto(c, problemId, "generateProblemText");
+  const jobId = await enqueueNextStepIfAuto(
+    c,
+    problemId,
+    "generateProblemText"
+  );
 
   return c.json({ success: true, data: { ...result, jobId } });
 });
@@ -128,7 +144,11 @@ problems.post("/:problemId/test-cases/input-code/generate", async (c) => {
   const problemId = c.req.param("problemId");
   const result = await generateTestCaseInputCode(problemId);
 
-  const jobId = await enqueueNextStepIfAuto(c, problemId, "generateTestCaseInputCode");
+  const jobId = await enqueueNextStepIfAuto(
+    c,
+    problemId,
+    "generateTestCaseInputCode"
+  );
 
   return c.json({ success: true, data: { ...result, jobId } });
 });
@@ -146,7 +166,11 @@ problems.post("/:problemId/test-cases/inputs/generate", async (c) => {
   const sandbox = getSandboxInstance(c.env, sandboxId);
   const result = await generateTestCaseInputs(problemId, sandbox);
 
-  const jobId = await enqueueNextStepIfAuto(c, problemId, "generateTestCaseInputs");
+  const jobId = await enqueueNextStepIfAuto(
+    c,
+    problemId,
+    "generateTestCaseInputs"
+  );
 
   return c.json({ success: true, data: { result, jobId } });
 });
@@ -181,7 +205,11 @@ problems.post("/:problemId/test-cases/outputs/generate", async (c) => {
   const result = await generateTestCaseOutputs(problemId, sandbox);
 
   // This is the last step, no need to enqueue anything
-  const jobId = await enqueueNextStepIfAuto(c, problemId, "generateTestCaseOutputs");
+  const jobId = await enqueueNextStepIfAuto(
+    c,
+    problemId,
+    "generateTestCaseOutputs"
+  );
 
   return c.json({ success: true, data: { result, jobId } });
 });
