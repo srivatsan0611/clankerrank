@@ -17,6 +17,7 @@ import {
   useTestCaseInputCode,
   useTestCaseInputs,
   useSolution,
+  useGenerateSolutionWithModel,
   useTestCaseOutputs,
   useRunUserSolution,
   useGenerationStatus,
@@ -102,6 +103,12 @@ export default function ProblemRender({
     getData: getSolution,
     generateData: callGenerateSolution,
   } = useSolution(problemId, user.apiKey);
+
+  const {
+    isLoading: isGenerateSolutionWithModelLoading,
+    error: generateSolutionWithModelError,
+    generateData: callGenerateSolutionWithModel,
+  } = useGenerateSolutionWithModel(problemId, user.apiKey);
 
   const {
     isLoading: isModelsLoading,
@@ -514,8 +521,19 @@ export default function ProblemRender({
               )}
             </div>
             <div>
-              <Button variant={"outline"} onClick={() => callRunUserSolution()}>
-                Run User Solution
+              <Button
+                variant={"outline"}
+                onClick={async () => {
+                  try {
+                    await callRunUserSolution();
+                  } catch (error) {
+                    // Error is handled by the hook's error state
+                    console.error("Failed to run user solution:", error);
+                  }
+                }}
+                disabled={isRunUserSolutionLoading}
+              >
+                {isRunUserSolutionLoading ? "Running..." : "Run User Solution"}
               </Button>
             </div>
             <div className="space-y-2">
@@ -541,7 +559,7 @@ export default function ProblemRender({
                     <Select
                       value={selectedModel}
                       onValueChange={setSelectedModel}
-                      disabled={isGenerateSolutionLoading}
+                      disabled={isGenerateSolutionWithModelLoading}
                     >
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select a model" />
@@ -564,7 +582,7 @@ export default function ProblemRender({
                       return;
                     }
                     try {
-                      const generatedSolution = await callGenerateSolution(
+                      const generatedSolution = await callGenerateSolutionWithModel(
                         selectedModel,
                         false,
                         false
@@ -576,16 +594,21 @@ export default function ProblemRender({
                       console.error("Failed to generate solution:", error);
                     }
                   }}
-                  disabled={isGenerateSolutionLoading || !selectedModel}
+                  disabled={isGenerateSolutionWithModelLoading || !selectedModel}
                 >
-                  {isGenerateSolutionLoading
+                  {isGenerateSolutionWithModelLoading
                     ? "Generating..."
                     : "Generate Solution"}
                 </Button>
               </div>
             </div>
             {isRunUserSolutionLoading ? (
-              <Loader />
+              <div className="flex items-center gap-2 py-4">
+                <Loader />
+                <span className="text-sm text-muted-foreground">
+                  Running tests...
+                </span>
+              </div>
             ) : (
               <>
                 {userSolutionError && (

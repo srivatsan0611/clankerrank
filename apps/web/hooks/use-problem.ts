@@ -266,6 +266,54 @@ export function useSolution(
   };
 }
 
+export function useGenerateSolutionWithModel(
+  problemId: string | null,
+  encryptedUserId?: string
+) {
+  const generateMutation = useMutation({
+    mutationFn: async ({
+      id,
+      model,
+      updateProblem,
+      enqueueNextStep,
+    }: {
+      id: string;
+      model: string;
+      updateProblem?: boolean;
+      enqueueNextStep?: boolean;
+    }) => {
+      return await generateSolution(
+        id,
+        model,
+        encryptedUserId,
+        updateProblem,
+        enqueueNextStep
+      );
+    },
+  });
+
+  const generateData = async (
+    model: string,
+    updateProblem?: boolean,
+    enqueueNextStep?: boolean
+  ) => {
+    if (!problemId) throw new Error("Problem ID is not set");
+    return generateMutation.mutateAsync({
+      id: problemId,
+      model,
+      updateProblem,
+      enqueueNextStep,
+    });
+  };
+
+  return {
+    isLoading: generateMutation.isPending,
+    error: generateMutation.error,
+    data: generateMutation.data,
+    generateData,
+  };
+}
+
 export function useTestCaseOutputs(
   problemId: string | null,
   encryptedUserId?: string
