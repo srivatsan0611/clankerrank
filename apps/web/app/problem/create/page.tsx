@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { withAuth } from "@workos-inc/authkit-nextjs";
 import { encryptUserId } from "@/lib/auth-utils";
-import { createProblem } from "@/actions/create-problem";
+import CreateProblemForm from "./components/create-problem-form";
 
 export default async function CreateProblemPage() {
   const { user } = await withAuth({
@@ -13,6 +13,6 @@ export default async function CreateProblemPage() {
   }
 
   const encryptedUserId = encryptUserId(user.id);
-  const { problemId } = await createProblem(encryptedUserId);
-  redirect(`/problem/${problemId}`);
+
+  return <CreateProblemForm encryptedUserId={encryptedUserId} />;
 }

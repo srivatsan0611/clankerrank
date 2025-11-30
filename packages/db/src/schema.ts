@@ -9,11 +9,18 @@ import {
   timestamp,
 } from "drizzle-orm/pg-core";
 
+export const models = pgTable("models", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull().unique(),
+});
+
 export const problems = pgTable("problems", {
   id: uuid("id").primaryKey().defaultRandom(),
   problemText: text("problem_text").notNull(),
   functionSignature: text("function_signature").notNull(),
   solution: text("solution"),
+  generatedByModelId: uuid("generated_by_model_id").references(() => models.id),
+  generatedByUserId: text("generated_by_user_id"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -33,8 +40,16 @@ export const testCases = pgTable("test_cases", {
 });
 
 // Relations
-export const problemsRelations = relations(problems, ({ many }) => ({
+export const modelsRelations = relations(models, ({ many }) => ({
+  problems: many(problems),
+}));
+
+export const problemsRelations = relations(problems, ({ many, one }) => ({
   testCases: many(testCases),
+  generatedByModel: one(models, {
+    fields: [problems.generatedByModelId],
+    references: [models.id],
+  }),
 }));
 
 export const testCasesRelations = relations(testCases, ({ one }) => ({
@@ -57,6 +72,7 @@ export const generationJobs = pgTable("generation_jobs", {
   problemId: uuid("problem_id")
     .notNull()
     .references(() => problems.id, { onDelete: "cascade" }),
+  modelId: uuid("model_id").references(() => models.id),
   status: generationJobStatus("status").notNull().default("pending"),
   currentStep: text("current_step"),
   completedSteps: jsonb("completed_steps").$type<string[]>().default([]),
@@ -70,9 +86,15 @@ export const generationJobsRelations = relations(generationJobs, ({ one }) => ({
     fields: [generationJobs.problemId],
     references: [problems.id],
   }),
+  model: one(models, {
+    fields: [generationJobs.modelId],
+    references: [models.id],
+  }),
 }));
 
 // Type exports
+export type Model = typeof models.$inferSelect;
+export type NewModel = typeof models.$inferInsert;
 export type Problem = typeof problems.$inferSelect;
 export type NewProblem = typeof problems.$inferInsert;
 export type TestCase = typeof testCases.$inferSelect;

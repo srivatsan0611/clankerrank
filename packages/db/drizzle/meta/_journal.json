@@ -29,6 +29,13 @@
       "when": 1764485492901,
       "tag": "0003_round_moon_knight",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1764533478786,
+      "tag": "0004_third_living_mummy",
+      "breakpoints": true
     }
   ]
 }

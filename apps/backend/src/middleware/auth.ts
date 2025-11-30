@@ -14,6 +14,7 @@ export const apiKeyAuth = createMiddleware(async (c, next) => {
   try {
     const decryptedUserId = await decryptUserId(apiKey);
     console.log("Decrypted user ID:", decryptedUserId);
+    c.set("userId", decryptedUserId);
   } catch (error) {
     console.error("Failed to decrypt user ID:", error);
     throw new HTTPException(403, {

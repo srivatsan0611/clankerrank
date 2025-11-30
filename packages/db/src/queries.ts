@@ -1,11 +1,14 @@
 import { eq, desc } from "drizzle-orm";
 import db from "../index";
 import {
+  models,
   problems,
   testCases,
   generationJobs,
+  type Model,
   type Problem,
   type TestCase,
+  type NewModel,
   type NewProblem,
   type NewTestCase,
   type GenerationJob,
@@ -13,12 +16,43 @@ import {
 } from "./schema";
 
 // Re-export types for convenience
-export type { Problem, TestCase, NewProblem, NewTestCase, GenerationJob, NewGenerationJob };
+export type { Model, Problem, TestCase, NewModel, NewProblem, NewTestCase, GenerationJob, NewGenerationJob };
 
 // Problem with test cases type for getProblem
 export type ProblemWithTestCases = Problem & {
   testCases: TestCase[];
 };
+
+// Model functions
+
+export async function createModel(name: string): Promise<string> {
+  const [result] = await db
+    .insert(models)
+    .values({ name })
+    .returning({ id: models.id });
+
+  return result.id;
+}
+
+export async function getModel(modelId: string): Promise<Model | null> {
+  const model = await db.query.models.findFirst({
+    where: eq(models.id, modelId),
+  });
+  return model ?? null;
+}
+
+export async function getModelByName(name: string): Promise<Model | null> {
+  const model = await db.query.models.findFirst({
+    where: eq(models.name, name),
+  });
+  return model ?? null;
+}
+
+export async function listModels(): Promise<Model[]> {
+  return db.query.models.findMany({
+    orderBy: models.name,
+  });
+}
 
 // Problem functions
 
@@ -31,6 +65,7 @@ export async function createProblem(
       problemText: data?.problemText ?? "",
       functionSignature: data?.functionSignature ?? "",
       solution: data?.solution ?? "",
+      generatedByUserId: data?.generatedByUserId ?? null,
     })
     .returning({ id: problems.id });
 
@@ -153,11 +188,15 @@ export async function replaceTestCases(
 
 // Generation Job functions
 
-export async function createGenerationJob(problemId: string): Promise<string> {
+export async function createGenerationJob(
+  problemId: string,
+  modelId?: string
+): Promise<string> {
   const [result] = await db
     .insert(generationJobs)
     .values({
       problemId,
+      modelId: modelId ?? null,
       status: "pending",
       completedSteps: [],
     })

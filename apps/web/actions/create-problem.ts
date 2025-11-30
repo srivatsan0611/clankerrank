@@ -1,9 +1,12 @@
 import { backendPost } from "@/lib/backend-client";
 
-export async function createProblem(encryptedUserId?: string) {
+export async function createProblem(
+  model: string,
+  encryptedUserId?: string
+) {
   return backendPost<{
     problemId: string;
     jobId: string | null;
-  }>("/problems", undefined, encryptedUserId);
+  }>("/problems", { model }, encryptedUserId);
 }
 

@@ -10,6 +10,7 @@ export interface QueueMessage {
   jobId: string;
   problemId: string;
   step: GenerationStep;
+  model?: string;
 }
 
 // Step order for sequential execution

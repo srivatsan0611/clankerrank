@@ -21,7 +21,13 @@ import {
   createProblem,
   createGenerationJob,
   getLatestJobForProblem,
+  createModel,
+  getModelByName,
+  listModels,
+  updateProblem,
+  getProblem,
 } from "@repo/db";
+import { DEFAULT_MODEL } from "@/problem-actions/src/constants";
 import { getNextStep, STEP_ORDER, type GenerationStep } from "../queue/types";
 
 const problems = new Hono<{ Bindings: Env }>();
@@ -31,17 +37,29 @@ const getSandboxInstance = (env: Env, sandboxId: string): Sandbox => {
   return new Sandbox(cloudflareSandbox);
 };
 
+// Helper to get or create model
+async function getOrCreateModel(modelName: string): Promise<string> {
+  let model = await getModelByName(modelName);
+  if (!model) {
+    const modelId = await createModel(modelName);
+    return modelId;
+  }
+  return model.id;
+}
+
 // Helper to enqueue first step if autoGenerate is enabled (for problem creation)
 async function enqueueFirstStepIfAuto(
   c: Context<{ Bindings: Env }>,
-  problemId: string
+  problemId: string,
+  model?: string
 ): Promise<string | null> {
   const autoGenerate = c.req.query("autoGenerate") !== "false"; // default true
 
   if (!autoGenerate) return null;
 
   // Create job
-  const jobId = await createGenerationJob(problemId);
+  const modelId = model ? await getOrCreateModel(model) : undefined;
+  const jobId = await createGenerationJob(problemId, modelId);
 
   // Enqueue the first step: generateProblemText
   const firstStep = STEP_ORDER[0];
@@ -50,6 +68,7 @@ async function enqueueFirstStepIfAuto(
       jobId,
       problemId,
       step: firstStep,
+      model,
     });
   }
 
@@ -60,7 +79,8 @@ async function enqueueFirstStepIfAuto(
 async function enqueueNextStepIfAuto(
   c: Context<{ Bindings: Env }>,
   problemId: string,
-  currentStep: GenerationStep
+  currentStep: GenerationStep,
+  model?: string
 ): Promise<string | null> {
   const autoGenerate = c.req.query("autoGenerate") !== "false"; // default true
 
@@ -69,10 +89,12 @@ async function enqueueNextStepIfAuto(
   // Get or create job
   let job = await getLatestJobForProblem(problemId);
   if (!job || job.status === "completed" || job.status === "failed") {
-    const jobId = await createGenerationJob(problemId);
+    const modelId = model ? await getOrCreateModel(model) : undefined;
+    const jobId = await createGenerationJob(problemId, modelId);
     job = {
       id: jobId,
       problemId,
+      modelId: modelId ?? null,
       status: "pending",
       completedSteps: [],
       currentStep: null,
@@ -88,17 +110,62 @@ async function enqueueNextStepIfAuto(
       jobId: job.id,
       problemId,
       step: nextStep,
+      model,
     });
   }
 
   return job.id;
 }
 
+// Models routes
+problems.get("/models", async (c) => {
+  const models = await listModels();
+  return c.json({ success: true, data: models });
+});
+
+problems.post("/models", async (c) => {
+  const body = await c.req.json<{ name: string }>();
+  if (!body.name) {
+    return c.json(
+      {
+        success: false,
+        error: { code: "VALIDATION_ERROR", message: "name is required" },
+      },
+      400
+    );
+  }
+
+  try {
+    const modelId = await createModel(body.name);
+    const model = await getModelByName(body.name);
+    return c.json({ success: true, data: model });
+  } catch (error) {
+    return c.json(
+      {
+        success: false,
+        error: {
+          code: "DUPLICATE_ERROR",
+          message: "Model with this name already exists",
+        },
+      },
+      409
+    );
+  }
+});
+
 // Create problem
 problems.post("/", async (c) => {
-  const problemId = await createProblem();
+  const userId = c.get("userId");
+  const body = await c.req.json<{ model?: string }>();
+  const model = body?.model || DEFAULT_MODEL;
 
-  const jobId = await enqueueFirstStepIfAuto(c, problemId);
+  const problemId = await createProblem({ generatedByUserId: userId });
+
+  // Get or create model and update problem
+  const modelId = await getOrCreateModel(model);
+  await updateProblem(problemId, { generatedByModelId: modelId });
+
+  const jobId = await enqueueFirstStepIfAuto(c, problemId, model);
 
   return c.json({ success: true, data: { problemId, jobId } });
 });
@@ -106,12 +173,23 @@ problems.post("/", async (c) => {
 // Problem text
 problems.post("/:problemId/text/generate", async (c) => {
   const problemId = c.req.param("problemId");
-  const result = await generateProblemText(problemId);
+  const body = await c.req.json<{ model?: string }>();
+  const model = body?.model || DEFAULT_MODEL;
+
+  // Update problem with model if not set
+  const problem = await getProblem(problemId);
+  if (!problem.generatedByModelId) {
+    const modelId = await getOrCreateModel(model);
+    await updateProblem(problemId, { generatedByModelId: modelId });
+  }
+
+  const result = await generateProblemText(problemId, model);
 
   const jobId = await enqueueNextStepIfAuto(
     c,
     problemId,
-    "generateProblemText"
+    "generateProblemText",
+    model
   );
 
   return c.json({ success: true, data: { ...result, jobId } });
@@ -126,9 +204,19 @@ problems.get("/:problemId/text", async (c) => {
 // Test cases
 problems.post("/:problemId/test-cases/generate", async (c) => {
   const problemId = c.req.param("problemId");
-  const result = await generateTestCases(problemId);
+  const body = await c.req.json<{ model?: string }>();
+  const model = body?.model || DEFAULT_MODEL;
 
-  const jobId = await enqueueNextStepIfAuto(c, problemId, "generateTestCases");
+  // Update problem with model if not set
+  const problem = await getProblem(problemId);
+  if (!problem.generatedByModelId) {
+    const modelId = await getOrCreateModel(model);
+    await updateProblem(problemId, { generatedByModelId: modelId });
+  }
+
+  const result = await generateTestCases(problemId, model);
+
+  const jobId = await enqueueNextStepIfAuto(c, problemId, "generateTestCases", model);
 
   return c.json({ success: true, data: { ...result, jobId } });
 });
@@ -142,12 +230,23 @@ problems.get("/:problemId/test-cases", async (c) => {
 // Test case input code
 problems.post("/:problemId/test-cases/input-code/generate", async (c) => {
   const problemId = c.req.param("problemId");
-  const result = await generateTestCaseInputCode(problemId);
+  const body = await c.req.json<{ model?: string }>();
+  const model = body?.model || DEFAULT_MODEL;
+
+  // Update problem with model if not set
+  const problem = await getProblem(problemId);
+  if (!problem.generatedByModelId) {
+    const modelId = await getOrCreateModel(model);
+    await updateProblem(problemId, { generatedByModelId: modelId });
+  }
+
+  const result = await generateTestCaseInputCode(problemId, model);
 
   const jobId = await enqueueNextStepIfAuto(
     c,
     problemId,
-    "generateTestCaseInputCode"
+    "generateTestCaseInputCode",
+    model
   );
 
   return c.json({ success: true, data: { ...result, jobId } });
@@ -184,9 +283,19 @@ problems.get("/:problemId/test-cases/inputs", async (c) => {
 // Solution
 problems.post("/:problemId/solution/generate", async (c) => {
   const problemId = c.req.param("problemId");
-  const result = await generateSolution(problemId);
+  const body = await c.req.json<{ model?: string }>();
+  const model = body?.model || DEFAULT_MODEL;
 
-  const jobId = await enqueueNextStepIfAuto(c, problemId, "generateSolution");
+  // Update problem with model if not set
+  const problem = await getProblem(problemId);
+  if (!problem.generatedByModelId) {
+    const modelId = await getOrCreateModel(model);
+    await updateProblem(problemId, { generatedByModelId: modelId });
+  }
+
+  const result = await generateSolution(problemId, model);
+
+  const jobId = await enqueueNextStepIfAuto(c, problemId, "generateSolution", model);
 
   return c.json({ success: true, data: { solution: result, jobId } });
 });
