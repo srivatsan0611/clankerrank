@@ -47,7 +47,7 @@ export default function ProblemRender({
     data: problemText,
     getData: getProblemText,
     generateData: callGenerateProblemText,
-  } = useProblemText(problemId);
+  } = useProblemText(problemId, user.apiKey);
 
   useEffect(() => {
     if (!problemText) getProblemText();
@@ -65,7 +65,7 @@ export default function ProblemRender({
     data: testCases,
     getData: getTestCases,
     generateData: callGenerateTestCases,
-  } = useTestCases(problemId);
+  } = useTestCases(problemId, user.apiKey);
 
   const {
     isLoading: isTestCaseInputsLoading,
@@ -73,7 +73,7 @@ export default function ProblemRender({
     data: testCaseInputCode,
     getData: getCodeToGenerateTestCaseInputs,
     generateData: callGenerateTestCaseInputCode,
-  } = useTestCaseInputCode(problemId);
+  } = useTestCaseInputCode(problemId, user.apiKey);
 
   const {
     isLoading: isGenerateTestCaseInputsLoading,
@@ -81,7 +81,7 @@ export default function ProblemRender({
     data: testCaseInputs,
     getData: getTestCaseInputs,
     generateData: callGenerateTestCaseInputs,
-  } = useTestCaseInputs(problemId);
+  } = useTestCaseInputs(problemId, user.apiKey);
 
   const {
     isLoading: isGenerateSolutionLoading,
@@ -89,7 +89,7 @@ export default function ProblemRender({
     data: solution,
     getData: getSolution,
     generateData: callGenerateSolution,
-  } = useSolution(problemId);
+  } = useSolution(problemId, user.apiKey);
 
   const {
     isLoading: isGenerateTestCaseOutputsLoading,
@@ -97,14 +97,14 @@ export default function ProblemRender({
     data: testCaseOutputs,
     getData: getTestCaseOutputs,
     generateData: callGenerateTestCaseOutputs,
-  } = useTestCaseOutputs(problemId);
+  } = useTestCaseOutputs(problemId, user.apiKey);
 
   const {
     isLoading: isRunUserSolutionLoading,
     error: userSolutionError,
     data: userSolutionTestResults,
     runData: callRunUserSolution,
-  } = useRunUserSolution(problemId, userSolution);
+  } = useRunUserSolution(problemId, userSolution, user.apiKey);
 
   useEffect(() => {
     if (solution) {
