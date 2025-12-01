@@ -287,6 +287,13 @@ export default function ProblemRender({
                   >
                     {problemText ? "Re-generate" : "Generate"} Problem Text
                   </Button>
+                  <Button
+                    variant={"outline"}
+                    onClick={() => callGenerateProblemText(selectedModel, true)}
+                    disabled={!selectedModel}
+                  >
+                    {problemText ? "Re-generate" : "Generate"} Problem Text (force error)
+                  </Button>
                   <Button variant={"outline"} onClick={() => getProblemText()}>
                     Re-fetch Problem Text
                   </Button>
@@ -340,6 +347,14 @@ export default function ProblemRender({
                     {testCases ? "Re-generate" : "Generate"} Test Case
                     Descriptions
                   </Button>
+                  <Button
+                    variant={"outline"}
+                    onClick={() => callGenerateTestCases(selectedModel, true)}
+                    disabled={!selectedModel}
+                  >
+                    {testCases ? "Re-generate" : "Generate"} Test Case
+                    Descriptions (force error)
+                  </Button>
                   <Button variant={"outline"} onClick={() => getTestCases()}>
                     Re-fetch Test Case Descriptions
                   </Button>
@@ -386,6 +401,14 @@ export default function ProblemRender({
                   >
                     {testCaseInputCode ? "Re-generate" : "Generate"} Test Case
                     Input Code
+                  </Button>
+                  <Button
+                    variant={"outline"}
+                    onClick={() => callGenerateTestCaseInputCode(selectedModel, true)}
+                    disabled={!selectedModel}
+                  >
+                    {testCaseInputCode ? "Re-generate" : "Generate"} Test Case
+                    Input Code (force error)
                   </Button>
                   <Button
                     variant={"outline"}
@@ -478,6 +501,12 @@ export default function ProblemRender({
                     onClick={() => callGenerateSolution(selectedModel)}
                   >
                     {solution ? "Re-generate" : "Generate"} Solution
+                  </Button>
+                  <Button
+                    variant={"outline"}
+                    onClick={() => callGenerateSolution(selectedModel, undefined, undefined, true)}
+                  >
+                    {solution ? "Re-generate" : "Generate"} Solution (force error)
                   </Button>
                   <Button variant={"outline"} onClick={() => getSolution()}>
                     Re-fetch Solution
@@ -636,6 +665,36 @@ export default function ProblemRender({
                   {isGenerateSolutionWithModelLoading
                     ? "Generating..."
                     : "Generate Solution"}
+                </Button>
+                <Button
+                  variant={"outline"}
+                  onClick={async () => {
+                    if (!selectedModel) {
+                      alert("Please select a model");
+                      return;
+                    }
+                    try {
+                      const generatedSolution =
+                        await callGenerateSolutionWithModel(
+                          selectedModel,
+                          false,
+                          false,
+                          true
+                        );
+                      if (generatedSolution) {
+                        setUserSolution(generatedSolution);
+                      }
+                    } catch (error) {
+                      console.error("Failed to generate solution:", error);
+                    }
+                  }}
+                  disabled={
+                    isGenerateSolutionWithModelLoading || !selectedModel
+                  }
+                >
+                  {isGenerateSolutionWithModelLoading
+                    ? "Generating..."
+                    : "Generate Solution (force error)"}
                 </Button>
               </div>
             </div>

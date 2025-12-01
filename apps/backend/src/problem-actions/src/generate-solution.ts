@@ -8,8 +8,12 @@ export async function generateSolution(
   problemId: string,
   model: string,
   userId: string,
-  updateProblemInDb: boolean = true
+  updateProblemInDb: boolean = true,
+  forceError?: boolean
 ) {
+  if (forceError) {
+    throw new Error("Force error: generateObject call skipped");
+  }
   const { problemText, functionSignature, testCases } =
     await getProblem(problemId);
 

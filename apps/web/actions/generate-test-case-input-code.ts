@@ -10,10 +10,11 @@ export async function generateTestCaseInputCode(
   model: string,
   encryptedUserId?: string,
   enqueueNextStep: boolean = true,
+  forceError?: boolean,
 ) {
   const data = await apiPost<InputCodeGenerateResponse>(
     `/${problemId}/test-cases/input-code/generate`,
-    { model, enqueueNextStep },
+    { model, enqueueNextStep, forceError },
     encryptedUserId,
   );
   return data.inputCodes;

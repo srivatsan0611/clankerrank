@@ -6,8 +6,12 @@ import { getTracedClient } from "@/utils/ai";
 export async function generateProblemText(
   problemId: string,
   model: string,
-  userId: string
+  userId: string,
+  forceError?: boolean
 ) {
+  if (forceError) {
+    throw new Error("Force error: generateObject call skipped");
+  }
   const tracedModel = getTracedClient(model, userId, problemId, model);
   const { object } = await generateObject({
     model: tracedModel,

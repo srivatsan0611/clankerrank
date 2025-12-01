@@ -10,10 +10,11 @@ export async function generateProblemText(
   model: string,
   encryptedUserId?: string,
   enqueueNextStep: boolean = true,
+  forceError?: boolean,
 ) {
   const data = await apiPost<ProblemTextGenerateResponse>(
     `/${problemId}/text/generate`,
-    { model, enqueueNextStep },
+    { model, enqueueNextStep, forceError },
     encryptedUserId,
   );
   return {

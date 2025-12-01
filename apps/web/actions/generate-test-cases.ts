@@ -11,10 +11,11 @@ export async function generateTestCases(
   model: string,
   encryptedUserId?: string,
   enqueueNextStep: boolean = true,
+  forceError?: boolean,
 ) {
   const data = await apiPost<TestCasesGenerateResponse>(
     `/${problemId}/test-cases/generate`,
-    { model, enqueueNextStep },
+    { model, enqueueNextStep, forceError },
     encryptedUserId,
   );
   return data.testCases;

@@ -12,10 +12,11 @@ export async function generateSolution(
   encryptedUserId?: string,
   updateProblem: boolean = true,
   enqueueNextStep: boolean = true,
+  forceError?: boolean,
 ) {
   const data = await apiPost<SolutionGenerateResponse>(
     `/${problemId}/solution/generate`,
-    { model, updateProblem, enqueueNextStep },
+    { model, updateProblem, enqueueNextStep, forceError },
     encryptedUserId,
   );
   return data.solution;

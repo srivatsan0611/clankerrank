@@ -7,8 +7,12 @@ import { getTracedClient } from "@/utils/ai";
 export async function generateTestCaseInputCode(
   problemId: string,
   model: string,
-  userId: string
+  userId: string,
+  forceError?: boolean
 ) {
+  if (forceError) {
+    throw new Error("Force error: generateObject call skipped");
+  }
   const { problemText, functionSignature, testCases } =
     await getProblem(problemId);
 

@@ -29,6 +29,10 @@ export const GenerateRequestSchema = z
       description: "Whether to automatically enqueue the next generation step",
       example: true,
     }),
+    forceError: z.boolean().optional().openapi({
+      description: "If true, throw an error instead of calling generateObject",
+      example: false,
+    }),
   })
   .openapi("GenerateRequest");
 
