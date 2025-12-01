@@ -79,7 +79,7 @@ async function enqueueFirstStepIfAuto(
   c: Context<{ Bindings: Env; Variables: { userId: string } }>,
   problemId: string,
   model?: string,
-  autoGenerate: boolean = true
+  autoGenerate: boolean = true,
 ): Promise<string | null> {
   if (!autoGenerate) return null;
 
@@ -107,7 +107,7 @@ async function enqueueNextStepIfEnabled(
   problemId: string,
   currentStep: GenerationStep,
   model?: string,
-  enqueueNextStep: boolean = true
+  enqueueNextStep: boolean = true,
 ): Promise<string | null> {
   if (!enqueueNextStep) return null;
 
@@ -176,7 +176,7 @@ problems.openapi(createModelRoute, async (c) => {
           message: "Model with this name already exists",
         },
       },
-      409
+      409,
     );
   }
 });
@@ -191,7 +191,7 @@ problems.openapi(createProblemRoute, async (c) => {
         success: false as const,
         error: { code: "AUTH_ERROR", message: "User ID not found in context" },
       },
-      500
+      500,
     );
   }
 
@@ -209,7 +209,7 @@ problems.openapi(createProblemRoute, async (c) => {
     c,
     problemId,
     body.model,
-    autoGenerate
+    autoGenerate,
   );
 
   return c.json({ success: true as const, data: { problemId, jobId } }, 200);
@@ -233,7 +233,7 @@ problems.openapi(generateProblemTextRoute, async (c) => {
     problemId,
     body.model,
     userId,
-    body.forceError
+    body.forceError,
   );
 
   const enqueueNext = body.enqueueNextStep !== false;
@@ -242,7 +242,7 @@ problems.openapi(generateProblemTextRoute, async (c) => {
     problemId,
     "generateProblemText",
     body.model,
-    enqueueNext
+    enqueueNext,
   );
 
   return c.json({ success: true as const, data: { ...result, jobId } }, 200);
@@ -272,7 +272,7 @@ problems.openapi(generateTestCasesRoute, async (c) => {
     problemId,
     body.model,
     userId,
-    body.forceError
+    body.forceError,
   );
 
   const enqueueNext = body.enqueueNextStep !== false;
@@ -281,12 +281,12 @@ problems.openapi(generateTestCasesRoute, async (c) => {
     problemId,
     "generateTestCases",
     body.model,
-    enqueueNext
+    enqueueNext,
   );
 
   return c.json(
     { success: true as const, data: { testCases: result, jobId } },
-    200
+    200,
   );
 });
 
@@ -314,7 +314,7 @@ problems.openapi(generateInputCodeRoute, async (c) => {
     problemId,
     body.model,
     userId,
-    body.forceError
+    body.forceError,
   );
 
   const enqueueNext = body.enqueueNextStep !== false;
@@ -323,12 +323,12 @@ problems.openapi(generateInputCodeRoute, async (c) => {
     problemId,
     "generateTestCaseInputCode",
     body.model,
-    enqueueNext
+    enqueueNext,
   );
 
   return c.json(
     { success: true as const, data: { inputCodes: result, jobId } },
-    200
+    200,
   );
 });
 
@@ -354,12 +354,12 @@ problems.openapi(generateInputsRoute, async (c) => {
     problemId,
     "generateTestCaseInputs",
     body?.model,
-    enqueueNext
+    enqueueNext,
   );
 
   return c.json(
     { success: true as const, data: { testCases: result, jobId } },
-    200
+    200,
   );
 });
 
@@ -389,7 +389,7 @@ problems.openapi(generateSolutionRoute, async (c) => {
     body.model,
     userId,
     updateProblemInDb,
-    body.forceError
+    body.forceError,
   );
 
   const enqueueNext = body.enqueueNextStep !== false;
@@ -398,12 +398,12 @@ problems.openapi(generateSolutionRoute, async (c) => {
     problemId,
     "generateSolution",
     body.model,
-    enqueueNext
+    enqueueNext,
   );
 
   return c.json(
     { success: true as const, data: { solution: result, jobId } },
-    200
+    200,
   );
 });
 
@@ -439,12 +439,12 @@ problems.openapi(generateOutputsRoute, async (c) => {
     problemId,
     "generateTestCaseOutputs",
     body?.model,
-    enqueueNext
+    enqueueNext,
   );
 
   return c.json(
     { success: true as const, data: { testCases: result, jobId } },
-    200
+    200,
   );
 });
 
@@ -466,7 +466,7 @@ problems.openapi(getGenerationStatusRoute, async (c) => {
         success: true as const,
         data: { status: "none" as const },
       },
-      200
+      200,
     );
   }
 
@@ -489,7 +489,7 @@ problems.openapi(getGenerationStatusRoute, async (c) => {
         error: job.error ?? undefined,
       },
     },
-    200
+    200,
   );
 });
 

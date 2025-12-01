@@ -8,7 +8,7 @@ export async function generateTestCaseInputCode(
   problemId: string,
   model: string,
   userId: string,
-  forceError?: boolean
+  forceError?: boolean,
 ) {
   if (forceError) {
     throw new Error("Force error: generateObject call skipped");
@@ -18,7 +18,7 @@ export async function generateTestCaseInputCode(
 
   if (!testCases || testCases.length === 0) {
     throw new Error(
-      "No test cases found. Please generate test case descriptions first."
+      "No test cases found. Please generate test case descriptions first.",
     );
   }
 
@@ -66,12 +66,12 @@ DO NOT INCLUDE ANYTHING BUT THE FUNCTION DEFINITION.
             inputCode: z
               .string()
               .describe(
-                `Executable ${DEFAULT_LANGUAGE} code that produces the test case input. NO COMMENTS OR OTHER TEXT. JUST THE CODE. DO NOT RETURN CONSTANTS YOURSELF, GENERATE CODE TO GENERATE THE CONSTANTS.`
+                `Executable ${DEFAULT_LANGUAGE} code that produces the test case input. NO COMMENTS OR OTHER TEXT. JUST THE CODE. DO NOT RETURN CONSTANTS YOURSELF, GENERATE CODE TO GENERATE THE CONSTANTS.`,
               ),
-          })
+          }),
         )
         .describe(
-          "An array of input code for each test case, in the same order as the test cases"
+          "An array of input code for each test case, in the same order as the test cases",
         )
         .length(testCases.length),
     }),
@@ -86,7 +86,7 @@ DO NOT INCLUDE ANYTHING BUT THE FUNCTION DEFINITION.
     const inputCode = object.testCaseInputs[index]?.inputCode;
     if (!inputCode) {
       throw new Error(
-        `Failed to generate input code for test case ${index + 1}`
+        `Failed to generate input code for test case ${index + 1}`,
       );
     }
     await updateTestCase(testCase.id, { inputCode });

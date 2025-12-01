@@ -18,12 +18,12 @@ app.use(
     origin: process.env.CORS_ORIGIN || "*",
     allowHeaders: ["Content-Type", "X-API-Key"],
     allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  })
+  }),
 );
 
 // Health check (no auth required)
 app.get("/health", (c) =>
-  c.json({ status: "ok", timestamp: new Date().toISOString() })
+  c.json({ status: "ok", timestamp: new Date().toISOString() }),
 );
 
 // Register security scheme for OpenAPI docs
@@ -86,7 +86,7 @@ app.onError((err, c) => {
       },
       timestamp: new Date().toISOString(),
     },
-    status
+    status,
   );
 });
 
@@ -101,7 +101,7 @@ app.notFound((c) => {
       },
       timestamp: new Date().toISOString(),
     },
-    404
+    404,
   );
 });
 

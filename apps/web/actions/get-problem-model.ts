@@ -10,4 +10,3 @@ export async function getProblemModel(
   );
   return data.model;
 }
-

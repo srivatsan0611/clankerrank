@@ -7,7 +7,7 @@ export async function generateProblemText(
   problemId: string,
   model: string,
   userId: string,
-  forceError?: boolean
+  forceError?: boolean,
 ) {
   if (forceError) {
     throw new Error("Force error: generateObject call skipped");
@@ -29,7 +29,7 @@ export async function generateProblemText(
       functionSignature: z
         .string()
         .describe(
-          "The empty function WITH NO OTHER TEXT, DO NOT INCLUDE FUNCTION NAME in TypeScript types DEFINED INLINE FOR CUSTOM TYPES -- for example, (nums: number[], k: number, customType: {something: string; anotherThing: number}): number"
+          "The empty function WITH NO OTHER TEXT, DO NOT INCLUDE FUNCTION NAME in TypeScript types DEFINED INLINE FOR CUSTOM TYPES -- for example, (nums: number[], k: number, customType: {something: string; anotherThing: number}): number",
         ),
     }),
   });

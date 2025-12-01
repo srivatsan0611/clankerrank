@@ -15,7 +15,7 @@ import { phClient } from "@/utils/analytics";
 
 export async function handleQueueBatch(
   batch: MessageBatch<QueueMessage>,
-  env: Env
+  env: Env,
 ): Promise<void> {
   try {
     for (const message of batch.messages) {
@@ -70,7 +70,7 @@ async function executeStep(
   step: GenerationStep,
   problemId: string,
   env: Env,
-  model: string
+  model: string,
 ): Promise<void> {
   if (!model) {
     throw new Error("Model is required for generation steps");
@@ -98,7 +98,7 @@ async function executeStep(
     case "generateTestCaseInputs":
       await generateTestCaseInputs(
         problemId,
-        getSandboxInstance(`inputs-${problemId}`)
+        getSandboxInstance(`inputs-${problemId}`),
       );
       break;
     case "generateSolution":
@@ -107,7 +107,7 @@ async function executeStep(
     case "generateTestCaseOutputs":
       await generateTestCaseOutputs(
         problemId,
-        getSandboxInstance(`outputs-${problemId}`)
+        getSandboxInstance(`outputs-${problemId}`),
       );
       break;
   }

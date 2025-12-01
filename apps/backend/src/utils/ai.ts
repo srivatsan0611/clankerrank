@@ -8,7 +8,7 @@ export const getTracedClient = (
   model: string,
   userId: string,
   problemId: string,
-  modelName: string
+  modelName: string,
 ) => {
   const baseClient = client(model);
   return withTracing(baseClient, phClient, {

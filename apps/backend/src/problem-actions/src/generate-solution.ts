@@ -9,7 +9,7 @@ export async function generateSolution(
   model: string,
   userId: string,
   updateProblemInDb: boolean = true,
-  forceError?: boolean
+  forceError?: boolean,
 ) {
   if (forceError) {
     throw new Error("Force error: generateObject call skipped");
@@ -19,7 +19,7 @@ export async function generateSolution(
 
   if (!testCases || testCases.length === 0) {
     throw new Error(
-      "No test cases found. Please generate test case descriptions first."
+      "No test cases found. Please generate test case descriptions first.",
     );
   }
 
@@ -44,7 +44,7 @@ DO NOT INCLUDE ANYTHING BUT THE FUNCTION DEFINITION.
       solution: z
         .string()
         .describe(
-          `Executable ${DEFAULT_LANGUAGE} code that solves the problem. NO COMMENTS OR OTHER TEXT. JUST THE CODE. DO NOT RETURN CONSTANTS YOURSELF, GENERATE CODE TO GENERATE THE CONSTANTS.`
+          `Executable ${DEFAULT_LANGUAGE} code that solves the problem. NO COMMENTS OR OTHER TEXT. JUST THE CODE. DO NOT RETURN CONSTANTS YOURSELF, GENERATE CODE TO GENERATE THE CONSTANTS.`,
         ),
     }),
   });

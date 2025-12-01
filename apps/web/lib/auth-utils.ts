@@ -21,7 +21,7 @@ function deriveKey(password: string, salt: Buffer): Buffer {
  */
 export function encryptUserId(
   userId: string,
-  password: string = process.env.WORKOS_COOKIE_PASSWORD!
+  password: string = process.env.WORKOS_COOKIE_PASSWORD!,
 ): string {
   if (!password) {
     throw new Error("WORKOS_COOKIE_PASSWORD environment variable is not set");

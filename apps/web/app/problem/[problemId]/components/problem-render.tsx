@@ -292,7 +292,8 @@ export default function ProblemRender({
                     onClick={() => callGenerateProblemText(selectedModel, true)}
                     disabled={!selectedModel}
                   >
-                    {problemText ? "Re-generate" : "Generate"} Problem Text (force error)
+                    {problemText ? "Re-generate" : "Generate"} Problem Text
+                    (force error)
                   </Button>
                   <Button variant={"outline"} onClick={() => getProblemText()}>
                     Re-fetch Problem Text
@@ -404,7 +405,9 @@ export default function ProblemRender({
                   </Button>
                   <Button
                     variant={"outline"}
-                    onClick={() => callGenerateTestCaseInputCode(selectedModel, true)}
+                    onClick={() =>
+                      callGenerateTestCaseInputCode(selectedModel, true)
+                    }
                     disabled={!selectedModel}
                   >
                     {testCaseInputCode ? "Re-generate" : "Generate"} Test Case
@@ -504,9 +507,17 @@ export default function ProblemRender({
                   </Button>
                   <Button
                     variant={"outline"}
-                    onClick={() => callGenerateSolution(selectedModel, undefined, undefined, true)}
+                    onClick={() =>
+                      callGenerateSolution(
+                        selectedModel,
+                        undefined,
+                        undefined,
+                        true,
+                      )
+                    }
                   >
-                    {solution ? "Re-generate" : "Generate"} Solution (force error)
+                    {solution ? "Re-generate" : "Generate"} Solution (force
+                    error)
                   </Button>
                   <Button variant={"outline"} onClick={() => getSolution()}>
                     Re-fetch Solution
@@ -649,7 +660,7 @@ export default function ProblemRender({
                         await callGenerateSolutionWithModel(
                           selectedModel,
                           false,
-                          false
+                          false,
                         );
                       if (generatedSolution) {
                         setUserSolution(generatedSolution);
@@ -679,7 +690,7 @@ export default function ProblemRender({
                           selectedModel,
                           false,
                           false,
-                          true
+                          true,
                         );
                       if (generatedSolution) {
                         setUserSolution(generatedSolution);
