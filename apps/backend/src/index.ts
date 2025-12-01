@@ -5,8 +5,7 @@ import { logger } from "hono/logger";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
 import { apiKeyAuth } from "./middleware/auth";
 import { problems } from "./routes/problems";
-import { handleQueueBatch } from "./queue/consumer";
-import type { QueueMessage } from "./queue/types";
+import { ProblemGenerationWorkflow } from "./workflows/problem-generation";
 
 const app = new OpenAPIHono<{ Bindings: Env }>();
 
@@ -107,10 +106,7 @@ app.notFound((c) => {
 // Workers don't use ports - they're invoked via fetch events
 export default {
   fetch: app.fetch,
-
-  async queue(batch: MessageBatch<QueueMessage>, env: Env): Promise<void> {
-    await handleQueueBatch(batch, env);
-  },
 };
 
 export { Sandbox } from "@cloudflare/sandbox";
+export { ProblemGenerationWorkflow };

@@ -30,7 +30,7 @@ import {
   updateJobStatus,
   markStepComplete,
 } from "@repo/db";
-import { getNextStep, STEP_ORDER, type GenerationStep } from "../queue/types";
+import { STEP_ORDER, type GenerationStep } from "../queue/types";
 import {
   listModelsRoute,
   createModelRoute,
@@ -74,8 +74,8 @@ async function getOrCreateModel(modelName: string): Promise<string> {
   return model.id;
 }
 
-// Helper to enqueue first step if autoGenerate is enabled (for problem creation)
-async function enqueueFirstStepIfAuto(
+// Helper to start workflow if autoGenerate is enabled (for problem creation)
+async function startWorkflowIfAuto(
   c: Context<{ Bindings: Env; Variables: { userId: string } }>,
   problemId: string,
   model?: string,
@@ -88,23 +88,21 @@ async function enqueueFirstStepIfAuto(
   const modelId = model ? await getOrCreateModel(model) : undefined;
   const jobId = await createGenerationJob(problemId, modelId);
 
-  // Enqueue the first step: generateProblemText
-  const firstStep = STEP_ORDER[0];
-  if (firstStep) {
-    await c.env.PROBLEM_GENERATION_QUEUE.send({
+  // Start the workflow
+  await c.env.PROBLEM_GENERATION_WORKFLOW.create({
+    params: {
       jobId,
       problemId,
-      step: firstStep,
-      model,
+      model: model || "",
       returnDummy,
-    });
-  }
+    },
+  });
 
   return jobId;
 }
 
-// Helper to enqueue next step if enqueueNextStep is enabled
-async function enqueueNextStepIfEnabled(
+// Helper to start workflow from a specific step if enqueueNextStep is enabled
+async function startWorkflowFromStepIfEnabled(
   c: Context<{ Bindings: Env; Variables: { userId: string } }>,
   problemId: string,
   currentStep: GenerationStep,
@@ -113,6 +111,15 @@ async function enqueueNextStepIfEnabled(
   returnDummy?: boolean,
 ): Promise<string | null> {
   if (!enqueueNextStep) return null;
+
+  // Get the next step index
+  const currentIndex = STEP_ORDER.indexOf(currentStep);
+  const nextIndex = currentIndex + 1;
+
+  // If there's no next step, return null
+  if (nextIndex >= STEP_ORDER.length) return null;
+
+  const nextStep = STEP_ORDER[nextIndex];
 
   // Get or create job
   let job = await getLatestJobForProblem(problemId);
@@ -135,24 +142,18 @@ async function enqueueNextStepIfEnabled(
     await updateJobStatus(job.id, "pending", undefined, undefined);
     // Mark the current step as complete since it succeeded
     await markStepComplete(job.id, currentStep);
-    job = {
-      ...job,
-      status: "pending",
-      error: null,
-      completedSteps: [...(job.completedSteps || []), currentStep],
-    };
   }
 
-  const nextStep = getNextStep(currentStep);
-  if (nextStep) {
-    await c.env.PROBLEM_GENERATION_QUEUE.send({
+  // Start workflow from the next step
+  await c.env.PROBLEM_GENERATION_WORKFLOW.create({
+    params: {
       jobId: job.id,
       problemId,
-      step: nextStep,
-      model,
+      model: model || "",
       returnDummy,
-    });
-  }
+      startingStep: nextStep,
+    },
+  });
 
   return job.id;
 }
@@ -209,7 +210,7 @@ problems.openapi(createProblemRoute, async (c) => {
   await updateProblem(problemId, { generatedByModelId: modelId });
 
   const autoGenerate = query.autoGenerate !== "false";
-  const jobId = await enqueueFirstStepIfAuto(
+  const jobId = await startWorkflowIfAuto(
     c,
     problemId,
     body.model,
@@ -244,7 +245,7 @@ problems.openapi(generateProblemTextRoute, async (c) => {
   );
 
   const enqueueNext = body.enqueueNextStep !== false;
-  const jobId = await enqueueNextStepIfEnabled(
+  const jobId = await startWorkflowFromStepIfEnabled(
     c,
     problemId,
     "generateProblemText",
@@ -306,7 +307,7 @@ problems.openapi(generateTestCasesRoute, async (c) => {
   );
 
   const enqueueNext = body.enqueueNextStep !== false;
-  const jobId = await enqueueNextStepIfEnabled(
+  const jobId = await startWorkflowFromStepIfEnabled(
     c,
     problemId,
     "generateTestCases",
@@ -388,7 +389,7 @@ problems.openapi(generateInputCodeRoute, async (c) => {
   );
 
   const enqueueNext = body.enqueueNextStep !== false;
-  const jobId = await enqueueNextStepIfEnabled(
+  const jobId = await startWorkflowFromStepIfEnabled(
     c,
     problemId,
     "generateTestCaseInputCode",
@@ -457,7 +458,7 @@ problems.openapi(generateInputsRoute, async (c) => {
   const result = await generateTestCaseInputs(problemId, sandbox);
 
   const enqueueNext = body?.enqueueNextStep !== false;
-  const jobId = await enqueueNextStepIfEnabled(
+  const jobId = await startWorkflowFromStepIfEnabled(
     c,
     problemId,
     "generateTestCaseInputs",
@@ -546,7 +547,7 @@ problems.openapi(generateSolutionRoute, async (c) => {
   );
 
   const enqueueNext = body.enqueueNextStep !== false;
-  const jobId = await enqueueNextStepIfEnabled(
+  const jobId = await startWorkflowFromStepIfEnabled(
     c,
     problemId,
     "generateSolution",
@@ -627,7 +628,7 @@ problems.openapi(generateOutputsRoute, async (c) => {
   const result = await generateTestCaseOutputs(problemId, sandbox);
 
   const enqueueNext = body?.enqueueNextStep !== false;
-  const jobId = await enqueueNextStepIfEnabled(
+  const jobId = await startWorkflowFromStepIfEnabled(
     c,
     problemId,
     "generateTestCaseOutputs",
