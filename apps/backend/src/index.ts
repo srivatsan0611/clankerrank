@@ -76,20 +76,13 @@ app.onError((err, c) => {
   console.error("Error:", err);
 
   const status = ("status" in err ? err.status : 500) as ContentfulStatusCode;
-  // Always show detailed error messages (Cloudflare Workers don't have NODE_ENV)
-  // If you want to hide errors in production, set NODE_ENV in your Cloudflare env vars
-  const nodeEnv = (c.env as Record<string, string | undefined>).NODE_ENV;
-  const message =
-    nodeEnv === "production" && status === 500
-      ? "An unexpected error occurred"
-      : err.message;
 
   return c.json(
     {
       success: false,
       error: {
         code: `HTTP_${status}`,
-        message,
+        message: "An unexpected error occurred",
       },
       timestamp: new Date().toISOString(),
     },
