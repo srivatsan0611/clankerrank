@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   generateProblemText,
@@ -622,10 +623,10 @@ export function useStarterCode(
     staleTime: Infinity, // Starter code doesn't change
   });
 
-  const getData = async () => {
+  const getData = useCallback(async () => {
     if (!problemId) return Promise.reject(new Error("Problem ID is not set"));
     return await query.refetch();
-  };
+  }, [problemId, query.refetch]);
 
   return {
     isLoading: query.isFetching,

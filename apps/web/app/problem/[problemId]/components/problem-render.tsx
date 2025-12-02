@@ -1131,6 +1131,7 @@ export default function ProblemRender({
                   minimap: {
                     enabled: false,
                   },
+                  readOnly: isStarterCodeLoading || (problemText?.functionSignatureSchema && !starterCode),
                 }}
                 loading={<Skeleton className="h-full w-full" />}
               />
