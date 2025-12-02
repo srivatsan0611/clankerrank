@@ -6,9 +6,7 @@ export const GenerationStepSchema = z
     "generateProblemText",
     "generateTestCases",
     "generateTestCaseInputCode",
-    "generateTestCaseInputs",
     "generateSolution",
-    "generateTestCaseOutputs",
   ])
   .openapi("GenerationStep");
 

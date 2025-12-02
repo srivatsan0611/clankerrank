@@ -452,8 +452,13 @@ problems.openapi(generateInputCodeRoute, async (c) => {
   }
 
   // Check idempotency: if data exists and step completed/in progress, return 409
+  // Now checking for both inputCode AND inputs since we combine operations
   const dataExists = problem.testCases.every(
-    (tc) => tc.inputCode && tc.inputCode.trim() !== "",
+    (tc) =>
+      tc.inputCode &&
+      tc.inputCode.trim() !== "" &&
+      tc.input !== null &&
+      tc.input !== undefined,
   );
   if (
     await shouldReturnIdempotentError(
@@ -468,7 +473,7 @@ problems.openapi(generateInputCodeRoute, async (c) => {
         error: {
           code: "IDEMPOTENT_ERROR",
           message:
-            "Test case input code already exists and generation step has completed or is in progress",
+            "Test case input code and inputs already exist and generation step has completed or is in progress",
         },
       },
       409,
@@ -482,7 +487,9 @@ problems.openapi(generateInputCodeRoute, async (c) => {
   }
 
   const userId = problem.generatedByUserId || "unknown";
-  const result = await generateTestCaseInputCode(
+  
+  // Generate test case input code
+  const inputCodesResult = await generateTestCaseInputCode(
     problemId,
     body.model,
     userId,
@@ -490,6 +497,11 @@ problems.openapi(generateInputCodeRoute, async (c) => {
     body.forceError,
     body.returnDummy,
   );
+
+  // Immediately execute the generated code to get inputs
+  const sandboxId = `test-inputs-${problemId}`;
+  const sandbox = getSandboxInstance(c.env, sandboxId);
+  const testCasesResult = await generateTestCaseInputs(problemId, sandbox);
 
   const enqueueNext = body.enqueueNextStep !== false;
   const jobId = await startWorkflowFromStepIfEnabled(
@@ -502,7 +514,10 @@ problems.openapi(generateInputCodeRoute, async (c) => {
   );
 
   return c.json(
-    { success: true as const, data: { inputCodes: result, jobId } },
+    {
+      success: true as const,
+      data: { inputCodes: inputCodesResult, testCases: testCasesResult, jobId },
+    },
     200,
   );
 });
@@ -563,7 +578,7 @@ problems.openapi(generateInputsRoute, async (c) => {
   if (
     await shouldReturnIdempotentError(
       problemId,
-      "generateTestCaseInputs",
+      "generateTestCaseInputCode",
       dataExists,
     )
   ) {
@@ -588,7 +603,7 @@ problems.openapi(generateInputsRoute, async (c) => {
   const jobId = await startWorkflowFromStepIfEnabled(
     c,
     problemId,
-    "generateTestCaseInputs",
+    "generateTestCaseInputCode",
     body?.model,
     enqueueNext,
     undefined,
@@ -656,8 +671,15 @@ problems.openapi(generateSolutionRoute, async (c) => {
   }
 
   // Check idempotency: if data exists and step completed/in progress, return 409
+  // Now checking for both solution AND outputs since we combine operations
   const dataExists =
-    problem.solution && problem.solution.trim() !== "";
+    problem.solution &&
+    problem.solution.trim() !== "" &&
+    problem.testCases &&
+    problem.testCases.length > 0 &&
+    problem.testCases.every(
+      (tc) => tc.expected !== null && tc.expected !== undefined,
+    );
   if (
     await shouldReturnIdempotentError(
       problemId,
@@ -671,7 +693,7 @@ problems.openapi(generateSolutionRoute, async (c) => {
         error: {
           code: "IDEMPOTENT_ERROR",
           message:
-            "Solution already exists and generation step has completed or is in progress",
+            "Solution and test case outputs already exist and generation step has completed or is in progress",
         },
       },
       409,
@@ -686,7 +708,9 @@ problems.openapi(generateSolutionRoute, async (c) => {
 
   const userId = problem.generatedByUserId || "unknown";
   const updateProblemInDb = body.updateProblem !== false;
-  const result = await generateSolution(
+  
+  // Generate solution
+  const solutionResult = await generateSolution(
     problemId,
     body.model,
     userId,
@@ -695,6 +719,11 @@ problems.openapi(generateSolutionRoute, async (c) => {
     body.forceError,
     body.returnDummy,
   );
+
+  // Immediately execute solution with test inputs to get outputs
+  const sandboxId = `test-outputs-${problemId}`;
+  const sandbox = getSandboxInstance(c.env, sandboxId);
+  const testCasesResult = await generateTestCaseOutputs(problemId, sandbox);
 
   const enqueueNext = body.enqueueNextStep !== false;
   const jobId = await startWorkflowFromStepIfEnabled(
@@ -707,7 +736,10 @@ problems.openapi(generateSolutionRoute, async (c) => {
   );
 
   return c.json(
-    { success: true as const, data: { solution: result, jobId } },
+    {
+      success: true as const,
+      data: { solution: solutionResult, testCases: testCasesResult, jobId },
+    },
     200,
   );
 });
@@ -783,7 +815,7 @@ problems.openapi(generateOutputsRoute, async (c) => {
   if (
     await shouldReturnIdempotentError(
       problemId,
-      "generateTestCaseOutputs",
+      "generateSolution",
       dataExists,
     )
   ) {
@@ -808,7 +840,7 @@ problems.openapi(generateOutputsRoute, async (c) => {
   const jobId = await startWorkflowFromStepIfEnabled(
     c,
     problemId,
-    "generateTestCaseOutputs",
+    "generateSolution",
     body?.model,
     enqueueNext,
     undefined,

@@ -88,7 +88,7 @@ export class ProblemGenerationWorkflow extends WorkflowEntrypoint<
         });
       }
 
-      // Step 3: Generate Test Case Input Code
+      // Step 3: Generate Test Case Input Code and Execute to Get Inputs
       if (shouldRunStep("generateTestCaseInputCode")) {
         await step.do("generateTestCaseInputCode", async () => {
           console.log(
@@ -99,6 +99,7 @@ export class ProblemGenerationWorkflow extends WorkflowEntrypoint<
             "in_progress",
             "generateTestCaseInputCode",
           );
+          // Generate test case input code
           await generateTestCaseInputCode(
             problemId,
             model,
@@ -107,32 +108,23 @@ export class ProblemGenerationWorkflow extends WorkflowEntrypoint<
             false,
             returnDummy,
           );
-          await markStepComplete(jobId, "generateTestCaseInputCode");
-        });
-      }
-
-      // Step 4: Generate Test Case Inputs
-      if (shouldRunStep("generateTestCaseInputs")) {
-        await step.do("generateTestCaseInputs", async () => {
-          console.log(
-            `[Workflow] Processing generateTestCaseInputs for problem ${problemId}`,
-          );
-          await updateJobStatus(jobId, "in_progress", "generateTestCaseInputs");
+          // Immediately execute the generated code to get inputs
           await generateTestCaseInputs(
             problemId,
             getSandboxInstance(`inputs-${problemId}`),
           );
-          await markStepComplete(jobId, "generateTestCaseInputs");
+          await markStepComplete(jobId, "generateTestCaseInputCode");
         });
       }
 
-      // Step 5: Generate Solution
+      // Step 4: Generate Solution and Execute to Get Outputs
       if (shouldRunStep("generateSolution")) {
         await step.do("generateSolution", async () => {
           console.log(
             `[Workflow] Processing generateSolution for problem ${problemId}`,
           );
           await updateJobStatus(jobId, "in_progress", "generateSolution");
+          // Generate solution
           await generateSolution(
             problemId,
             model,
@@ -142,26 +134,12 @@ export class ProblemGenerationWorkflow extends WorkflowEntrypoint<
             false,
             returnDummy,
           );
-          await markStepComplete(jobId, "generateSolution");
-        });
-      }
-
-      // Step 6: Generate Test Case Outputs
-      if (shouldRunStep("generateTestCaseOutputs")) {
-        await step.do("generateTestCaseOutputs", async () => {
-          console.log(
-            `[Workflow] Processing generateTestCaseOutputs for problem ${problemId}`,
-          );
-          await updateJobStatus(
-            jobId,
-            "in_progress",
-            "generateTestCaseOutputs",
-          );
+          // Immediately execute solution with test inputs to get outputs
           await generateTestCaseOutputs(
             problemId,
             getSandboxInstance(`outputs-${problemId}`),
           );
-          await markStepComplete(jobId, "generateTestCaseOutputs");
+          await markStepComplete(jobId, "generateSolution");
         });
       }
 

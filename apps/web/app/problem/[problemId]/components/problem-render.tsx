@@ -57,9 +57,7 @@ const STEP_ORDER: GenerationStep[] = [
   "generateProblemText",
   "generateTestCases",
   "generateTestCaseInputCode",
-  "generateTestCaseInputs",
   "generateSolution",
-  "generateTestCaseOutputs",
 ];
 
 type StepStatus = "loading" | "complete" | "error" | "pending" | "not_started";
@@ -85,6 +83,8 @@ export default function ProblemRender({
   const [selectedModel, setSelectedModel] = useState<string>("");
   const [lastValidStepIndex, setLastValidStepIndex] = useState<number>(-1);
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
+  const [testCaseInputsOpen, setTestCaseInputsOpen] = useState<boolean>(true);
+  const [testCaseOutputsOpen, setTestCaseOutputsOpen] = useState<boolean>(true);
 
   const {
     isLoading: isProblemTextLoading,
@@ -177,7 +177,7 @@ export default function ProblemRender({
     step: GenerationStep,
     isLoading: boolean,
     error: unknown,
-    hasData: boolean,
+    hasData: boolean
   ): StepStatus => {
     if (error) return "error";
     // If step is currently being generated, show "pending" instead of "loading"
@@ -194,7 +194,7 @@ export default function ProblemRender({
     stepIndex: number,
     isLoading: boolean,
     error: unknown,
-    hasData: boolean,
+    hasData: boolean
   ): boolean => {
     const stepStatus = getStepStatus(step, isLoading, error, hasData);
 
@@ -240,9 +240,7 @@ export default function ProblemRender({
       generateProblemText: ["problemText", problemId],
       generateTestCases: ["testCases", problemId],
       generateTestCaseInputCode: ["testCaseInputCode", problemId],
-      generateTestCaseInputs: ["testCaseInputs", problemId],
       generateSolution: ["solution", problemId],
-      generateTestCaseOutputs: ["testCaseOutputs", problemId],
     };
 
     for (let i = stepIndex + 1; i < STEP_ORDER.length; i++) {
@@ -250,6 +248,13 @@ export default function ProblemRender({
       if (step) {
         queryClient.removeQueries({ queryKey: queryKeys[step] });
       }
+    }
+    // Also invalidate related queries that are generated together
+    if (stepIndex >= STEP_ORDER.indexOf("generateTestCaseInputCode")) {
+      queryClient.removeQueries({ queryKey: ["testCaseInputs", problemId] });
+    }
+    if (stepIndex >= STEP_ORDER.indexOf("generateSolution")) {
+      queryClient.removeQueries({ queryKey: ["testCaseOutputs", problemId] });
     }
     setLastValidStepIndex(stepIndex);
   };
@@ -294,38 +299,44 @@ export default function ProblemRender({
     ) {
       getCodeToGenerateTestCaseInputs();
     }
-  }, [completedSteps, testCaseInputCode, getCodeToGenerateTestCaseInputs]);
-
-  useEffect(() => {
-    if (completedSteps.includes("generateTestCaseInputs") && !testCaseInputs) {
+    // Also fetch test case inputs when input code step completes (they're generated together)
+    if (
+      completedSteps.includes("generateTestCaseInputCode") &&
+      !testCaseInputs
+    ) {
       getTestCaseInputs();
     }
-  }, [completedSteps, testCaseInputs, getTestCaseInputs]);
+  }, [
+    completedSteps,
+    testCaseInputCode,
+    testCaseInputs,
+    getCodeToGenerateTestCaseInputs,
+    getTestCaseInputs,
+  ]);
 
   useEffect(() => {
     if (completedSteps.includes("generateSolution") && !solution) {
       getSolution();
     }
-  }, [completedSteps, solution, getSolution]);
-
-  useEffect(() => {
-    if (
-      completedSteps.includes("generateTestCaseOutputs") &&
-      !testCaseOutputs
-    ) {
+    // Also fetch test case outputs when solution step completes (they're generated together)
+    if (completedSteps.includes("generateSolution") && !testCaseOutputs) {
       getTestCaseOutputs();
     }
-  }, [completedSteps, testCaseOutputs, getTestCaseOutputs]);
+  }, [
+    completedSteps,
+    solution,
+    testCaseOutputs,
+    getSolution,
+    getTestCaseOutputs,
+  ]);
 
   // Helper function to get step display name
   const getStepDisplayName = (step: GenerationStep): string => {
     const names: Record<GenerationStep, string> = {
       generateProblemText: "Problem Text",
       generateTestCases: "Test Cases",
-      generateTestCaseInputCode: "Test Case Input Code",
-      generateTestCaseInputs: "Test Case Inputs",
-      generateSolution: "Solution",
-      generateTestCaseOutputs: "Test Case Outputs",
+      generateTestCaseInputCode: "Test Case Inputs",
+      generateSolution: "Solution & Test Case Outputs",
     };
     return names[step];
   };
@@ -481,7 +492,7 @@ export default function ProblemRender({
       stepIndex,
       isLoading,
       error,
-      hasData,
+      hasData
     );
 
     if (!isVisible) return null;
@@ -728,7 +739,7 @@ export default function ProblemRender({
                     selectedModel,
                     false,
                     true,
-                    false,
+                    false
                   )
                 }
                 onGenerateWithError={() =>
@@ -736,7 +747,7 @@ export default function ProblemRender({
                     selectedModel,
                     true,
                     true,
-                    false,
+                    false
                   )
                 }
                 onRefetch={getCodeToGenerateTestCaseInputs}
@@ -754,33 +765,43 @@ export default function ProblemRender({
                     ))}
                   </div>
                 )}
-              </StepSection>
-              <StepSection
-                step="generateTestCaseInputs"
-                stepIndex={3}
-                title="Test Case Inputs"
-                isLoading={isGenerateTestCaseInputsLoading}
-                error={testCaseInputsError}
-                hasData={!!testCaseInputs && testCaseInputs.length > 0}
-                onGenerate={() => callGenerateTestCaseInputs(true)}
-                onRefetch={getTestCaseInputs}
-              >
-                {testCaseInputs && (
-                  <div className="space-y-1">
-                    {testCaseInputs.map((result, i) => (
-                      <div
-                        key={`testcase-input-${i}`}
-                        className="text-sm font-mono bg-muted p-2 rounded"
-                      >
-                        {JSON.stringify(result, null, 2)}
+                {/* Test Case Inputs are now automatically generated with Input Code, shown below */}
+                {testCaseInputs && testCaseInputs.length > 0 && (
+                  <Collapsible
+                    open={testCaseInputsOpen}
+                    onOpenChange={setTestCaseInputsOpen}
+                    className="mt-4"
+                  >
+                    <CollapsibleTrigger className="w-full">
+                      <div className="flex items-center justify-between gap-2 w-full py-2 hover:bg-muted/50 rounded-md px-2 -mx-2 transition-colors">
+                        <div className="flex items-center gap-2">
+                          <ChevronDownIcon
+                            className={`h-4 w-4 transition-transform ${
+                              testCaseInputsOpen ? "rotate-0" : "-rotate-90"
+                            }`}
+                          />
+                          <h3 className="text-lg font-semibold">
+                            Test Case Inputs
+                          </h3>
+                        </div>
                       </div>
-                    ))}
-                  </div>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="space-y-1 pt-2">
+                      {testCaseInputs.map((result, i) => (
+                        <div
+                          key={`testcase-input-${i}`}
+                          className="text-sm font-mono bg-muted p-2 rounded"
+                        >
+                          {JSON.stringify(result, null, 2)}
+                        </div>
+                      ))}
+                    </CollapsibleContent>
+                  </Collapsible>
                 )}
               </StepSection>
               <StepSection
                 step="generateSolution"
-                stepIndex={4}
+                stepIndex={3}
                 title="Solution"
                 isLoading={isGenerateSolutionLoading}
                 error={solutionError}
@@ -791,7 +812,7 @@ export default function ProblemRender({
                     undefined,
                     true,
                     false,
-                    false,
+                    false
                   )
                 }
                 onGenerateWithError={() =>
@@ -800,35 +821,45 @@ export default function ProblemRender({
                     undefined,
                     true,
                     true,
-                    false,
+                    false
                   )
                 }
                 onRefetch={getSolution}
                 requiresModel={true}
               >
                 {solution && <MessageResponse>{solution}</MessageResponse>}
-              </StepSection>
-              <StepSection
-                step="generateTestCaseOutputs"
-                stepIndex={5}
-                title="Test Case Outputs"
-                isLoading={isGenerateTestCaseOutputsLoading}
-                error={testCaseOutputsError}
-                hasData={!!testCaseOutputs && testCaseOutputs.length > 0}
-                onGenerate={() => callGenerateTestCaseOutputs(true)}
-                onRefetch={getTestCaseOutputs}
-              >
-                {testCaseOutputs && (
-                  <div className="space-y-1">
-                    {testCaseOutputs.map((output, i) => (
-                      <div
-                        key={`testcase-output-${i}`}
-                        className="text-sm font-mono bg-muted p-2 rounded"
-                      >
-                        {JSON.stringify(output, null, 2)}
+                {/* Test Case Outputs are now automatically generated with Solution, shown below */}
+                {testCaseOutputs && testCaseOutputs.length > 0 && (
+                  <Collapsible
+                    open={testCaseOutputsOpen}
+                    onOpenChange={setTestCaseOutputsOpen}
+                    className="mt-4"
+                  >
+                    <CollapsibleTrigger className="w-full">
+                      <div className="flex items-center justify-between gap-2 w-full py-2 hover:bg-muted/50 rounded-md px-2 -mx-2 transition-colors">
+                        <div className="flex items-center gap-2">
+                          <ChevronDownIcon
+                            className={`h-4 w-4 transition-transform ${
+                              testCaseOutputsOpen ? "rotate-0" : "-rotate-90"
+                            }`}
+                          />
+                          <h3 className="text-lg font-semibold">
+                            Test Case Outputs
+                          </h3>
+                        </div>
                       </div>
-                    ))}
-                  </div>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="space-y-1 pt-2">
+                      {testCaseOutputs.map((output, i) => (
+                        <div
+                          key={`testcase-output-${i}`}
+                          className="text-sm font-mono bg-muted p-2 rounded"
+                        >
+                          {JSON.stringify(output, null, 2)}
+                        </div>
+                      ))}
+                    </CollapsibleContent>
+                  </Collapsible>
                 )}
               </StepSection>
             </div>
@@ -908,7 +939,7 @@ export default function ProblemRender({
                             stdout: testResult.stdout,
                           },
                           null,
-                          2,
+                          2
                         )}
                       </div>
                     ))}
@@ -993,7 +1024,7 @@ export default function ProblemRender({
                             selectedModel,
                             false,
                             true,
-                            false,
+                            false
                           );
                         if (generatedSolution) {
                           setUserSolution(generatedSolution);
@@ -1024,7 +1055,7 @@ export default function ProblemRender({
                             selectedModel,
                             false,
                             true,
-                            true,
+                            true
                           );
                         if (generatedSolution) {
                           setUserSolution(generatedSolution);
