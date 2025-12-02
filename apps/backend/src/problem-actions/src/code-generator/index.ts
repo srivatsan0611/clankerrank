@@ -15,5 +15,6 @@ export function createCodeGenerator(language: CodeGenLanguage): CodeGenerator {
 
 // Re-export types and classes
 export type { CodeGenerator, CodeGenLanguage } from "./types";
+export { CodeGenLanguageSchema } from "./types";
 export { TypeScriptGenerator } from "./typescript-generator";
 export { PythonGenerator } from "./python-generator";

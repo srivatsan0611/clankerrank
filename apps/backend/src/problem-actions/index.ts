@@ -42,6 +42,7 @@ export {
   PythonGenerator,
 } from "./src/code-generator";
 export type { CodeGenerator, CodeGenLanguage } from "./src/code-generator";
+export { CodeGenLanguageSchema } from "./src/code-generator";
 
 // Test cases
 export { generateTestCases, getTestCases } from "./src/generate-test-cases";
