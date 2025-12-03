@@ -109,7 +109,7 @@ If using custom types, THEY MUST BE DEFINED INLINE -- for example,
         problemTextReworded: z
           .string()
           .describe(
-            "The problem text, but reworded to be a real-world problem instead of a coding problem. Avoid technical jargon and focus on a real-world problem.",
+            "The problem text, but reworded to be a real-world problem instead of a coding problem. Avoid technical jargon and focus on a real-world problem. Format as markdown to be easily human-readable.",
           ),
       }),
     });

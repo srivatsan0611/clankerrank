@@ -63,6 +63,7 @@ that creates the input value(s) described in the test case description.
 
 The function should only generate the INPUT, not execute the solution function.
 The output of the function should be an ARRAY, where each element is an argument to the solution function.
+AVOID overly large inputs. Arrays should be less than 100 elements.
 
 For example, if the function signature is:
 
