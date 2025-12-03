@@ -153,7 +153,7 @@ export default function ProblemRender({
     problemId,
     userSolution,
     language,
-    user.apiKey,
+    user.apiKey
   );
 
   const {
@@ -437,7 +437,7 @@ export default function ProblemRender({
                     size="sm"
                     className="h-7"
                     onClick={() => setShowSubmitDialog(true)}
-                    disabled={isRunUserSolutionLoading || !userSolution}
+                    disabled={isRunUserSolutionLoading || !canRunCustomTests}
                     title="Submit your solution for evaluation on all test cases"
                   >
                     {isRunUserSolutionLoading ? (
@@ -470,7 +470,7 @@ export default function ProblemRender({
                             } catch (error) {
                               console.error(
                                 "Failed to run user solution:",
-                                error,
+                                error
                               );
                               setShowSubmitDialog(false);
                             }
