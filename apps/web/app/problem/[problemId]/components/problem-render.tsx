@@ -3,7 +3,7 @@
 import Editor from "@monaco-editor/react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { MessageResponse } from "@/components/ai-elements/message";
 import Loader from "@/components/client/loader";
 import {
@@ -88,6 +88,7 @@ export default function ProblemRender({
   const [customTestCases, setCustomTestCases] = useState<
     Array<{ id: string; inputText: string }>
   >([{ id: `test-case-${Date.now()}`, inputText: "" }]);
+  const hasInitializedCustomTestCases = useRef(false);
 
   const {
     isLoading: isProblemTextLoading,
@@ -366,6 +367,43 @@ export default function ProblemRender({
     getSolution,
     getTestCaseOutputs,
   ]);
+
+  // Reset initialization flag when problemId changes
+  useEffect(() => {
+    hasInitializedCustomTestCases.current = false;
+    setCustomTestCases([{ id: `test-case-${Date.now()}`, inputText: "" }]);
+  }, [problemId]);
+
+  // Pre-populate custom test cases with sample test case inputs
+  useEffect(() => {
+    if (
+      !hasInitializedCustomTestCases.current &&
+      testCases &&
+      testCaseInputs &&
+      testCases.length > 0 &&
+      testCaseInputs.length > 0 &&
+      testCases.length === testCaseInputs.length
+    ) {
+      // Find sample test cases and their corresponding inputs
+      const sampleTestCases = testCases
+        .map((testCase, index) => ({
+          testCase,
+          input: testCaseInputs[index],
+          index,
+        }))
+        .filter(({ testCase }) => testCase.isSampleCase === true);
+
+      if (sampleTestCases.length > 0) {
+        setCustomTestCases(
+          sampleTestCases.map(({ input }, index) => ({
+            id: `test-case-${Date.now()}-${index}`,
+            inputText: JSON.stringify(input),
+          })),
+        );
+        hasInitializedCustomTestCases.current = true;
+      }
+    }
+  }, [testCases, testCaseInputs]);
 
   // Helper function to get step display name
   const getStepDisplayName = (step: GenerationStep): string => {
