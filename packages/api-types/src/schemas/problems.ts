@@ -1,5 +1,6 @@
 import { z } from "@hono/zod-openapi";
 import { FunctionSignatureSchemaSchema } from "./function-signature";
+import { FocusAreaListSchema } from "./focus-areas";
 
 // Base problem entity schema
 export const ProblemSchema = z
@@ -40,6 +41,11 @@ export const CreateProblemRequestSchema = z
     startFrom: StartFromSchema.optional().openapi({
       description:
         "Create problem based on existing problem with adjusted difficulty",
+    }),
+    focusAreaIds: z.array(z.string().uuid()).optional().openapi({
+      description:
+        "Focus area IDs to guide problem generation. Empty array or omitted = random selection from all areas.",
+      example: ["uuid-1", "uuid-2"],
     }),
   })
   .openapi("CreateProblemRequest");
@@ -162,6 +168,13 @@ export const FunctionSignatureSchemaGenerateResponseSchema =
     jobId: z.string().uuid().nullable(),
   }).openapi("FunctionSignatureSchemaGenerateResponse");
 
+// Focus areas response schema
+export const ProblemFocusAreasResponseSchema = z
+  .object({
+    focusAreas: FocusAreaListSchema,
+  })
+  .openapi("ProblemFocusAreasResponse");
+
 // Starter code request/response
 export const StarterCodeRequestSchema = z
   .object({
@@ -198,3 +211,6 @@ export type FunctionSignatureSchemaResponse = z.infer<
 >;
 export type StarterCodeRequest = z.infer<typeof StarterCodeRequestSchema>;
 export type StarterCodeResponse = z.infer<typeof StarterCodeResponseSchema>;
+export type ProblemFocusAreasResponse = z.infer<
+  typeof ProblemFocusAreasResponseSchema
+>;
