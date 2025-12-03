@@ -97,6 +97,7 @@ export default function NonAdminProblemView({
   const [isLoadingFocusAreas, setIsLoadingFocusAreas] = useState(true);
   const [isRegeneratingWithFocusAreas, setIsRegeneratingWithFocusAreas] =
     useState(false);
+  /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
   const [focusAreasChanged, setFocusAreasChanged] = useState(false);
 
   // Load focus areas
@@ -378,7 +379,6 @@ export default function NonAdminProblemView({
                   size="sm"
                   onClick={handleRegenerateWithFocusAreas}
                   disabled={
-                    !focusAreasChanged ||
                     isRegeneratingWithFocusAreas ||
                     !selectedModel ||
                     isGenerating
@@ -387,7 +387,7 @@ export default function NonAdminProblemView({
                 >
                   {isRegeneratingWithFocusAreas
                     ? "Creating..."
-                    : "Generate New Problem with Selected Focus Areas"}
+                    : "Generate New Problem"}
                 </Button>
               </div>
             </>

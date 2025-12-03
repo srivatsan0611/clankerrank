@@ -841,7 +841,7 @@ export default function AdminCollapsibles({
                 >
                   {isRegeneratingWithFocusAreas
                     ? "Creating..."
-                    : "Generate New Problem with Selected Focus Areas"}
+                    : "Generate New Problem"}
                 </Button>
               </div>
             </>

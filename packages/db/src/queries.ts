@@ -471,3 +471,15 @@ export async function updateUserProblemAttemptStatus(
     })
     .where(eq(userProblemAttempts.id, attemptId));
 }
+
+export async function getMostRecentProblemByUser(
+  userId: string,
+  db?: Database,
+): Promise<string | null> {
+  const database = getDb(db);
+  const problem = await database.query.problems.findFirst({
+    where: eq(problems.generatedByUserId, userId),
+    orderBy: desc(problems.createdAt),
+  });
+  return problem?.id ?? null;
+}
