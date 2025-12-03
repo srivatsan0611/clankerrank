@@ -398,8 +398,8 @@ export default function CustomTestInputs({
                         prev.map((tc) =>
                           tc.id === testCase.id
                             ? { ...tc, inputText: e.target.value }
-                            : tc
-                        )
+                            : tc,
+                        ),
                       );
                     }}
                     className="font-mono text-sm min-h-[80px] w-full"

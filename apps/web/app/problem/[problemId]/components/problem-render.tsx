@@ -142,7 +142,7 @@ export default function ProblemRender({
     problemId,
     userSolution,
     language,
-    user.apiKey
+    user.apiKey,
   );
 
   const {

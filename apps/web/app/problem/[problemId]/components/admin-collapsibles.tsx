@@ -57,33 +57,39 @@ interface AdminCollapsiblesProps {
   // Problem text hooks
   isProblemTextLoading: boolean;
   problemTextError: unknown;
-  problemText: {
-    problemText: string;
-    functionSignature: string;
-    problemTextReworded?: string;
-    functionSignatureSchema?: unknown;
-  } | null | undefined;
+  problemText:
+    | {
+        problemText: string;
+        functionSignature: string;
+        problemTextReworded?: string;
+        functionSignatureSchema?: unknown;
+      }
+    | null
+    | undefined;
   getProblemText: () => void;
   callGenerateProblemText: (
     model: string,
     forceError: boolean,
     returnDummy: boolean,
-    skipCache: boolean
+    skipCache: boolean,
   ) => void;
   // Test cases hooks
   isTestCasesLoading: boolean;
   testCasesError: unknown;
-  testCases: Array<{
-    description: string;
-    isSampleCase: boolean;
-    isEdgeCase: boolean;
-  }> | null | undefined;
+  testCases:
+    | Array<{
+        description: string;
+        isSampleCase: boolean;
+        isEdgeCase: boolean;
+      }>
+    | null
+    | undefined;
   getTestCases: () => void;
   callGenerateTestCases: (
     model: string,
     forceError: boolean,
     returnDummy: boolean,
-    skipCache: boolean
+    skipCache: boolean,
   ) => void;
   // Test case input code hooks
   isTestCaseInputsLoading: boolean;
@@ -94,7 +100,7 @@ interface AdminCollapsiblesProps {
     model: string,
     forceError: boolean,
     returnDummy: boolean,
-    skipCache: boolean
+    skipCache: boolean,
   ) => void;
   // Test case inputs hooks
   testCaseInputs: unknown[] | null | undefined;
@@ -109,7 +115,7 @@ interface AdminCollapsiblesProps {
     updateProblem?: boolean,
     enqueueNextStep?: boolean,
     forceError?: boolean,
-    returnDummy?: boolean
+    returnDummy?: boolean,
   ) => Promise<string | null>;
   // Test case outputs hooks
   testCaseOutputs: unknown[] | null | undefined;
@@ -117,28 +123,34 @@ interface AdminCollapsiblesProps {
   // Run user solution hooks
   isRunUserSolutionLoading: boolean;
   userSolutionError: unknown;
-  userSolutionTestResults: Array<{
-    testCase: {
-      description: string;
-      isEdgeCase: boolean;
-    };
-    status: string;
-    expected?: unknown;
-    actual?: unknown;
-    error?: string;
-    stdout?: string;
-  }> | null | undefined;
+  userSolutionTestResults:
+    | Array<{
+        testCase: {
+          description: string;
+          isEdgeCase: boolean;
+        };
+        status: string;
+        expected?: unknown;
+        actual?: unknown;
+        error?: string;
+        stdout?: string;
+      }>
+    | null
+    | undefined;
   callRunUserSolution: () => Promise<unknown>;
   // Run custom tests hooks
   isRunCustomTestsLoading: boolean;
   customTestsError: unknown;
-  customTestResults: Array<{
-    input?: unknown;
-    expected?: unknown;
-    actual?: unknown;
-    error?: string;
-    stdout?: string;
-  }> | null | undefined;
+  customTestResults:
+    | Array<{
+        input?: unknown;
+        expected?: unknown;
+        actual?: unknown;
+        error?: string;
+        stdout?: string;
+      }>
+    | null
+    | undefined;
   callRunCustomTests: (inputs: unknown[][]) => Promise<unknown>;
   // Generation status hooks
   completedSteps: GenerationStep[];
@@ -164,7 +176,7 @@ interface AdminCollapsiblesProps {
     model: string,
     forceError: boolean,
     returnDummy: boolean,
-    skipCache: boolean
+    skipCache: boolean,
   ) => Promise<string | null>;
 }
 
@@ -173,9 +185,7 @@ export default function AdminCollapsibles({
   user,
   selectedModel,
   setSelectedModel,
-  userSolution,
   setUserSolution,
-  language,
   isProblemTextLoading,
   problemTextError,
   problemText,
@@ -192,14 +202,12 @@ export default function AdminCollapsibles({
   getCodeToGenerateTestCaseInputs,
   callGenerateTestCaseInputCode,
   testCaseInputs,
-  getTestCaseInputs,
   isGenerateSolutionLoading,
   solutionError,
   solution,
   getSolution,
   callGenerateSolution,
   testCaseOutputs,
-  getTestCaseOutputs,
   isRunUserSolutionLoading,
   userSolutionError,
   userSolutionTestResults,
@@ -282,7 +290,7 @@ export default function AdminCollapsibles({
           sampleTestCases.map(({ input }, index) => ({
             id: `test-case-${Date.now()}-${index}`,
             inputText: JSON.stringify(input),
-          }))
+          })),
         );
         hasInitializedCustomTestCases.current = true;
       }
@@ -294,7 +302,7 @@ export default function AdminCollapsibles({
     step: GenerationStep,
     isLoading: boolean,
     error: unknown,
-    hasData: boolean
+    hasData: boolean,
   ): StepStatus => {
     if (error) return "error";
     if (isLoading) return "loading";
@@ -309,7 +317,7 @@ export default function AdminCollapsibles({
     stepIndex: number,
     isLoading: boolean,
     error: unknown,
-    hasData: boolean
+    hasData: boolean,
   ): boolean => {
     const stepStatus = getStepStatus(step, isLoading, error, hasData);
 
@@ -411,7 +419,7 @@ export default function AdminCollapsibles({
         user.apiKey,
         true,
         undefined,
-        { problemId, direction }
+        { problemId, direction },
       );
       router.push(`/problem/${result.problemId}`);
     } catch (error) {
@@ -430,7 +438,7 @@ export default function AdminCollapsibles({
         user.apiKey,
         true,
         undefined,
-        { problemId, direction: "similar" }
+        { problemId, direction: "similar" },
       );
       router.push(`/problem/${result.problemId}`);
     } catch (error) {
@@ -482,7 +490,7 @@ export default function AdminCollapsibles({
             Current step: {getStepDisplayName(currentStep)}
           </div>
         )}
-        {generationError && overallStatus.type === "error" && (
+        {generationError != null && overallStatus.type === "error" && (
           <div className="text-xs text-destructive">
             {typeof generationError === "string"
               ? generationError
@@ -561,7 +569,7 @@ export default function AdminCollapsibles({
       stepIndex,
       isLoading,
       error,
-      hasData
+      hasData,
     );
 
     if (!isVisible) return null;
@@ -787,7 +795,9 @@ export default function AdminCollapsibles({
           title="Problem Text"
           isLoading={isProblemTextLoading}
           error={problemTextError}
-          hasData={!!(problemText?.problemText && problemText?.functionSignature)}
+          hasData={
+            !!(problemText?.problemText && problemText?.functionSignature)
+          }
           onGenerate={() =>
             callGenerateProblemText(selectedModel, false, true, false)
           }
@@ -825,10 +835,7 @@ export default function AdminCollapsibles({
           {testCases && (
             <div className="space-y-1">
               {testCases.map((testCase, i) => (
-                <div
-                  key={`testcase-description-${i}`}
-                  className="text-sm"
-                >
+                <div key={`testcase-description-${i}`} className="text-sm">
                   {testCase.description}
                   {testCase.isSampleCase === true && (
                     <Badge variant="default" className="ml-2">
@@ -887,9 +894,7 @@ export default function AdminCollapsibles({
                         testCaseInputsOpen ? "rotate-0" : "-rotate-90"
                       }`}
                     />
-                    <h3 className="text-lg font-semibold">
-                      Test Case Inputs
-                    </h3>
+                    <h3 className="text-lg font-semibold">Test Case Inputs</h3>
                   </div>
                 </div>
               </CollapsibleTrigger>
@@ -913,12 +918,12 @@ export default function AdminCollapsibles({
           isLoading={isGenerateSolutionLoading}
           error={solutionError}
           hasData={!!solution}
-                onGenerate={() =>
-                  callGenerateSolution(selectedModel, true, true, false, false)
-                }
-                onGenerateWithError={() =>
-                  callGenerateSolution(selectedModel, true, true, true, false)
-                }
+          onGenerate={() =>
+            callGenerateSolution(selectedModel, true, true, false, false)
+          }
+          onGenerateWithError={() =>
+            callGenerateSolution(selectedModel, true, true, true, false)
+          }
           onRefetch={getSolution}
           requiresModel={true}
         >
@@ -937,9 +942,7 @@ export default function AdminCollapsibles({
                         testCaseOutputsOpen ? "rotate-0" : "-rotate-90"
                       }`}
                     />
-                    <h3 className="text-lg font-semibold">
-                      Test Case Outputs
-                    </h3>
+                    <h3 className="text-lg font-semibold">Test Case Outputs</h3>
                   </div>
                 </div>
               </CollapsibleTrigger>
@@ -972,9 +975,7 @@ export default function AdminCollapsibles({
             <div className="flex items-center gap-2">
               <ChevronDownIcon
                 className={`h-4 w-4 transition-transform ${
-                  openSections["runUserSolution"]
-                    ? "rotate-0"
-                    : "-rotate-90"
+                  openSections["runUserSolution"] ? "rotate-0" : "-rotate-90"
                 }`}
               />
               <h3 className="text-sm font-medium">Run User Solution</h3>
@@ -994,9 +995,7 @@ export default function AdminCollapsibles({
             }}
             disabled={isRunUserSolutionLoading}
           >
-            {isRunUserSolutionLoading
-              ? "Running..."
-              : "Run User Solution"}
+            {isRunUserSolutionLoading ? "Running..." : "Run User Solution"}
           </Button>
           {isRunUserSolutionLoading && (
             <div className="flex items-center gap-2">
@@ -1006,7 +1005,7 @@ export default function AdminCollapsibles({
               </span>
             </div>
           )}
-          {userSolutionError && (
+          {userSolutionError != null && (
             <Alert variant="destructive">
               <AlertTitle>Error</AlertTitle>
               <AlertDescription>
@@ -1057,26 +1056,28 @@ export default function AdminCollapsibles({
                             {testResult.status.toUpperCase()}
                           </span>
                         </div>
-                              {testResult.expected !== null && testResult.expected !== undefined && (
-                                <div>
-                                  <span className="text-muted-foreground">
-                                    Expected:{" "}
-                                  </span>
-                                  <span className="font-semibold">
-                                    {JSON.stringify(testResult.expected)}
-                                  </span>
-                                </div>
-                              )}
-                              {testResult.actual !== null && testResult.actual !== undefined && (
-                                <div>
-                                  <span className="text-muted-foreground">
-                                    Actual:{" "}
-                                  </span>
-                                  <span className="font-semibold">
-                                    {JSON.stringify(testResult.actual)}
-                                  </span>
-                                </div>
-                              )}
+                        {testResult.expected !== null &&
+                          testResult.expected !== undefined && (
+                            <div>
+                              <span className="text-muted-foreground">
+                                Expected:{" "}
+                              </span>
+                              <span className="font-semibold">
+                                {JSON.stringify(testResult.expected)}
+                              </span>
+                            </div>
+                          )}
+                        {testResult.actual !== null &&
+                          testResult.actual !== undefined && (
+                            <div>
+                              <span className="text-muted-foreground">
+                                Actual:{" "}
+                              </span>
+                              <span className="font-semibold">
+                                {JSON.stringify(testResult.actual)}
+                              </span>
+                            </div>
+                          )}
                         {testResult.stdout && (
                           <div className="mt-2 pt-2 border-t">
                             <span className="text-muted-foreground">
@@ -1112,14 +1113,10 @@ export default function AdminCollapsibles({
             <div className="flex items-center gap-2">
               <ChevronDownIcon
                 className={`h-4 w-4 transition-transform ${
-                  openSections["runCustomTests"]
-                    ? "rotate-0"
-                    : "-rotate-90"
+                  openSections["runCustomTests"] ? "rotate-0" : "-rotate-90"
                 }`}
               />
-              <h3 className="text-sm font-medium">
-                Run with Custom Inputs
-              </h3>
+              <h3 className="text-sm font-medium">Run with Custom Inputs</h3>
             </div>
           </div>
         </CollapsibleTrigger>
@@ -1127,14 +1124,13 @@ export default function AdminCollapsibles({
           <p className="text-xs text-muted-foreground">
             Enter custom test inputs.{" "}
             <span className="font-bold">
-              Each test case should be a JSON array of function
-              arguments.{" "}
+              Each test case should be a JSON array of function arguments.{" "}
             </span>
             <br />
             <br />
             For example, if the function signature is{" "}
-            <code>function add(a: number, b: number): number</code>, the
-            input should be <code>[1, 2]</code>.
+            <code>function add(a: number, b: number): number</code>, the input
+            should be <code>[1, 2]</code>.
           </p>
 
           <div className="space-y-3">
@@ -1177,7 +1173,7 @@ export default function AdminCollapsibles({
                             className="h-6 w-6 p-0"
                             onClick={() => {
                               setCustomTestCases((prev) =>
-                                prev.filter((tc) => tc.id !== testCase.id)
+                                prev.filter((tc) => tc.id !== testCase.id),
                               );
                             }}
                           >
@@ -1193,8 +1189,8 @@ export default function AdminCollapsibles({
                             prev.map((tc) =>
                               tc.id === testCase.id
                                 ? { ...tc, inputText: e.target.value }
-                                : tc
-                            )
+                                : tc,
+                            ),
                           );
                         }}
                         className="font-mono text-sm min-h-[60px] w-full max-w-full overflow-x-hidden break-words"
@@ -1211,15 +1207,11 @@ export default function AdminCollapsibles({
 
                   {result && (
                     <div className="mt-2 space-y-1 border-t pt-2">
-                      <div className="text-xs font-medium mb-1">
-                        Result:
-                      </div>
+                      <div className="text-xs font-medium mb-1">Result:</div>
                       <div className="space-y-1 text-xs font-mono">
                         {result.error ? (
                           <Alert variant="destructive" className="py-2">
-                            <AlertTitle className="text-xs">
-                              Error
-                            </AlertTitle>
+                            <AlertTitle className="text-xs">Error</AlertTitle>
                             <AlertDescription className="text-xs whitespace-pre-wrap">
                               {result.error}
                             </AlertDescription>
@@ -1234,36 +1226,39 @@ export default function AdminCollapsibles({
                             }`}
                           >
                             <div className="space-y-1">
-                                    {result.input !== null && result.input !== undefined && (
-                                      <div>
-                                        <span className="text-muted-foreground">
-                                          Input:{" "}
-                                        </span>
-                                        <span className="font-semibold">
-                                          {JSON.stringify(result.input)}
-                                        </span>
-                                      </div>
-                                    )}
-                                    {result.expected !== null && result.expected !== undefined && (
-                                      <div>
-                                        <span className="text-muted-foreground">
-                                          Expected:{" "}
-                                        </span>
-                                        <span className="font-semibold">
-                                          {JSON.stringify(result.expected)}
-                                        </span>
-                                      </div>
-                                    )}
-                                    {result.actual !== null && result.actual !== undefined && (
-                                      <div>
-                                        <span className="text-muted-foreground">
-                                          Actual:{" "}
-                                        </span>
-                                        <span className="font-semibold">
-                                          {JSON.stringify(result.actual)}
-                                        </span>
-                                      </div>
-                                    )}
+                              {result.input !== null &&
+                                result.input !== undefined && (
+                                  <div>
+                                    <span className="text-muted-foreground">
+                                      Input:{" "}
+                                    </span>
+                                    <span className="font-semibold">
+                                      {JSON.stringify(result.input)}
+                                    </span>
+                                  </div>
+                                )}
+                              {result.expected !== null &&
+                                result.expected !== undefined && (
+                                  <div>
+                                    <span className="text-muted-foreground">
+                                      Expected:{" "}
+                                    </span>
+                                    <span className="font-semibold">
+                                      {JSON.stringify(result.expected)}
+                                    </span>
+                                  </div>
+                                )}
+                              {result.actual !== null &&
+                                result.actual !== undefined && (
+                                  <div>
+                                    <span className="text-muted-foreground">
+                                      Actual:{" "}
+                                    </span>
+                                    <span className="font-semibold">
+                                      {JSON.stringify(result.actual)}
+                                    </span>
+                                  </div>
+                                )}
                               {result.stdout && (
                                 <div className="mt-2 pt-2 border-t">
                                   <span className="text-muted-foreground">
@@ -1363,7 +1358,7 @@ export default function AdminCollapsibles({
               </span>
             </div>
           )}
-          {customTestsError && !isRunCustomTestsLoading && (
+          {customTestsError != null && !isRunCustomTestsLoading && (
             <Alert variant="destructive">
               <AlertTitle>Error</AlertTitle>
               <AlertDescription>
@@ -1447,13 +1442,12 @@ export default function AdminCollapsibles({
                   return;
                 }
                 try {
-                  const generatedSolution =
-                    await callGenerateSolutionWithModel(
-                      selectedModel,
-                      false,
-                      true,
-                      false
-                    );
+                  const generatedSolution = await callGenerateSolutionWithModel(
+                    selectedModel,
+                    false,
+                    true,
+                    false,
+                  );
                   if (generatedSolution) {
                     setUserSolution(generatedSolution);
                   }
@@ -1461,9 +1455,7 @@ export default function AdminCollapsibles({
                   console.error("Failed to generate solution:", error);
                 }
               }}
-              disabled={
-                isGenerateSolutionWithModelLoading || !selectedModel
-              }
+              disabled={isGenerateSolutionWithModelLoading || !selectedModel}
             >
               {isGenerateSolutionWithModelLoading
                 ? "Generating..."
@@ -1478,13 +1470,12 @@ export default function AdminCollapsibles({
                   return;
                 }
                 try {
-                  const generatedSolution =
-                    await callGenerateSolutionWithModel(
-                      selectedModel,
-                      false,
-                      true,
-                      true
-                    );
+                  const generatedSolution = await callGenerateSolutionWithModel(
+                    selectedModel,
+                    false,
+                    true,
+                    true,
+                  );
                   if (generatedSolution) {
                     setUserSolution(generatedSolution);
                   }
@@ -1492,9 +1483,7 @@ export default function AdminCollapsibles({
                   console.error("Failed to generate solution:", error);
                 }
               }}
-              disabled={
-                isGenerateSolutionWithModelLoading || !selectedModel
-              }
+              disabled={isGenerateSolutionWithModelLoading || !selectedModel}
             >
               {isGenerateSolutionWithModelLoading
                 ? "Generating..."
@@ -1506,4 +1495,3 @@ export default function AdminCollapsibles({
     </div>
   );
 }
-

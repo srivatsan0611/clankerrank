@@ -92,7 +92,7 @@ export default function NonAdminProblemView({
         input: testCaseInputs?.[sampleIndex] ?? null,
         output: testCaseOutputs?.[allTestCaseIndex] ?? null,
       };
-    }
+    },
   );
 
   // Helper function to get step display name
@@ -149,7 +149,7 @@ export default function NonAdminProblemView({
         user.apiKey,
         true,
         undefined,
-        { problemId, direction }
+        { problemId, direction },
       );
       router.push(`/problem/${result.problemId}`);
     } catch (error) {
@@ -168,7 +168,7 @@ export default function NonAdminProblemView({
         user.apiKey,
         true,
         undefined,
-        { problemId, direction: "similar" }
+        { problemId, direction: "similar" },
       );
       router.push(`/problem/${result.problemId}`);
     } catch (error) {
