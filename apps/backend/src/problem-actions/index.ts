@@ -1,6 +1,7 @@
 // Types
 export type {
   TestResult,
+  CustomTestResult,
   SandboxConfig,
   TestCase,
   SupportedLanguage,
@@ -41,6 +42,7 @@ export {
   PythonGenerator,
 } from "./src/code-generator";
 export type { CodeGenerator, CodeGenLanguage } from "./src/code-generator";
+export { CodeGenLanguageSchema } from "./src/code-generator";
 
 // Test cases
 export { generateTestCases, getTestCases } from "./src/generate-test-cases";
@@ -64,7 +66,11 @@ export { generateSolution, getSolution } from "./src/generate-solution";
 export {
   generateTestCaseOutputs,
   getTestCaseOutputs,
+  runReferenceSolutionOnInput,
 } from "./src/generate-test-case-outputs";
 
 // Run user solution
-export { runUserSolution } from "./src/run-user-solution";
+export {
+  runUserSolution,
+  runUserSolutionWithCustomInputs,
+} from "./src/run-user-solution";

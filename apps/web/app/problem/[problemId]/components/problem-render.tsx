@@ -20,12 +20,14 @@ import {
   useGenerateSolutionWithModel,
   useTestCaseOutputs,
   useRunUserSolution,
+  useRunUserSolutionWithCustomInputs,
   useGenerationStatus,
   useModels,
   useProblemModel,
   useStarterCode,
   type CodeGenLanguage,
 } from "@/hooks/use-problem";
+import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { ClientFacingUserObject } from "@/lib/auth-types";
@@ -38,6 +40,8 @@ import {
   XCircleIcon,
   ClockIcon,
   ChevronDownIcon,
+  PlusIcon,
+  XIcon,
 } from "lucide-react";
 import {
   Select,
@@ -81,6 +85,9 @@ export default function ProblemRender({
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
   const [testCaseInputsOpen, setTestCaseInputsOpen] = useState<boolean>(true);
   const [testCaseOutputsOpen, setTestCaseOutputsOpen] = useState<boolean>(true);
+  const [customTestCases, setCustomTestCases] = useState<
+    Array<{ id: string; inputText: string }>
+  >([{ id: `test-case-${Date.now()}`, inputText: "" }]);
 
   const {
     isLoading: isProblemTextLoading,
@@ -177,7 +184,19 @@ export default function ProblemRender({
     error: userSolutionError,
     data: userSolutionTestResults,
     runData: callRunUserSolution,
-  } = useRunUserSolution(problemId, userSolution, user.apiKey);
+  } = useRunUserSolution(problemId, userSolution, language, user.apiKey);
+
+  const {
+    isLoading: isRunCustomTestsLoading,
+    error: customTestsError,
+    data: customTestResults,
+    runData: callRunCustomTests,
+  } = useRunUserSolutionWithCustomInputs(
+    problemId,
+    userSolution,
+    language,
+    user.apiKey,
+  );
 
   const {
     completedSteps,
@@ -947,27 +966,365 @@ export default function ProblemRender({
                   </Alert>
                 )}
                 {userSolutionTestResults && (
-                  <div className="space-y-1">
+                  <div className="space-y-2">
                     {userSolutionTestResults.map((testResult, i) => (
                       <div
                         key={`user-solution-test-result-${i}`}
-                        className="text-sm font-mono bg-muted p-2 rounded"
+                        className="border rounded-lg p-3 bg-muted/30"
                       >
-                        {JSON.stringify(
-                          {
-                            testCase: testResult.testCase.description,
-                            status: testResult.status,
-                            actual: testResult.actual,
-                            error: testResult.error,
-                            expected: testResult.testCase.expected,
-                            stdout: testResult.stdout,
-                          },
-                          null,
-                          2,
+                        <div className="text-xs font-medium text-muted-foreground mb-2">
+                          {testResult.testCase.description}
+                          {testResult.testCase.isEdgeCase && (
+                            <Badge variant="outline" className="ml-2">
+                              Edge Case
+                            </Badge>
+                          )}
+                        </div>
+                        {testResult.error ? (
+                          <Alert variant="destructive" className="py-2">
+                            <AlertTitle className="text-xs">Error</AlertTitle>
+                            <AlertDescription className="text-xs whitespace-pre-wrap">
+                              {testResult.error}
+                            </AlertDescription>
+                          </Alert>
+                        ) : (
+                          <div
+                            className={`p-2 rounded text-xs font-mono ${
+                              testResult.status === "pass"
+                                ? "bg-green-500/20 border border-green-500/50"
+                                : testResult.status === "fail"
+                                  ? "bg-yellow-500/20 border border-yellow-500/50"
+                                  : "bg-red-500/20 border border-red-500/50"
+                            }`}
+                          >
+                            <div className="space-y-1">
+                              <div>
+                                <span className="text-muted-foreground">
+                                  Status:{" "}
+                                </span>
+                                <span className="font-semibold">
+                                  {testResult.status.toUpperCase()}
+                                </span>
+                              </div>
+                              {testResult.expected !== null && (
+                                <div>
+                                  <span className="text-muted-foreground">
+                                    Expected:{" "}
+                                  </span>
+                                  <span className="font-semibold">
+                                    {JSON.stringify(testResult.expected)}
+                                  </span>
+                                </div>
+                              )}
+                              {testResult.actual !== null && (
+                                <div>
+                                  <span className="text-muted-foreground">
+                                    Actual:{" "}
+                                  </span>
+                                  <span className="font-semibold">
+                                    {JSON.stringify(testResult.actual)}
+                                  </span>
+                                </div>
+                              )}
+                              {testResult.stdout && (
+                                <div className="mt-2 pt-2 border-t">
+                                  <span className="text-muted-foreground">
+                                    Stdout:{" "}
+                                  </span>
+                                  <pre className="text-xs mt-1 whitespace-pre-wrap">
+                                    {testResult.stdout}
+                                  </pre>
+                                </div>
+                              )}
+                            </div>
+                          </div>
                         )}
                       </div>
                     ))}
                   </div>
+                )}
+              </CollapsibleContent>
+            </Collapsible>
+
+            <Collapsible
+              open={openSections["runCustomTests"] ?? false}
+              onOpenChange={(open) => {
+                setOpenSections((prev) => ({
+                  ...prev,
+                  runCustomTests: open,
+                }));
+              }}
+              className="border-b pb-4"
+            >
+              <CollapsibleTrigger className="w-full">
+                <div className="flex items-center justify-between gap-2 w-full py-2 hover:bg-muted/50 rounded-md px-2 -mx-2 transition-colors">
+                  <div className="flex items-center gap-2">
+                    <ChevronDownIcon
+                      className={`h-4 w-4 transition-transform ${
+                        openSections["runCustomTests"]
+                          ? "rotate-0"
+                          : "-rotate-90"
+                      }`}
+                    />
+                    <h3 className="text-sm font-medium">
+                      Run with Custom Inputs
+                    </h3>
+                  </div>
+                </div>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="space-y-4 pt-2">
+                <p className="text-xs text-muted-foreground">
+                  Enter custom test inputs. Each test case should be a JSON
+                  array of function arguments.
+                </p>
+                {testCaseInputs && testCaseInputs.length > 0 && (
+                  <p className="text-xs text-muted-foreground">
+                    Example format based on existing test case:{" "}
+                    <code className="bg-muted px-1 rounded">
+                      {JSON.stringify(testCaseInputs[0])}
+                    </code>
+                  </p>
+                )}
+
+                <div className="space-y-3">
+                  {customTestCases.map((testCase, index) => {
+                    // Parse and validate this test case's input
+                    let validationError: string | null = null;
+
+                    if (testCase.inputText.trim()) {
+                      try {
+                        const parsed = JSON.parse(testCase.inputText);
+                        if (!Array.isArray(parsed)) {
+                          validationError =
+                            "Input must be a JSON array of function arguments.";
+                        }
+                      } catch {
+                        validationError =
+                          "Invalid JSON. Please enter a valid JSON array.";
+                      }
+                    }
+
+                    // Get result for this test case (by index)
+                    const result =
+                      customTestResults && customTestResults[index]
+                        ? customTestResults[index]
+                        : null;
+
+                    return (
+                      <div
+                        key={testCase.id}
+                        className="space-y-2 border rounded-lg p-3 bg-muted/30"
+                      >
+                        <div className="flex items-start gap-2">
+                          <div className="flex-1 space-y-2">
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs font-medium text-muted-foreground">
+                                Test Case {index + 1}
+                              </span>
+                              {customTestCases.length > 1 && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-6 w-6 p-0"
+                                  onClick={() => {
+                                    setCustomTestCases((prev) =>
+                                      prev.filter(
+                                        (tc) => tc.id !== testCase.id,
+                                      ),
+                                    );
+                                  }}
+                                >
+                                  <XIcon className="h-4 w-4" />
+                                </Button>
+                              )}
+                            </div>
+                            <Textarea
+                              placeholder="[1, 2, 3]"
+                              value={testCase.inputText}
+                              onChange={(e) => {
+                                setCustomTestCases((prev) =>
+                                  prev.map((tc) =>
+                                    tc.id === testCase.id
+                                      ? { ...tc, inputText: e.target.value }
+                                      : tc,
+                                  ),
+                                );
+                              }}
+                              className="font-mono text-sm min-h-[60px]"
+                            />
+                            {validationError && (
+                              <Alert variant="destructive" className="py-2">
+                                <AlertDescription className="text-xs">
+                                  {validationError}
+                                </AlertDescription>
+                              </Alert>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Result Display */}
+                        {result && (
+                          <div className="mt-2 space-y-1 border-t pt-2">
+                            <div className="text-xs font-medium mb-1">
+                              Result:
+                            </div>
+                            <div className="space-y-1 text-xs font-mono">
+                              {result.error ? (
+                                <Alert variant="destructive" className="py-2">
+                                  <AlertTitle className="text-xs">
+                                    Error
+                                  </AlertTitle>
+                                  <AlertDescription className="text-xs whitespace-pre-wrap">
+                                    {result.error}
+                                  </AlertDescription>
+                                </Alert>
+                              ) : (
+                                <div
+                                  className={`p-2 rounded ${
+                                    JSON.stringify(result.actual) ===
+                                    JSON.stringify(result.expected)
+                                      ? "bg-green-500/20 border border-green-500/50"
+                                      : "bg-yellow-500/20 border border-yellow-500/50"
+                                  }`}
+                                >
+                                  <div className="space-y-1">
+                                    <div>
+                                      <span className="text-muted-foreground">
+                                        Input:{" "}
+                                      </span>
+                                      <span className="font-semibold">
+                                        {JSON.stringify(result.input)}
+                                      </span>
+                                    </div>
+                                    {result.expected !== null && (
+                                      <div>
+                                        <span className="text-muted-foreground">
+                                          Expected:{" "}
+                                        </span>
+                                        <span className="font-semibold">
+                                          {JSON.stringify(result.expected)}
+                                        </span>
+                                      </div>
+                                    )}
+                                    {result.actual !== null && (
+                                      <div>
+                                        <span className="text-muted-foreground">
+                                          Actual:{" "}
+                                        </span>
+                                        <span className="font-semibold">
+                                          {JSON.stringify(result.actual)}
+                                        </span>
+                                      </div>
+                                    )}
+                                    {result.stdout && (
+                                      <div className="mt-2 pt-2 border-t">
+                                        <span className="text-muted-foreground">
+                                          Stdout:{" "}
+                                        </span>
+                                        <pre className="text-xs mt-1 whitespace-pre-wrap">
+                                          {result.stdout}
+                                        </pre>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      if (customTestCases.length < 10) {
+                        setCustomTestCases((prev) => [
+                          ...prev,
+                          {
+                            id: `test-case-${Date.now()}-${Math.random()}`,
+                            inputText: "",
+                          },
+                        ]);
+                      }
+                    }}
+                    disabled={customTestCases.length >= 10}
+                  >
+                    <PlusIcon className="h-4 w-4 mr-1" />
+                    Add Test Case
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={async () => {
+                      try {
+                        // Validate all test cases
+                        const validInputs: unknown[][] = [];
+                        let hasError = false;
+
+                        for (let i = 0; i < customTestCases.length; i++) {
+                          const testCase = customTestCases[i];
+                          if (!testCase || !testCase.inputText.trim()) {
+                            hasError = true;
+                            break;
+                          }
+
+                          try {
+                            const parsed = JSON.parse(testCase.inputText);
+                            if (!Array.isArray(parsed)) {
+                              hasError = true;
+                              break;
+                            }
+                            validInputs.push(parsed);
+                          } catch {
+                            hasError = true;
+                            break;
+                          }
+                        }
+
+                        if (hasError || validInputs.length === 0) {
+                          return;
+                        }
+
+                        if (validInputs.length > 10) {
+                          return;
+                        }
+
+                        await callRunCustomTests(validInputs);
+                      } catch (error) {
+                        console.error("Failed to run custom tests:", error);
+                      }
+                    }}
+                    disabled={
+                      isRunCustomTestsLoading ||
+                      customTestCases.every((tc) => !tc.inputText.trim())
+                    }
+                  >
+                    {isRunCustomTestsLoading ? "Running..." : "Run All Tests"}
+                  </Button>
+                </div>
+
+                {isRunCustomTestsLoading && (
+                  <div className="flex items-center gap-2">
+                    <Loader />
+                    <span className="text-sm text-muted-foreground">
+                      Running custom tests...
+                    </span>
+                  </div>
+                )}
+                {customTestsError && !isRunCustomTestsLoading && (
+                  <Alert variant="destructive">
+                    <AlertTitle>Error</AlertTitle>
+                    <AlertDescription>
+                      {customTestsError instanceof Error
+                        ? customTestsError.message
+                        : String(customTestsError)}
+                    </AlertDescription>
+                  </Alert>
                 )}
               </CollapsibleContent>
             </Collapsible>

@@ -1,3 +1,4 @@
+import { z } from "zod";
 import type { FunctionSignatureSchema, TypeDef } from "@repo/api-types";
 
 export interface CodeGenerator {
@@ -15,4 +16,5 @@ export interface CodeGenerator {
 }
 
 // Languages supported by the code generator (subset of all supported languages)
-export type CodeGenLanguage = "typescript" | "python";
+export const CodeGenLanguageSchema = z.enum(["typescript", "python"]);
+export type CodeGenLanguage = z.infer<typeof CodeGenLanguageSchema>;

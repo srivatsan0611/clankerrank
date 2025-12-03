@@ -62,8 +62,41 @@ export const RunSolutionRequestSchema = z
     code: z.string().min(1).openapi({
       example: "def solution(n: int) -> int:\n    return n * 2",
     }),
+    language: z
+      .enum(["typescript", "python"])
+      .optional()
+      .default("typescript")
+      .openapi({
+        example: "python",
+        description: "The programming language of the code",
+      }),
   })
   .openapi("RunSolutionRequest");
+
+export const RunCustomTestsRequestSchema = z
+  .object({
+    code: z.string().min(1).openapi({
+      example: "function runSolution(n: number): number { return n * 2; }",
+    }),
+    customInputs: z
+      .array(z.array(z.unknown()))
+      .min(1)
+      .max(10)
+      .openapi({
+        example: [[[1, 2, 3]], [[4, 5, 6]]],
+        description:
+          "Array of test inputs. Each input is an array of function arguments.",
+      }),
+    language: z
+      .enum(["typescript", "python"])
+      .optional()
+      .default("typescript")
+      .openapi({
+        example: "python",
+        description: "The programming language of the code",
+      }),
+  })
+  .openapi("RunCustomTestsRequest");
 
 // Response schemas
 export const CreateProblemResponseSchema = z
@@ -139,6 +172,7 @@ export type GenerateSolutionRequest = z.infer<
   typeof GenerateSolutionRequestSchema
 >;
 export type RunSolutionRequest = z.infer<typeof RunSolutionRequestSchema>;
+export type RunCustomTestsRequest = z.infer<typeof RunCustomTestsRequestSchema>;
 export type CreateProblemResponse = z.infer<typeof CreateProblemResponseSchema>;
 export type ProblemText = z.infer<typeof ProblemTextSchema>;
 export type Solution = z.infer<typeof SolutionSchema>;

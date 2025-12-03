@@ -6,6 +6,15 @@ export type TestResult = {
   testCase: TestCase;
   status: "pass" | "fail" | "error";
   actual: unknown | null;
+  expected: unknown | null;
+  error?: string;
+  stdout?: string;
+};
+
+export type CustomTestResult = {
+  input: unknown;
+  expected: unknown | null;
+  actual: unknown | null;
   error?: string;
   stdout?: string;
 };

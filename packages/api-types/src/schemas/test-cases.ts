@@ -90,6 +90,7 @@ export const TestResultSchema = z
     testCase: TestCaseSchema,
     status: z.enum(["pass", "fail", "error"]),
     actual: z.unknown().nullable(),
+    expected: z.unknown().nullable(),
     error: z.string().optional(),
     stdout: z.string().optional(),
   })
@@ -100,8 +101,25 @@ export const TestResultsSchema = z
   .array(TestResultSchema)
   .openapi("TestResults");
 
+// Custom test result (for ephemeral custom inputs - includes expected from reference solution)
+export const CustomTestResultSchema = z
+  .object({
+    input: z.unknown(),
+    expected: z.unknown().nullable(),
+    actual: z.unknown().nullable(),
+    error: z.string().optional(),
+    stdout: z.string().optional(),
+  })
+  .openapi("CustomTestResult");
+
+export const CustomTestResultsSchema = z
+  .array(CustomTestResultSchema)
+  .openapi("CustomTestResults");
+
 // Inferred types
 export type TestCase = z.infer<typeof TestCaseSchema>;
 export type TestCaseDescription = z.infer<typeof TestCaseDescriptionSchema>;
 export type TestResult = z.infer<typeof TestResultSchema>;
 export type TestResults = z.infer<typeof TestResultsSchema>;
+export type CustomTestResult = z.infer<typeof CustomTestResultSchema>;
+export type CustomTestResults = z.infer<typeof CustomTestResultsSchema>;

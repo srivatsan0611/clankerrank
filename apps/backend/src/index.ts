@@ -73,13 +73,15 @@ app.onError((err, c) => {
   console.error("Error:", err);
 
   const status = ("status" in err ? err.status : 500) as ContentfulStatusCode;
+  const message =
+    err instanceof Error ? err.message : "An unexpected error occurred";
 
   return c.json(
     {
       success: false,
       error: {
         code: `HTTP_${status}`,
-        message: "An unexpected error occurred",
+        message,
       },
       timestamp: new Date().toISOString(),
     },

@@ -2,11 +2,45 @@ import { Sandbox } from "./sandbox";
 import { getSolution } from "./generate-solution";
 import { getProblem, updateTestCase, type TestCase } from "@repo/db";
 
+/**
+ * Runs the reference solution on an arbitrary input and returns the expected output.
+ * Uses inline code execution (TypeScript/JavaScript only).
+ *
+ * @param problemId - The problem ID to fetch the solution for
+ * @param input - The input to run the solution on (array of function arguments)
+ * @param sandbox - The sandbox instance to execute code in
+ * @returns The expected output value, or null if execution failed
+ */
+export async function runReferenceSolutionOnInput(
+  problemId: string,
+  input: unknown,
+  sandbox: Sandbox,
+): Promise<unknown | null> {
+  try {
+    const solution = await getSolution(problemId);
+    if (!solution) {
+      return null;
+    }
+
+    await sandbox.run(
+      solution +
+        "; const output = runSolution(..." +
+        JSON.stringify(input) +
+        ");" +
+        "require('fs').writeFileSync('output.json', JSON.stringify(output));",
+    );
+    const outputContent = await sandbox.readFile("output.json");
+    return JSON.parse(outputContent);
+  } catch {
+    // Return null on any error (execution failure, parse failure, etc.)
+    return null;
+  }
+}
+
 export async function generateTestCaseOutputs(
   problemId: string,
   sandbox: Sandbox,
 ) {
-  const solution = await getSolution(problemId);
   const { testCases } = await getProblem(problemId);
   if (!testCases) {
     throw new Error(
@@ -16,14 +50,17 @@ export async function generateTestCaseOutputs(
 
   const results: unknown[] = [];
   for (const testCase of testCases) {
-    await sandbox.run(
-      solution +
-        "; const output = runSolution(..." +
-        JSON.stringify(testCase.input) +
-        ");" +
-        "require('fs').writeFileSync('output.json', JSON.stringify(output));",
+    const result = await runReferenceSolutionOnInput(
+      problemId,
+      testCase.input,
+      sandbox,
     );
-    results.push(JSON.parse(await sandbox.readFile("output.json")));
+    if (result === null) {
+      throw new Error(
+        `Failed to generate result for test case ${testCase.id || "unknown"}`,
+      );
+    }
+    results.push(result);
   }
 
   await sandbox.kill();

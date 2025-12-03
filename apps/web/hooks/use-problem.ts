@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   generateProblemText,
@@ -19,7 +20,15 @@ import {
   generateTestCaseOutputs,
   getTestCaseOutputs,
 } from "@/actions/generate-test-case-outputs";
-import { runUserSolution } from "@/actions/run-user-solution";
+import {
+  runUserSolution,
+  runUserSolutionWithCustomInputs,
+  type CodeGenLanguage,
+} from "@/actions/run-user-solution";
+import type { CustomTestResult } from "@/actions/run-user-solution";
+
+// Re-export CodeGenLanguage for consumers
+export type { CodeGenLanguage } from "@/actions/run-user-solution";
 import {
   getGenerationStatus,
   type GenerationStep,
@@ -498,24 +507,38 @@ export function useTestCaseOutputs(
 export function useRunUserSolution(
   problemId: string | null,
   userSolution: string | null,
+  language: CodeGenLanguage = "typescript",
   encryptedUserId?: string,
 ) {
   const queryClient = useQueryClient();
-  const queryKey = ["runUserSolution", problemId, userSolution];
+  const queryKey = ["runUserSolution", problemId, userSolution, language];
 
   const query = useQuery({
     queryKey,
     queryFn: () => {
       if (!problemId) throw new Error("Problem ID is not set");
       if (!userSolution) throw new Error("User solution is not set");
-      return runUserSolution(problemId, userSolution, encryptedUserId);
+      return runUserSolution(
+        problemId,
+        userSolution,
+        language,
+        encryptedUserId,
+      );
     },
     enabled: false,
   });
 
   const runMutation = useMutation({
-    mutationFn: async ({ id, code }: { id: string; code: string }) => {
-      return runUserSolution(id, code, encryptedUserId);
+    mutationFn: async ({
+      id,
+      code,
+      lang,
+    }: {
+      id: string;
+      code: string;
+      lang: CodeGenLanguage;
+    }) => {
+      return runUserSolution(id, code, lang, encryptedUserId);
     },
     onSuccess: (data) => {
       queryClient.setQueryData(queryKey, data);
@@ -525,13 +548,76 @@ export function useRunUserSolution(
   const runData = async () => {
     if (!problemId) throw new Error("Problem ID is not set");
     if (!userSolution) throw new Error("User solution is not set");
-    return runMutation.mutateAsync({ id: problemId, code: userSolution });
+    return runMutation.mutateAsync({
+      id: problemId,
+      code: userSolution,
+      lang: language,
+    });
   };
 
   return {
     isLoading: query.isFetching || runMutation.isPending,
     error: query.error || runMutation.error,
     data: query.data || runMutation.data,
+    runData,
+  };
+}
+
+export function useRunUserSolutionWithCustomInputs(
+  problemId: string | null,
+  userSolution: string | null,
+  language: CodeGenLanguage = "typescript",
+  encryptedUserId?: string,
+) {
+  const [results, setResults] = useState<CustomTestResult[] | null>(null);
+  const [error, setError] = useState<Error | null>(null);
+
+  const runMutation = useMutation({
+    mutationFn: async ({
+      id,
+      code,
+      customInputs,
+      lang,
+    }: {
+      id: string;
+      code: string;
+      customInputs: unknown[][];
+      lang: CodeGenLanguage;
+    }) => {
+      return runUserSolutionWithCustomInputs(
+        id,
+        code,
+        customInputs,
+        lang,
+        encryptedUserId,
+      );
+    },
+    onSuccess: (data) => {
+      setResults(data);
+      setError(null);
+    },
+    onError: (err) => {
+      setError(err instanceof Error ? err : new Error(String(err)));
+    },
+  });
+
+  const runData = async (customInputs: unknown[][]) => {
+    if (!problemId) throw new Error("Problem ID is not set");
+    if (!userSolution) throw new Error("User solution is not set");
+    // Clear previous error when starting a new run
+    setError(null);
+    return runMutation.mutateAsync({
+      id: problemId,
+      code: userSolution,
+      customInputs,
+      lang: language,
+    });
+  };
+
+  return {
+    isLoading: runMutation.isPending,
+    error: error || runMutation.error,
+    data: results,
     runData,
   };
 }
@@ -604,8 +690,6 @@ export function useProblemModel(
     model: query.data ?? null,
   };
 }
-
-export type CodeGenLanguage = "typescript" | "python";
 
 export function useStarterCode(
   problemId: string | null,

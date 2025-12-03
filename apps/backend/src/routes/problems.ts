@@ -17,6 +17,8 @@ import {
   generateTestCaseOutputs,
   getTestCaseOutputs,
   runUserSolution,
+  runUserSolutionWithCustomInputs,
+  CodeGenLanguageSchema,
 } from "@/problem-actions";
 import { getSandbox } from "@cloudflare/sandbox";
 import { Sandbox } from "@/problem-actions";
@@ -52,6 +54,7 @@ import {
   generateSolutionRoute,
   getSolutionRoute,
   runSolutionRoute,
+  runCustomTestsRoute,
   generateOutputsRoute,
   getOutputsRoute,
   getGenerationStatusRoute,
@@ -900,7 +903,25 @@ problems.openapi(runSolutionRoute, async (c) => {
 
   const sandboxId = `solution-run-${problemId}`;
   const sandbox = getSandboxInstance(c.env, sandboxId);
-  const result = await runUserSolution(problemId, body.code, sandbox);
+  const language = CodeGenLanguageSchema.parse(body.language);
+  const result = await runUserSolution(problemId, body.code, sandbox, language);
+  return c.json({ success: true as const, data: result }, 200);
+});
+
+problems.openapi(runCustomTestsRoute, async (c) => {
+  const { problemId } = c.req.valid("param");
+  const body = c.req.valid("json");
+
+  const sandboxId = `custom-run-${problemId}-${Date.now()}`;
+  const sandbox = getSandboxInstance(c.env, sandboxId);
+  const language = CodeGenLanguageSchema.parse(body.language);
+  const result = await runUserSolutionWithCustomInputs(
+    problemId,
+    body.code,
+    body.customInputs,
+    sandbox,
+    language,
+  );
   return c.json({ success: true as const, data: result }, 200);
 });
 

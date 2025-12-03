@@ -11,6 +11,7 @@ import {
   GenerateRequestSchema,
   GenerateSolutionRequestSchema,
   RunSolutionRequestSchema,
+  RunCustomTestsRequestSchema,
   ProblemTextSchema,
   ProblemTextGenerateResponseSchema,
   SolutionSchema,
@@ -24,6 +25,7 @@ import {
   TestOutputsGenerateResponseSchema,
   TestOutputsGetResponseSchema,
   TestResultsSchema,
+  CustomTestResultsSchema,
   GenerationStatusSchema,
   ProblemModelSchema,
   FunctionSignatureSchemaResponseSchema,
@@ -574,6 +576,39 @@ export const runSolutionRoute = createRoute({
         },
       },
       description: "Solution executed successfully",
+    },
+    400: {
+      content: { "application/json": { schema: ApiErrorSchema } },
+      description: "Validation error",
+    },
+  },
+  security: [{ ApiKeyAuth: [] }],
+});
+
+export const runCustomTestsRoute = createRoute({
+  method: "post",
+  path: "/{problemId}/solution/run-custom",
+  tags: ["Solutions"],
+  summary: "Run solution with custom test inputs",
+  description:
+    "Executes user code against custom test inputs (ephemeral, no persistence)",
+  request: {
+    params: ProblemIdParamSchema,
+    body: {
+      content: {
+        "application/json": { schema: RunCustomTestsRequestSchema },
+      },
+      required: true,
+    },
+  },
+  responses: {
+    200: {
+      content: {
+        "application/json": {
+          schema: ApiSuccessSchema(CustomTestResultsSchema),
+        },
+      },
+      description: "Custom tests executed successfully",
     },
     400: {
       content: { "application/json": { schema: ApiErrorSchema } },
