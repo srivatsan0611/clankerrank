@@ -3,7 +3,6 @@ import ProblemRender from "./components/problem-render";
 import { redirect } from "next/navigation";
 import { ClientFacingUserObject } from "@/lib/auth-types";
 import { encryptUserId } from "@/lib/auth-utils";
-import UnauthorizedRedirect from "./components/unauthorized";
 
 export default async function Page({
   params,
@@ -25,11 +24,6 @@ export default async function Page({
   ) {
     return redirect("/login");
   }
-
-  if (user.metadata?.role !== "superduperadmin") {
-    return <UnauthorizedRedirect />;
-  }
-
   const clientFacingUser: ClientFacingUserObject = {
     email: user.email,
     firstName: user.firstName,
