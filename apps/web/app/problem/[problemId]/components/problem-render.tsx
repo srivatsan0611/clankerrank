@@ -180,7 +180,7 @@ export default function ProblemRender({
     problemId,
     userSolution,
     language,
-    user.apiKey
+    user.apiKey,
   );
 
   const {
@@ -204,7 +204,7 @@ export default function ProblemRender({
     step: GenerationStep,
     isLoading: boolean,
     error: unknown,
-    hasData: boolean
+    hasData: boolean,
   ): StepStatus => {
     if (error) return "error";
     // Prioritize "loading" when data is actively being fetched
@@ -223,7 +223,7 @@ export default function ProblemRender({
     stepIndex: number,
     isLoading: boolean,
     error: unknown,
-    hasData: boolean
+    hasData: boolean,
   ): boolean => {
     const stepStatus = getStepStatus(step, isLoading, error, hasData);
 
@@ -415,7 +415,7 @@ export default function ProblemRender({
           sampleTestCases.map(({ input }, index) => ({
             id: `test-case-${Date.now()}-${index}`,
             inputText: JSON.stringify(input),
-          }))
+          })),
         );
         hasInitializedCustomTestCases.current = true;
       }
@@ -596,7 +596,7 @@ export default function ProblemRender({
       stepIndex,
       isLoading,
       error,
-      hasData
+      hasData,
     );
 
     if (!isVisible) return null;
@@ -716,7 +716,7 @@ export default function ProblemRender({
         user.apiKey,
         true,
         undefined,
-        { problemId, direction }
+        { problemId, direction },
       );
       router.push(`/problem/${result.problemId}`);
     } catch (error) {
@@ -735,7 +735,7 @@ export default function ProblemRender({
         user.apiKey,
         true,
         undefined,
-        { problemId, direction: "similar" }
+        { problemId, direction: "similar" },
       );
       router.push(`/problem/${result.problemId}`);
     } catch (error) {
@@ -960,7 +960,7 @@ export default function ProblemRender({
                     selectedModel,
                     false,
                     true,
-                    false
+                    false,
                   )
                 }
                 onGenerateWithError={() =>
@@ -968,7 +968,7 @@ export default function ProblemRender({
                     selectedModel,
                     true,
                     true,
-                    false
+                    false,
                   )
                 }
                 onRefetch={getCodeToGenerateTestCaseInputs}
@@ -1033,7 +1033,7 @@ export default function ProblemRender({
                     undefined,
                     true,
                     false,
-                    false
+                    false,
                   )
                 }
                 onGenerateWithError={() =>
@@ -1042,7 +1042,7 @@ export default function ProblemRender({
                     undefined,
                     true,
                     true,
-                    false
+                    false,
                   )
                 }
                 onRefetch={getSolution}
@@ -1306,7 +1306,9 @@ export default function ProblemRender({
                                   className="h-6 w-6 p-0"
                                   onClick={() => {
                                     setCustomTestCases((prev) =>
-                                      prev.filter((tc) => tc.id !== testCase.id)
+                                      prev.filter(
+                                        (tc) => tc.id !== testCase.id,
+                                      ),
                                     );
                                   }}
                                 >
@@ -1322,8 +1324,8 @@ export default function ProblemRender({
                                   prev.map((tc) =>
                                     tc.id === testCase.id
                                       ? { ...tc, inputText: e.target.value }
-                                      : tc
-                                  )
+                                      : tc,
+                                  ),
                                 );
                               }}
                               className="font-mono text-sm min-h-[60px] w-full max-w-full overflow-x-hidden break-words"
@@ -1581,7 +1583,7 @@ export default function ProblemRender({
                             selectedModel,
                             false,
                             true,
-                            false
+                            false,
                           );
                         if (generatedSolution) {
                           setUserSolution(generatedSolution);
@@ -1612,7 +1614,7 @@ export default function ProblemRender({
                             selectedModel,
                             false,
                             true,
-                            true
+                            true,
                           );
                         if (generatedSolution) {
                           setUserSolution(generatedSolution);

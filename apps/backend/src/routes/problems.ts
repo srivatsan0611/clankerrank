@@ -125,7 +125,10 @@ async function shouldReturnIdempotentError(
 
 // Helper to start workflow if autoGenerate is enabled (for problem creation)
 async function startWorkflowIfAuto(
-  c: Context<{ Bindings: Env; Variables: { userId: string; isAdmin: boolean; db: Database } }>,
+  c: Context<{
+    Bindings: Env;
+    Variables: { userId: string; isAdmin: boolean; db: Database };
+  }>,
   problemId: string,
   model?: string,
   autoGenerate: boolean = true,
@@ -160,7 +163,10 @@ async function startWorkflowIfAuto(
 
 // Helper to start workflow from a specific step if enqueueNextStep is enabled
 async function startWorkflowFromStepIfEnabled(
-  c: Context<{ Bindings: Env; Variables: { userId: string; isAdmin: boolean; db: Database } }>,
+  c: Context<{
+    Bindings: Env;
+    Variables: { userId: string; isAdmin: boolean; db: Database };
+  }>,
   problemId: string,
   currentStep: GenerationStep,
   model?: string,
@@ -725,7 +731,8 @@ problems.openapi(getInputCodeRoute, async (c) => {
   // Check admin access
   if (!isAdmin) {
     throw new HTTPException(403, {
-      message: "Admin access required. This endpoint is only accessible to administrators.",
+      message:
+        "Admin access required. This endpoint is only accessible to administrators.",
     });
   }
 
@@ -847,7 +854,7 @@ problems.openapi(getInputsRoute, async (c) => {
   }
 
   const allInputs = await getTestCaseInputs(problemId, db);
-  
+
   // If admin, return all inputs; if not admin, only return inputs for sample test cases
   let result: unknown[];
   if (isAdmin) {
@@ -859,7 +866,7 @@ problems.openapi(getInputsRoute, async (c) => {
       .map((tc) => tc.input)
       .filter((input) => input !== null && input !== undefined);
   }
-  
+
   return c.json({ success: true as const, data: result }, 200);
 });
 
@@ -976,7 +983,8 @@ problems.openapi(getSolutionRoute, async (c) => {
   // Check admin access
   if (!isAdmin) {
     throw new HTTPException(403, {
-      message: "Admin access required. This endpoint is only accessible to administrators.",
+      message:
+        "Admin access required. This endpoint is only accessible to administrators.",
     });
   }
 
@@ -1122,7 +1130,8 @@ problems.openapi(getOutputsRoute, async (c) => {
   // Check admin access
   if (!isAdmin) {
     throw new HTTPException(403, {
-      message: "Admin access required. This endpoint is only accessible to administrators.",
+      message:
+        "Admin access required. This endpoint is only accessible to administrators.",
     });
   }
 
