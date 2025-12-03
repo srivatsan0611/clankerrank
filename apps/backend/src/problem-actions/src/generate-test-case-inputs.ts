@@ -1,5 +1,10 @@
 import { Sandbox } from "./sandbox";
-import { getProblem, updateTestCase, type TestCase, type Database } from "@repo/db";
+import {
+  getProblem,
+  updateTestCase,
+  type TestCase,
+  type Database,
+} from "@repo/db";
 
 export async function generateTestCaseInputs(
   problemId: string,

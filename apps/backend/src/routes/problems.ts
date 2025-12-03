@@ -77,7 +77,10 @@ const getSandboxInstance = (env: Env, sandboxId: string): Sandbox => {
 };
 
 // Helper to get or create model
-async function getOrCreateModel(modelName: string, db: Database): Promise<string> {
+async function getOrCreateModel(
+  modelName: string,
+  db: Database,
+): Promise<string> {
   const model = await getModelByName(modelName, db);
   if (!model) {
     const modelId = await createModel(modelName, db);
@@ -979,7 +982,13 @@ problems.openapi(runSolutionRoute, async (c) => {
   const sandboxId = `solution-run-${problemId}`;
   const sandbox = getSandboxInstance(c.env, sandboxId);
   const language = CodeGenLanguageSchema.parse(body.language);
-  const result = await runUserSolution(problemId, body.code, sandbox, db, language);
+  const result = await runUserSolution(
+    problemId,
+    body.code,
+    sandbox,
+    db,
+    language,
+  );
   return c.json({ success: true as const, data: result }, 200);
 });
 
@@ -1033,7 +1042,12 @@ problems.openapi(generateOutputsRoute, async (c) => {
       (tc) => tc.expected !== null && tc.expected !== undefined,
     );
   if (
-    await shouldReturnIdempotentError(problemId, "generateSolution", dataExists, db)
+    await shouldReturnIdempotentError(
+      problemId,
+      "generateSolution",
+      dataExists,
+      db,
+    )
   ) {
     return c.json(
       {

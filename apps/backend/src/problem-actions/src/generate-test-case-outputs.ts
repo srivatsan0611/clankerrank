@@ -1,6 +1,11 @@
 import { Sandbox } from "./sandbox";
 import { getSolution } from "./generate-solution";
-import { getProblem, updateTestCase, type TestCase, type Database } from "@repo/db";
+import {
+  getProblem,
+  updateTestCase,
+  type TestCase,
+  type Database,
+} from "@repo/db";
 
 /**
  * Runs the reference solution on an arbitrary input and returns the expected output.

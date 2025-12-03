@@ -19,7 +19,6 @@ import {
   markStepComplete,
   getProblem,
   createDb,
-  type Database,
 } from "@repo/db";
 import { STEP_ORDER, type GenerationStep } from "../queue/types";
 import { getPostHogClient } from "@/utils/analytics";
@@ -70,7 +69,13 @@ export class ProblemGenerationWorkflow extends WorkflowEntrypoint<
           console.log(
             `[Workflow] Processing generateProblemText for problem ${problemId}`,
           );
-          await updateJobStatus(jobId, "in_progress", "generateProblemText", undefined, db);
+          await updateJobStatus(
+            jobId,
+            "in_progress",
+            "generateProblemText",
+            undefined,
+            db,
+          );
           await generateProblemText(
             problemId,
             model,
@@ -91,7 +96,13 @@ export class ProblemGenerationWorkflow extends WorkflowEntrypoint<
           console.log(
             `[Workflow] Processing parseFunctionSignature for problem ${problemId}`,
           );
-          await updateJobStatus(jobId, "in_progress", "parseFunctionSignature", undefined, db);
+          await updateJobStatus(
+            jobId,
+            "in_progress",
+            "parseFunctionSignature",
+            undefined,
+            db,
+          );
           await parseFunctionSignature(
             problemId,
             model,
@@ -111,7 +122,13 @@ export class ProblemGenerationWorkflow extends WorkflowEntrypoint<
           console.log(
             `[Workflow] Processing generateTestCases for problem ${problemId}`,
           );
-          await updateJobStatus(jobId, "in_progress", "generateTestCases", undefined, db);
+          await updateJobStatus(
+            jobId,
+            "in_progress",
+            "generateTestCases",
+            undefined,
+            db,
+          );
           await generateTestCases(
             problemId,
             model,
@@ -164,7 +181,13 @@ export class ProblemGenerationWorkflow extends WorkflowEntrypoint<
           console.log(
             `[Workflow] Processing generateSolution for problem ${problemId}`,
           );
-          await updateJobStatus(jobId, "in_progress", "generateSolution", undefined, db);
+          await updateJobStatus(
+            jobId,
+            "in_progress",
+            "generateSolution",
+            undefined,
+            db,
+          );
           // Generate solution
           await generateSolution(
             problemId,

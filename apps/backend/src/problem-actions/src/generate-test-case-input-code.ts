@@ -1,7 +1,12 @@
 import { generateObject } from "ai";
 import { z } from "zod";
 import { DEFAULT_LANGUAGE } from "./constants";
-import { getProblem, updateTestCase, type TestCase, type Database } from "@repo/db";
+import {
+  getProblem,
+  updateTestCase,
+  type TestCase,
+  type Database,
+} from "@repo/db";
 import { getTracedClient } from "@/utils/ai";
 
 export async function generateTestCaseInputCode(
@@ -16,8 +21,10 @@ export async function generateTestCaseInputCode(
   if (forceError) {
     throw new Error("Force error: generateObject call skipped");
   }
-  const { problemText, functionSignature, testCases } =
-    await getProblem(problemId, db);
+  const { problemText, functionSignature, testCases } = await getProblem(
+    problemId,
+    db,
+  );
 
   if (!testCases || testCases.length === 0) {
     throw new Error(

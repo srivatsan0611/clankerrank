@@ -40,7 +40,10 @@ const getDb = (db?: Database): Database => db ?? defaultDb;
 
 // Model functions
 
-export async function createModel(name: string, db?: Database): Promise<string> {
+export async function createModel(
+  name: string,
+  db?: Database,
+): Promise<string> {
   const database = getDb(db);
   const [result] = await database
     .insert(models)
@@ -54,7 +57,10 @@ export async function createModel(name: string, db?: Database): Promise<string> 
   return result.id;
 }
 
-export async function getModel(modelId: string, db?: Database): Promise<Model | null> {
+export async function getModel(
+  modelId: string,
+  db?: Database,
+): Promise<Model | null> {
   const database = getDb(db);
   const model = await database.query.models.findFirst({
     where: eq(models.id, modelId),
@@ -62,7 +68,10 @@ export async function getModel(modelId: string, db?: Database): Promise<Model | 
   return model ?? null;
 }
 
-export async function getModelByName(name: string, db?: Database): Promise<Model | null> {
+export async function getModelByName(
+  name: string,
+  db?: Database,
+): Promise<Model | null> {
   const database = getDb(db);
   const model = await database.query.models.findFirst({
     where: eq(models.name, name),
@@ -206,10 +215,16 @@ export async function updateTestCase(
   db?: Database,
 ): Promise<void> {
   const database = getDb(db);
-  await database.update(testCases).set(data).where(eq(testCases.id, testCaseId));
+  await database
+    .update(testCases)
+    .set(data)
+    .where(eq(testCases.id, testCaseId));
 }
 
-export async function deleteTestCases(problemId: string, db?: Database): Promise<void> {
+export async function deleteTestCases(
+  problemId: string,
+  db?: Database,
+): Promise<void> {
   const database = getDb(db);
   await database.delete(testCases).where(eq(testCases.problemId, problemId));
 }
