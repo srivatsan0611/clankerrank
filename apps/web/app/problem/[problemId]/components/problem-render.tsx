@@ -1291,10 +1291,10 @@ export default function ProblemRender({
                     return (
                       <div
                         key={testCase.id}
-                        className="space-y-2 border rounded-lg p-3 bg-muted/30"
+                        className="space-y-2 border rounded-lg p-3 bg-muted/30 overflow-x-hidden"
                       >
                         <div className="flex items-start gap-2">
-                          <div className="flex-1 space-y-2">
+                          <div className="flex-1 space-y-2 min-w-0">
                             <div className="flex items-center justify-between">
                               <span className="text-xs font-medium text-muted-foreground">
                                 Test Case {index + 1}
@@ -1328,7 +1328,7 @@ export default function ProblemRender({
                                   ),
                                 );
                               }}
-                              className="font-mono text-sm min-h-[60px]"
+                              className="font-mono text-sm min-h-[60px] w-full max-w-full overflow-x-hidden break-words"
                             />
                             {validationError && (
                               <Alert variant="destructive" className="py-2">
