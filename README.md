@@ -2,6 +2,8 @@
 
 A monorepo containing a Next.js web app and Cloudflare Workers backend. Check it out at [clankerrank.com](https://clankerrank.com).
 
+![Demo](public/demo.gif)
+
 ## Prerequisites
 
 - [Bun](https://bun.sh/) v1.1.10+

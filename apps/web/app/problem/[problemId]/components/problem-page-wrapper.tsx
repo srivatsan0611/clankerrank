@@ -59,7 +59,15 @@ export default function NewProblemPageWrapper({
                 >
                   (sign out)
                 </button>
-              </form>
+              </form>{" "}
+              <Link
+                href="https://github.com/kamath/clankerrank"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-green-600 hover:underline hover:cursor-pointer"
+              >
+                ⭐⭐⭐⭐ please star this repo on github ⭐⭐⭐⭐
+              </Link>
             </p>
           ) : (
             <Link href="/login">
