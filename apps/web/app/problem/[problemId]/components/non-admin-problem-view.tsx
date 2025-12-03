@@ -92,7 +92,7 @@ export default function NonAdminProblemView({
   const [allFocusAreas, setAllFocusAreas] = useState<FocusArea[]>([]);
   const [problemFocusAreas, setProblemFocusAreas] = useState<FocusArea[]>([]);
   const [selectedFocusAreaIds, setSelectedFocusAreaIds] = useState<string[]>(
-    []
+    [],
   );
   const [isLoadingFocusAreas, setIsLoadingFocusAreas] = useState(true);
   const [isRegeneratingWithFocusAreas, setIsRegeneratingWithFocusAreas] =
@@ -130,7 +130,7 @@ export default function NonAdminProblemView({
         originalIds.some((id, idx) => id !== sortedNewIds[idx]);
       setFocusAreasChanged(hasChanged);
     },
-    [problemFocusAreas]
+    [problemFocusAreas],
   );
 
   const handleRegenerateWithFocusAreas = async () => {
@@ -143,7 +143,7 @@ export default function NonAdminProblemView({
         true,
         undefined,
         undefined,
-        selectedFocusAreaIds.length > 0 ? selectedFocusAreaIds : undefined
+        selectedFocusAreaIds.length > 0 ? selectedFocusAreaIds : undefined,
       );
       router.push(`/problem/${result.problemId}`);
     } catch (error) {
@@ -169,7 +169,7 @@ export default function NonAdminProblemView({
         input: testCaseInputs?.[sampleIndex] ?? null,
         output: testCaseOutputs?.[allTestCaseIndex] ?? null,
       };
-    }
+    },
   );
 
   // Helper function to get step display name
@@ -226,7 +226,7 @@ export default function NonAdminProblemView({
         user.apiKey,
         true,
         undefined,
-        { problemId, direction }
+        { problemId, direction },
       );
       router.push(`/problem/${result.problemId}`);
     } catch (error) {
@@ -245,7 +245,7 @@ export default function NonAdminProblemView({
         user.apiKey,
         true,
         undefined,
-        { problemId, direction: "similar" }
+        { problemId, direction: "similar" },
       );
       router.push(`/problem/${result.problemId}`);
     } catch (error) {

@@ -254,7 +254,7 @@ export default function AdminCollapsibles({
   const [allFocusAreas, setAllFocusAreas] = useState<FocusArea[]>([]);
   const [problemFocusAreas, setProblemFocusAreas] = useState<FocusArea[]>([]);
   const [selectedFocusAreaIds, setSelectedFocusAreaIds] = useState<string[]>(
-    []
+    [],
   );
   const [isLoadingFocusAreas, setIsLoadingFocusAreas] = useState(true);
   const [isRegeneratingWithFocusAreas, setIsRegeneratingWithFocusAreas] =
@@ -294,7 +294,7 @@ export default function AdminCollapsibles({
         originalIds.some((id, idx) => id !== sortedNewIds[idx]);
       setFocusAreasChanged(hasChanged);
     },
-    [problemFocusAreas]
+    [problemFocusAreas],
   );
 
   // Update lastValidStepIndex based on completed steps

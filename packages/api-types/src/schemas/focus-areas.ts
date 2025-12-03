@@ -11,7 +11,9 @@ export const FocusAreaSchema = z
   })
   .openapi("FocusArea");
 
-export const FocusAreaListSchema = z.array(FocusAreaSchema).openapi("FocusAreaList");
+export const FocusAreaListSchema = z
+  .array(FocusAreaSchema)
+  .openapi("FocusAreaList");
 
 // Inferred types
 export type FocusArea = z.infer<typeof FocusAreaSchema>;

@@ -42,11 +42,14 @@ export const CreateProblemRequestSchema = z
       description:
         "Create problem based on existing problem with adjusted difficulty",
     }),
-    focusAreaIds: z.array(z.string().uuid()).optional().openapi({
-      description:
-        "Focus area IDs to guide problem generation. Empty array or omitted = random selection from all areas.",
-      example: ["uuid-1", "uuid-2"],
-    }),
+    focusAreaIds: z
+      .array(z.string().uuid())
+      .optional()
+      .openapi({
+        description:
+          "Focus area IDs to guide problem generation. Empty array or omitted = random selection from all areas.",
+        example: ["uuid-1", "uuid-2"],
+      }),
   })
   .openapi("CreateProblemRequest");
 

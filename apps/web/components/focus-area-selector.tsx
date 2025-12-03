@@ -50,7 +50,7 @@ export function FocusAreaSelector({
             "disabled:pointer-events-none disabled:opacity-50",
             isAllSelected
               ? "border-primary bg-primary text-primary-foreground"
-              : "border-input bg-background hover:bg-accent hover:text-accent-foreground"
+              : "border-input bg-background hover:bg-accent hover:text-accent-foreground",
           )}
         >
           All (Random)
@@ -70,7 +70,7 @@ export function FocusAreaSelector({
                 "disabled:pointer-events-none disabled:opacity-50",
                 isSelected
                   ? "border-primary bg-primary text-primary-foreground"
-                  : "border-input bg-background hover:bg-accent hover:text-accent-foreground"
+                  : "border-input bg-background hover:bg-accent hover:text-accent-foreground",
               )}
             >
               {focusArea.name}
