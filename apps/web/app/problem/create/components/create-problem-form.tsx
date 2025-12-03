@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -15,7 +14,6 @@ import {
 } from "@/components/ui/select";
 import { FocusAreaSelector } from "@/components/focus-area-selector";
 import { listModels } from "@/actions/list-models";
-import { createModel } from "@/actions/create-model";
 import { createProblem } from "@/actions/create-problem";
 import { listFocusAreas } from "@/actions/list-focus-areas";
 import type { FocusArea } from "@repo/api-types";
@@ -30,7 +28,6 @@ export default function CreateProblemForm({
   const router = useRouter();
   const [models, setModels] = useState<Array<{ id: string; name: string }>>([]);
   const [selectedModel, setSelectedModel] = useState<string>("");
-  const [newModelName, setNewModelName] = useState<string>("");
   const [isCreating, setIsCreating] = useState(false);
   const [isLoadingModels, setIsLoadingModels] = useState(true);
   const [autoGenerate, setAutoGenerate] = useState<boolean>(true);
@@ -76,40 +73,17 @@ export default function CreateProblemForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Determine which model to use
-    let modelToUse = newModelName.trim() || selectedModel;
-
-    if (!modelToUse) {
-      alert("Please select a model or enter a new model name.");
+    if (!selectedModel) {
+      alert("Please select a model.");
       return;
     }
 
     setIsCreating(true);
 
     try {
-      // If a new model name is provided, create it first
-      if (newModelName.trim()) {
-        try {
-          const newModel = await createModel(
-            newModelName.trim(),
-            encryptedUserId,
-          );
-          modelToUse = newModel.name;
-          // Refresh models list
-          const updatedModels = await listModels(encryptedUserId);
-          setModels(updatedModels);
-          setNewModelName("");
-        } catch (error) {
-          console.error("Failed to create model:", error);
-          alert("Failed to create model. Please try again.");
-          setIsCreating(false);
-          return;
-        }
-      }
-
       // Create problem with selected model
       const { problemId } = await createProblem(
-        modelToUse,
+        selectedModel,
         encryptedUserId,
         autoGenerate,
         returnDummy,
@@ -152,22 +126,6 @@ export default function CreateProblemForm({
               </SelectContent>
             </Select>
           )}
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="new-model">Or Add New Model</Label>
-          <Input
-            id="new-model"
-            type="text"
-            placeholder="Enter model name (e.g., google/gemini-2.5-flash)"
-            value={newModelName}
-            onChange={(e) => setNewModelName(e.target.value)}
-            disabled={isCreating}
-          />
-          <p className="text-sm text-muted-foreground">
-            If you enter a new model name, it will be created and used for this
-            problem.
-          </p>
         </div>
 
         <div className="space-y-2">
@@ -225,11 +183,7 @@ export default function CreateProblemForm({
 
         <Button
           type="submit"
-          disabled={
-            isCreating ||
-            isLoadingModels ||
-            (!selectedModel && !newModelName.trim())
-          }
+          disabled={isCreating || isLoadingModels || !selectedModel}
         >
           {isCreating ? "Creating..." : "Create Problem"}
         </Button>

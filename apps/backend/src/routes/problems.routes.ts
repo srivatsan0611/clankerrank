@@ -3,8 +3,6 @@ import {
   ApiErrorSchema,
   ApiSuccessSchema,
   ProblemIdParamSchema,
-  ModelSchema,
-  CreateModelRequestSchema,
   ListModelsResponseSchema,
   CreateProblemRequestSchema,
   CreateProblemResponseSchema,
@@ -54,41 +52,6 @@ export const listModelsRoute = createRoute({
         },
       },
       description: "List of models",
-    },
-  },
-  security: [{ ApiKeyAuth: [] }],
-});
-
-export const createModelRoute = createRoute({
-  method: "post",
-  path: "/models",
-  tags: ["Models"],
-  summary: "Create a new model",
-  description: "Creates a new AI model entry",
-  request: {
-    body: {
-      content: {
-        "application/json": { schema: CreateModelRequestSchema },
-      },
-      required: true,
-    },
-  },
-  responses: {
-    200: {
-      content: {
-        "application/json": {
-          schema: ApiSuccessSchema(ModelSchema),
-        },
-      },
-      description: "Model created successfully",
-    },
-    400: {
-      content: { "application/json": { schema: ApiErrorSchema } },
-      description: "Validation error",
-    },
-    409: {
-      content: { "application/json": { schema: ApiErrorSchema } },
-      description: "Model already exists",
     },
   },
   security: [{ ApiKeyAuth: [] }],

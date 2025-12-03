@@ -28,7 +28,6 @@ import {
   createProblem,
   createGenerationJob,
   getLatestJobForProblem,
-  createModel,
   getModelByName,
   listModels,
   updateProblem,
@@ -45,9 +44,9 @@ import {
   type FocusArea,
 } from "@repo/db";
 import { STEP_ORDER, type GenerationStep } from "../queue/types";
+import { validateModelBody } from "../middleware/validate-model";
 import {
   listModelsRoute,
-  createModelRoute,
   createProblemRoute,
   generateProblemTextRoute,
   getProblemTextRoute,
@@ -82,20 +81,21 @@ const problems = new OpenAPIHono<{
   };
 }>();
 
+// Apply model validation middleware to all routes
+problems.use("*", validateModelBody);
+
 const getSandboxInstance = (env: Env, sandboxId: string): Sandbox => {
   const cloudflareSandbox = getSandbox(env.Sandbox, sandboxId);
   return new Sandbox(cloudflareSandbox);
 };
 
-// Helper to get or create model
-async function getOrCreateModel(
-  modelName: string,
-  db: Database,
-): Promise<string> {
+// Helper to get model (assumes model exists - validated by middleware)
+async function getModel(modelName: string, db: Database): Promise<string> {
   const model = await getModelByName(modelName, db);
   if (!model) {
-    const modelId = await createModel(modelName, db);
-    return modelId;
+    throw new HTTPException(400, {
+      message: `Invalid model: "${modelName}". Model not found in available models.`,
+    });
   }
   return model.id;
 }
@@ -171,7 +171,7 @@ async function startWorkflowIfAuto(
   const db = c.get("db");
 
   // Create job
-  const modelId = model ? await getOrCreateModel(model, db) : undefined;
+  const modelId = model ? await getModel(model, db) : undefined;
   const jobId = await createGenerationJob(problemId, modelId, db);
 
   // Start the workflow
@@ -218,7 +218,7 @@ async function startWorkflowFromStepIfEnabled(
   // Get or create job
   let job = await getLatestJobForProblem(problemId, db);
   if (!job || job.status === "completed") {
-    const modelId = model ? await getOrCreateModel(model, db) : undefined;
+    const modelId = model ? await getModel(model, db) : undefined;
     const jobId = await createGenerationJob(problemId, modelId, db);
     job = {
       id: jobId,
@@ -259,28 +259,6 @@ problems.openapi(listModelsRoute, async (c) => {
   const db = c.get("db");
   const models = await listModels(db);
   return c.json({ success: true as const, data: models }, 200);
-});
-
-problems.openapi(createModelRoute, async (c) => {
-  const db = c.get("db");
-  const body = c.req.valid("json");
-
-  try {
-    await createModel(body.name, db);
-    const model = await getModelByName(body.name, db);
-    return c.json({ success: true as const, data: model! }, 200);
-  } catch {
-    return c.json(
-      {
-        success: false as const,
-        error: {
-          code: "DUPLICATE_ERROR",
-          message: "Model with this name already exists",
-        },
-      },
-      409,
-    );
-  }
 });
 
 // ============== Problem Routes ==============
@@ -334,8 +312,8 @@ problems.openapi(createProblemRoute, async (c) => {
 
   const problemId = await createProblem(problemCreateData, db);
 
-  // Get or create model and update problem
-  const modelId = await getOrCreateModel(body.model, db);
+  // Get model and update problem
+  const modelId = await getModel(body.model, db);
   await updateProblem(problemId, { generatedByModelId: modelId }, db);
 
   // Handle focus areas
@@ -373,7 +351,7 @@ problems.openapi(generateProblemTextRoute, async (c) => {
   // Update problem with model if not set
   const problem = await getProblem(problemId, db);
   if (!problem.generatedByModelId) {
-    const modelId = await getOrCreateModel(body.model, db);
+    const modelId = await getModel(body.model, db);
     await updateProblem(problemId, { generatedByModelId: modelId }, db);
   }
 
@@ -608,7 +586,7 @@ problems.openapi(generateTestCasesRoute, async (c) => {
 
   // Update problem with model if not set
   if (!problem.generatedByModelId) {
-    const modelId = await getOrCreateModel(body.model, db);
+    const modelId = await getModel(body.model, db);
     await updateProblem(problemId, { generatedByModelId: modelId }, db);
   }
 
@@ -723,7 +701,7 @@ problems.openapi(generateInputCodeRoute, async (c) => {
 
   // Update problem with model if not set
   if (!problem.generatedByModelId) {
-    const modelId = await getOrCreateModel(body.model, db);
+    const modelId = await getModel(body.model, db);
     await updateProblem(problemId, { generatedByModelId: modelId }, db);
   }
 
@@ -973,7 +951,7 @@ problems.openapi(generateSolutionRoute, async (c) => {
 
   // Update problem with model if not set
   if (!problem.generatedByModelId && body.updateProblem) {
-    const modelId = await getOrCreateModel(body.model, db);
+    const modelId = await getModel(body.model, db);
     await updateProblem(problemId, { generatedByModelId: modelId }, db);
   }
 
