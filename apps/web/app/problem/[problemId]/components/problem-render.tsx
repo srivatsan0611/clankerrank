@@ -1112,17 +1112,17 @@ export default function ProblemRender({
               </CollapsibleTrigger>
               <CollapsibleContent className="space-y-4 pt-2">
                 <p className="text-xs text-muted-foreground">
-                  Enter custom test inputs. Each test case should be a JSON
-                  array of function arguments.
+                  Enter custom test inputs.{" "}
+                  <span className="font-bold">
+                    Each test case should be a JSON array of function
+                    arguments.{" "}
+                  </span>
+                  <br />
+                  <br />
+                  For example, if the function signature is{" "}
+                  <code>function add(a: number, b: number): number</code>, the
+                  input should be <code>[1, 2]</code>.
                 </p>
-                {testCaseInputs && testCaseInputs.length > 0 && (
-                  <p className="text-xs text-muted-foreground">
-                    Example format based on existing test case:{" "}
-                    <code className="bg-muted px-1 rounded">
-                      {JSON.stringify(testCaseInputs[0])}
-                    </code>
-                  </p>
-                )}
 
                 <div className="space-y-3">
                   {customTestCases.map((testCase, index) => {
