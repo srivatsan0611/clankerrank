@@ -230,13 +230,16 @@ export default function ProblemRender({
   }, [completedSteps, testCases, getTestCases]);
 
   useEffect(() => {
+    // Only fetch input-code for admin users
     if (
+      isAdmin &&
       completedSteps.includes("generateTestCaseInputCode") &&
       !testCaseInputCode
     ) {
       getCodeToGenerateTestCaseInputs();
     }
-    // Also fetch test case inputs when input code step completes (they're generated together)
+    // Fetch test case inputs when input code step completes (they're generated together)
+    // Non-admin users also need this for sample test cases
     if (
       completedSteps.includes("generateTestCaseInputCode") &&
       !testCaseInputs
@@ -244,6 +247,7 @@ export default function ProblemRender({
       getTestCaseInputs();
     }
   }, [
+    isAdmin,
     completedSteps,
     testCaseInputCode,
     testCaseInputs,
@@ -252,14 +256,18 @@ export default function ProblemRender({
   ]);
 
   useEffect(() => {
-    if (completedSteps.includes("generateSolution") && !solution) {
-      getSolution();
-    }
-    // Also fetch test case outputs when solution step completes (they're generated together)
-    if (completedSteps.includes("generateSolution") && !testCaseOutputs) {
-      getTestCaseOutputs();
+    // Only fetch solution and outputs for admin users
+    if (isAdmin) {
+      if (completedSteps.includes("generateSolution") && !solution) {
+        getSolution();
+      }
+      // Also fetch test case outputs when solution step completes (they're generated together)
+      if (completedSteps.includes("generateSolution") && !testCaseOutputs) {
+        getTestCaseOutputs();
+      }
     }
   }, [
+    isAdmin,
     completedSteps,
     solution,
     testCaseOutputs,
@@ -281,7 +289,7 @@ export default function ProblemRender({
           </Link>
           <p>&middot;</p>
           {user && (
-            <p className="font-comic-relief">
+            <div className="font-comic-relief">
               hi {user.firstName.toLowerCase()}{" "}
               <form
                 action={async () => {
@@ -304,7 +312,7 @@ export default function ProblemRender({
               >
                 ⭐⭐⭐⭐ please star this repo on github ⭐⭐⭐⭐
               </Link>
-            </p>
+            </div>
           )}
         </div>
       </div>
