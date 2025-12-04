@@ -8,6 +8,7 @@ import {
   type Database,
 } from "@repo/db";
 import { getTracedClient } from "@/utils/ai";
+import { getPostHogClient } from "@/utils/analytics";
 
 export async function generateSolution(
   problemId: string,
@@ -75,6 +76,21 @@ DO NOT INCLUDE CODE OUTSIDE THE FUNCTION DEFINITION. DO NOT INVOKE THE FUNCTION.
   if (updateProblemInDb) {
     await updateProblem(problemId, { solution }, db);
   }
+
+  // Log PostHog event
+  const phClient = getPostHogClient(env);
+  await phClient.capture({
+    distinctId: userId,
+    event: "generate_solution",
+    properties: {
+      problemId,
+      userId,
+      model,
+      returnDummy: returnDummy ?? false,
+      updateProblemInDb,
+      testCaseCount: testCases.length,
+    },
+  });
 
   return solution;
 }

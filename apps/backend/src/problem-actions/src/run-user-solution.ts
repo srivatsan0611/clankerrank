@@ -3,6 +3,7 @@ import { getProblem, type Database } from "@repo/db";
 import { getLanguageConfig, getRunnerTemplate } from "./runners";
 import type { TestResult, SupportedLanguage, CustomTestResult } from "./types";
 import { runReferenceSolutionOnInput } from "./generate-test-case-outputs";
+import { getPostHogClient } from "@/utils/analytics";
 
 const WORK_DIR = ".";
 
@@ -12,8 +13,9 @@ export async function runUserSolution(
   sandbox: Sandbox,
   db: Database,
   language: SupportedLanguage = "typescript",
+  env: Env,
 ): Promise<TestResult[]> {
-  const { testCases } = await getProblem(problemId, db);
+  const { testCases, generatedByUserId } = await getProblem(problemId, db);
   if (!testCases || testCases.length === 0) {
     throw new Error(
       "No test cases found. Please generate test case descriptions and inputs first.",
@@ -169,6 +171,22 @@ export async function runUserSolution(
   } finally {
     await sandbox.kill();
   }
+
+  // Log PostHog event
+  const userId = generatedByUserId || "unknown";
+  const allTestsPassed = results.every((r) => r.status === "pass");
+  const phClient = getPostHogClient(env);
+  await phClient.capture({
+    distinctId: userId,
+    event: "run_user_solution",
+    properties: {
+      problemId,
+      language,
+      testCaseCount: testCases.length,
+      allTestsPassed,
+    },
+  });
+
   return results;
 }
 
@@ -179,6 +197,7 @@ export async function runUserSolutionWithCustomInputs(
   sandbox: Sandbox,
   db: Database,
   language: SupportedLanguage = "typescript",
+  env: Env,
 ): Promise<CustomTestResult[]> {
   // Validate inputs
   if (!customInputs || customInputs.length === 0) {
@@ -189,6 +208,7 @@ export async function runUserSolutionWithCustomInputs(
   const problem = await getProblem(problemId, db);
   const schema = problem.functionSignatureSchema;
   const referenceSolution = problem.solution;
+  const userId = problem.generatedByUserId || "unknown";
 
   if (!schema) {
     throw new Error(
@@ -365,6 +385,18 @@ export async function runUserSolutionWithCustomInputs(
         });
       }
     }
+
+    // Log PostHog event
+    const phClient = getPostHogClient(env);
+    await phClient.capture({
+      distinctId: userId,
+      event: "run_user_solution_with_custom_inputs",
+      properties: {
+        problemId,
+        language,
+        customInputCount: customInputs.length,
+      },
+    });
 
     return results;
   } finally {

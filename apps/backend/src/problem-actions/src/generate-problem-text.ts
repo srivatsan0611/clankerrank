@@ -2,6 +2,7 @@ import { generateObject } from "ai";
 import { z } from "zod";
 import { getProblem, updateProblem, type Database } from "@repo/db";
 import { getTracedClient } from "@/utils/ai";
+import { getPostHogClient } from "@/utils/analytics";
 
 export async function generateProblemText(
   problemId: string,
@@ -133,6 +134,21 @@ If using custom types, THEY MUST BE DEFINED INLINE -- for example,
     },
     db,
   );
+
+  // Log PostHog event
+  const phClient = getPostHogClient(env);
+  await phClient.capture({
+    distinctId: userId,
+    event: "generate_problem_text",
+    properties: {
+      problemId,
+      userId,
+      model,
+      returnDummy: returnDummy ?? false,
+      hasBaseProblem: baseProblem !== undefined,
+      hasFocusAreaGuidance: focusAreaGuidance !== undefined,
+    },
+  });
 
   return {
     problemText: object.problemText,

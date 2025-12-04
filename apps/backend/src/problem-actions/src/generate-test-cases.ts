@@ -2,6 +2,7 @@ import { generateObject } from "ai";
 import { z } from "zod";
 import { getProblem, replaceTestCases, type Database } from "@repo/db";
 import { getTracedClient } from "@/utils/ai";
+import { getPostHogClient } from "@/utils/analytics";
 
 export async function generateTestCases(
   problemId: string,
@@ -110,6 +111,20 @@ export async function generateTestCases(
     })),
     db,
   );
+
+  // Log PostHog event
+  const phClient = getPostHogClient(env);
+  await phClient.capture({
+    distinctId: userId,
+    event: "generate_test_cases",
+    properties: {
+      problemId,
+      userId,
+      model,
+      returnDummy: returnDummy ?? false,
+    },
+  });
+
   return object.testCases;
 }
 

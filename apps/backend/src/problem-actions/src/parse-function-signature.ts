@@ -5,6 +5,7 @@ import {
   type FunctionSignatureSchema,
 } from "@repo/api-types";
 import { getTracedClient } from "@/utils/ai";
+import { getPostHogClient } from "@/utils/analytics";
 
 export async function parseFunctionSignature(
   problemId: string,
@@ -84,6 +85,19 @@ IMPORTANT: Parse "number" as "int" unless the problem clearly involves decimals 
     },
     db,
   );
+
+  // Log PostHog event
+  const phClient = getPostHogClient(env);
+  await phClient.capture({
+    distinctId: userId,
+    event: "parse_function_signature",
+    properties: {
+      problemId,
+      userId,
+      model,
+      returnDummy: returnDummy ?? false,
+    },
+  });
 
   return schema;
 }

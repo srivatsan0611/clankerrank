@@ -8,6 +8,7 @@ import {
   type Database,
 } from "@repo/db";
 import { getTracedClient } from "@/utils/ai";
+import { getPostHogClient } from "@/utils/analytics";
 
 export async function generateTestCaseInputCode(
   problemId: string,
@@ -102,6 +103,20 @@ DO NOT INCLUDE ANYTHING BUT THE FUNCTION DEFINITION.
     await updateTestCase(testCase.id, { inputCode }, db);
     inputCodes.push(inputCode);
   }
+
+  // Log PostHog event
+  const phClient = getPostHogClient(env);
+  await phClient.capture({
+    distinctId: userId,
+    event: "generate_test_case_input_code",
+    properties: {
+      problemId,
+      userId,
+      model,
+      returnDummy: returnDummy ?? false,
+      testCaseCount: testCases.length,
+    },
+  });
 
   return inputCodes;
 }

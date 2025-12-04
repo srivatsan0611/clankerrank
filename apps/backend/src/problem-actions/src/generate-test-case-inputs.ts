@@ -5,13 +5,15 @@ import {
   type TestCase,
   type Database,
 } from "@repo/db";
+import { getPostHogClient } from "@/utils/analytics";
 
 export async function generateTestCaseInputs(
   problemId: string,
   sandbox: Sandbox,
   db: Database,
+  env: Env,
 ) {
-  const { testCases } = await getProblem(problemId, db);
+  const { testCases, generatedByUserId } = await getProblem(problemId, db);
   if (!testCases) {
     throw new Error(
       "No code found to generate test case inputs for problem ID: " +
@@ -54,6 +56,18 @@ export async function generateTestCaseInputs(
     }
     await updateTestCase(testCase.id, { input: result }, db);
   }
+
+  // Log PostHog event
+  const userId = generatedByUserId || "unknown";
+  const phClient = getPostHogClient(env);
+  await phClient.capture({
+    distinctId: userId,
+    event: "generate_test_case_inputs",
+    properties: {
+      problemId,
+      testCaseCount: testCases.length,
+    },
+  });
 
   return results;
 }

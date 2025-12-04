@@ -6,6 +6,7 @@ import {
   type TestCase,
   type Database,
 } from "@repo/db";
+import { getPostHogClient } from "@/utils/analytics";
 
 /**
  * Runs the reference solution on an arbitrary input and returns the expected output.
@@ -48,8 +49,9 @@ export async function generateTestCaseOutputs(
   problemId: string,
   sandbox: Sandbox,
   db: Database,
+  env: Env,
 ) {
-  const { testCases } = await getProblem(problemId, db);
+  const { testCases, generatedByUserId } = await getProblem(problemId, db);
   if (!testCases) {
     throw new Error(
       "No test cases found. Please generate test case descriptions and inputs first.",
@@ -85,6 +87,18 @@ export async function generateTestCaseOutputs(
     }
     await updateTestCase(testCase.id, { expected: result }, db);
   }
+
+  // Log PostHog event
+  const userId = generatedByUserId || "unknown";
+  const phClient = getPostHogClient(env);
+  await phClient.capture({
+    distinctId: userId,
+    event: "generate_test_case_outputs",
+    properties: {
+      problemId,
+      testCaseCount: testCases.length,
+    },
+  });
 
   return results;
 }

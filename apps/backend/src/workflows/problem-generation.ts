@@ -179,6 +179,7 @@ export class ProblemGenerationWorkflow extends WorkflowEntrypoint<
             problemId,
             getSandboxInstance(`inputs-${problemId}`),
             db,
+            this.env,
           );
           await markStepComplete(jobId, "generateTestCaseInputCode", db);
         });
@@ -213,6 +214,7 @@ export class ProblemGenerationWorkflow extends WorkflowEntrypoint<
             problemId,
             getSandboxInstance(`outputs-${problemId}`),
             db,
+            this.env,
           );
           await markStepComplete(jobId, "generateSolution", db);
         });

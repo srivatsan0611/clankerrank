@@ -45,6 +45,7 @@ import {
 } from "@repo/db";
 import { STEP_ORDER, type GenerationStep } from "../queue/types";
 import { validateModelBody } from "../middleware/validate-model";
+import { getPostHogClient } from "@/utils/analytics";
 import {
   listModelsRoute,
   createProblemRoute,
@@ -337,6 +338,22 @@ problems.openapi(createProblemRoute, async (c) => {
     baseProblem,
     focusAreaGuidance,
   );
+
+  // Log PostHog event
+  const phClient = getPostHogClient(c.env);
+  await phClient.capture({
+    distinctId: userId,
+    event: "problem_created",
+    properties: {
+      problemId,
+      userId,
+      model: body.model,
+      hasStartFrom: body.startFrom !== undefined,
+      hasFocusAreas:
+        body.focusAreaIds !== undefined && body.focusAreaIds.length > 0,
+      autoGenerate,
+    },
+  });
 
   return c.json({ success: true as const, data: { problemId, jobId } }, 200);
 });
@@ -721,7 +738,12 @@ problems.openapi(generateInputCodeRoute, async (c) => {
   // Immediately execute the generated code to get inputs
   const sandboxId = `test-inputs-${problemId}`;
   const sandbox = getSandboxInstance(c.env, sandboxId);
-  const testCasesResult = await generateTestCaseInputs(problemId, sandbox, db);
+  const testCasesResult = await generateTestCaseInputs(
+    problemId,
+    sandbox,
+    db,
+    c.env,
+  );
 
   const enqueueNext = body.enqueueNextStep !== false;
   const jobId = await startWorkflowFromStepIfEnabled(
@@ -829,7 +851,7 @@ problems.openapi(generateInputsRoute, async (c) => {
 
   const sandboxId = `test-inputs-${problemId}`;
   const sandbox = getSandboxInstance(c.env, sandboxId);
-  const result = await generateTestCaseInputs(problemId, sandbox, db);
+  const result = await generateTestCaseInputs(problemId, sandbox, db, c.env);
 
   const enqueueNext = body?.enqueueNextStep !== false;
   const jobId = await startWorkflowFromStepIfEnabled(
@@ -973,7 +995,12 @@ problems.openapi(generateSolutionRoute, async (c) => {
   // Immediately execute solution with test inputs to get outputs
   const sandboxId = `test-outputs-${problemId}`;
   const sandbox = getSandboxInstance(c.env, sandboxId);
-  const testCasesResult = await generateTestCaseOutputs(problemId, sandbox, db);
+  const testCasesResult = await generateTestCaseOutputs(
+    problemId,
+    sandbox,
+    db,
+    c.env,
+  );
 
   const enqueueNext = body.enqueueNextStep !== false;
   const jobId = await startWorkflowFromStepIfEnabled(
@@ -1068,6 +1095,7 @@ problems.openapi(runSolutionRoute, async (c) => {
     sandbox,
     db,
     language,
+    c.env,
   );
 
   // Check if all tests passed
@@ -1117,6 +1145,7 @@ problems.openapi(runCustomTestsRoute, async (c) => {
     sandbox,
     db,
     language,
+    c.env,
   );
 
   // For custom tests, check if all results have no errors and actual matches expected
@@ -1188,7 +1217,7 @@ problems.openapi(generateOutputsRoute, async (c) => {
 
   const sandboxId = `test-outputs-${problemId}`;
   const sandbox = getSandboxInstance(c.env, sandboxId);
-  const result = await generateTestCaseOutputs(problemId, sandbox, db);
+  const result = await generateTestCaseOutputs(problemId, sandbox, db, c.env);
 
   const enqueueNext = body?.enqueueNextStep !== false;
   const jobId = await startWorkflowFromStepIfEnabled(
