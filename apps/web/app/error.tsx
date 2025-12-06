@@ -8,7 +8,6 @@ import posthog from "posthog-js";
 
 export default function Error({
   error,
-  reset,
 }: {
   error: Error & { digest?: string };
   reset: () => void;
@@ -60,7 +59,7 @@ export default function Error({
               window.open(
                 "https://github.com/kamath/ClankerLoop/issues/new",
                 "_blank",
-                "noopener,noreferrer"
+                "noopener,noreferrer",
               );
             }}
             variant="outline"
