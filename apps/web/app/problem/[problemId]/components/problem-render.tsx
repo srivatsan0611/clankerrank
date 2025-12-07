@@ -410,6 +410,7 @@ export default function ProblemRender({
                     <SelectContent>
                       <SelectItem value="typescript">TypeScript</SelectItem>
                       <SelectItem value="python">Python</SelectItem>
+                      <SelectItem value="cpp">C++</SelectItem>
                     </SelectContent>
                   </Select>
                   {isStarterCodeLoading && (
