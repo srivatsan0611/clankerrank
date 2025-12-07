@@ -101,4 +101,86 @@ export class CppGenerator implements CodeGenerator {
 
     return parts.join("");
   }
+
+  /**
+   * Generate the runner code that calls runSolution with deserialized parameters
+   */
+  generateRunnerCode(schema: FunctionSignatureSchema): string {
+    // Generate parameter deserialization code
+    const paramDeserializations = schema.parameters
+      .map(
+        (p, index) =>
+          `        auto ${p.name} = input[${index}].get<${this.typeToString(p.type)}>();`
+      )
+      .join("\n");
+
+    const paramNames = schema.parameters.map((p) => p.name).join(", ");
+
+    return `
+#include <fstream>
+#include <sstream>
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
+
+int main(int argc, char* argv[]) {
+    if (argc < 3) {
+        std::cerr << "Usage: " << argv[0] << " <input.json> <output.json>" << std::endl;
+        return 1;
+    }
+
+    std::string inputPath = argv[1];
+    std::string outputPath = argv[2];
+
+    try {
+        // Read input JSON
+        std::ifstream inputFile(inputPath);
+        if (!inputFile.is_open()) {
+            throw std::runtime_error("Failed to open input file");
+        }
+        json input = json::parse(inputFile);
+        inputFile.close();
+
+        // Capture stdout
+        std::stringstream stdoutCapture;
+        std::streambuf* oldCout = std::cout.rdbuf(stdoutCapture.rdbuf());
+
+        // Deserialize parameters
+${paramDeserializations}
+
+        // Call user's solution
+        auto result = runSolution(${paramNames});
+
+        // Restore stdout
+        std::cout.rdbuf(oldCout);
+
+        // Write output JSON
+        json output;
+        output["success"] = true;
+        output["result"] = result;
+        output["stdout"] = stdoutCapture.str();
+
+        std::ofstream outputFile(outputPath);
+        outputFile << output.dump();
+        outputFile.close();
+
+    } catch (const std::exception& e) {
+        json output;
+        output["success"] = false;
+        output["error"] = e.what();
+        output["trace"] = "";
+        output["stdout"] = "";
+
+        std::ofstream outputFile(outputPath);
+        outputFile << output.dump();
+        outputFile.close();
+
+        // Exit with code 0 so main code can read output.json and handle the error
+        return 0;
+    }
+
+    return 0;
+}
+`.trim();
+  }
 }

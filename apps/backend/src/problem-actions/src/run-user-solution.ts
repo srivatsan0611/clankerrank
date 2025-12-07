@@ -16,7 +16,7 @@ export async function runUserSolution(
   language: SupportedLanguage = "typescript",
   env: Env,
 ): Promise<TestResult[]> {
-  const { testCases, generatedByUserId } = await getProblem(problemId, db);
+  const { testCases, generatedByUserId, functionSignatureSchema } = await getProblem(problemId, db);
   if (!testCases || testCases.length === 0) {
     throw new Error(
       "No test cases found. Please generate test case descriptions and inputs first.",
@@ -41,7 +41,19 @@ export async function runUserSolution(
   }
 
   const config = getLanguageConfig(language);
-  const runnerTemplate = getRunnerTemplate(language);
+
+  // For C++, generate runner dynamically; for others, use static template
+  let runnerTemplate: string;
+  if (language === "cpp") {
+    if (!functionSignatureSchema) {
+      throw new Error("Function signature schema is required for C++ execution");
+    }
+    const { CppGenerator } = await import("./code-generator/cpp-generator");
+    const generator = new CppGenerator();
+    runnerTemplate = generator.generateRunnerCode(functionSignatureSchema);
+  } else {
+    runnerTemplate = getRunnerTemplate(language);
+  }
 
   const solutionPath = `${WORK_DIR}/solution.${config.extension}`;
   const runnerPath = `${WORK_DIR}/runner.${config.extension}`;
@@ -107,7 +119,11 @@ export async function runUserSolution(
             language === "cpp"
               ? `${WORK_DIR}/runner ${inputPath} ${outputPath}`
               : `${config.runCommand} runner.${config.extension} ${inputPath} ${outputPath}`;
-          const result = await sandbox.executeCommand(command, WORK_DIR);
+          const result = await sandbox.executeCommand(
+            command,
+            WORK_DIR,
+            10000, // 10 second timeout per test case
+          );
           console.log("result", JSON.stringify(result, null, 2));
 
           // If exitCode !== 0, treat as runner execution failure
@@ -306,7 +322,16 @@ export async function runUserSolutionWithCustomInputs(
   }
 
   const config = getLanguageConfig(language);
-  const runnerTemplate = getRunnerTemplate(language);
+
+  // For C++, generate runner dynamically; for others, use static template
+  let runnerTemplate: string;
+  if (language === "cpp") {
+    const { CppGenerator } = await import("./code-generator/cpp-generator");
+    const generator = new CppGenerator();
+    runnerTemplate = generator.generateRunnerCode(schema);
+  } else {
+    runnerTemplate = getRunnerTemplate(language);
+  }
 
   const userSolutionPath = `${WORK_DIR}/user.${config.extension}`;
   const solutionPath = `${WORK_DIR}/solution.${config.extension}`;
@@ -388,7 +413,11 @@ export async function runUserSolutionWithCustomInputs(
             language === "cpp"
               ? `${WORK_DIR}/runner ${inputPath} ${outputPath}`
               : `${config.runCommand} runner.${config.extension} ${inputPath} ${outputPath}`;
-          const result = await sandbox.executeCommand(command, WORK_DIR);
+          const result = await sandbox.executeCommand(
+            command,
+            WORK_DIR,
+            10000, // 10 second timeout per test case
+          );
           console.log("result", JSON.stringify(result, null, 2));
 
           // If exitCode !== 0, treat as runner execution failure
